@@ -1074,7 +1074,6 @@ class _PlatformPriorityRail extends StatelessWidget {
                   child: _PlatformNavChip(
                     label: section.label,
                     active: index == 0,
-                    isExplain: section.id == 'explain',
                   ),
                 );
               }),
@@ -1110,15 +1109,10 @@ class _PlatformPriorityRail extends StatelessWidget {
 }
 
 class _PlatformNavChip extends StatelessWidget {
-  const _PlatformNavChip({
-    required this.label,
-    required this.active,
-    required this.isExplain,
-  });
+  const _PlatformNavChip({required this.label, required this.active});
 
   final String label;
   final bool active;
-  final bool isExplain;
 
   @override
   Widget build(BuildContext context) {
@@ -1133,9 +1127,7 @@ class _PlatformNavChip extends StatelessWidget {
         style: TextStyle(
           color: active
               ? const Color(0xFF13222D)
-              : isExplain
-              ? const Color(0xFFF0B0B0)
-              : Colors.white.withValues(alpha: 0.86),
+              : Colors.white.withValues(alpha: 0.92),
           fontSize: 13,
           fontWeight: active ? FontWeight.w900 : FontWeight.w700,
         ),

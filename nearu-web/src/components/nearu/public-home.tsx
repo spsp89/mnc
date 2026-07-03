@@ -226,9 +226,7 @@ export function PublicHome({ data }: { data: CatalogView }) {
               className={`shrink-0 rounded-full px-5 py-2.5 text-[15px] font-semibold transition ${
                 index === 0
                   ? "bg-[var(--gold)] text-[var(--navy)]"
-                  : section.id === "explain"
-                    ? "text-[#f1b3b3]"
-                    : "text-white/80 hover:text-white"
+                  : "text-white/92 hover:bg-white/8 hover:text-white"
               }`}
             >
               {section.label}
