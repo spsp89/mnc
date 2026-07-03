@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 
 import { BusinessGraphic, DealGraphic, HeroGraphic, MapMock } from "@/components/nearu/graphics";
+import { platformSections, type PlatformSection } from "@/lib/platform-sections";
 
 type CategoryItem = {
   id: string;
@@ -92,9 +93,14 @@ const categoryPalette = [
 ];
 
 export function PublicHome({ data }: { data: CatalogView }) {
+  const extendedSections = platformSections.filter((section) => section.id !== "discover");
+
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--navy)]">
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_#1c4ea1,_#0b2f74_40%,_#041c55_100%)] text-white">
+      <section
+        id="discover"
+        className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_#1c4ea1,_#0b2f74_40%,_#041c55_100%)] text-white"
+      >
         <div className="absolute inset-0 opacity-30">
           <div className="absolute right-12 top-16 h-48 w-48 rounded-full border border-white/10" />
           <div className="absolute bottom-24 right-0 h-px w-[48%] bg-white/20" />
@@ -211,6 +217,26 @@ export function PublicHome({ data }: { data: CatalogView }) {
         </div>
       </section>
 
+      <div className="sticky top-0 z-30 border-y border-white/8 bg-[#13222d]">
+        <div className="mx-auto flex max-w-[1440px] gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-10">
+          {platformSections.map((section, index) => (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                index === 0
+                  ? "bg-[var(--gold)] text-[var(--navy)]"
+                  : section.id === "explain"
+                    ? "text-[#f1b3b3]"
+                    : "text-white/80 hover:text-white"
+              }`}
+            >
+              {section.label}
+            </a>
+          ))}
+        </div>
+      </div>
+
       <main className="-mt-10 pb-16">
         <div className="mx-auto max-w-[1440px] rounded-t-[38px] bg-white px-4 pb-12 pt-6 shadow-[0_18px_45px_rgba(9,32,77,0.08)] sm:px-6 lg:px-10">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-7">
@@ -317,6 +343,38 @@ export function PublicHome({ data }: { data: CatalogView }) {
               <PopularCard key={business.id} business={business} />
             ))}
           </div>
+
+          <section className="mt-12">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#7d2232]">
+                  BNC ecosystem
+                </p>
+                <h2 className="mt-2 text-[2rem] font-black text-[var(--navy)]">
+                  More sections from the BNC platform
+                </h2>
+                <p className="mt-3 max-w-[760px] text-sm leading-7 text-[var(--muted)]">
+                  The mockup also includes business cards, B2B sourcing, jobs,
+                  winner campaigns, community feed, pricing, merchant tools and
+                  admin views. These previews are now part of the web flow too.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+              {extendedSections.map((section) => (
+                <PlatformSectionCard
+                  key={section.id}
+                  section={section}
+                  business={
+                    section.imageHint
+                      ? selectBusinessVisual(data, section.imageHint)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          </section>
         </div>
       </main>
 
@@ -487,6 +545,174 @@ function PopularCard({ business }: { business: BusinessItem }) {
   );
 }
 
+function PlatformSectionCard({
+  section,
+  business,
+}: {
+  section: PlatformSection;
+  business?: BusinessItem;
+}) {
+  const isExplain = section.id === "explain";
+
+  return (
+    <article
+      id={section.id}
+      className={`rounded-[28px] border p-5 shadow-[0_16px_34px_rgba(9,32,77,0.08)] ${
+        isExplain ? "text-white" : "text-[var(--navy)]"
+      }`}
+      style={{
+        borderColor: rgbaFromHex(section.accent, isExplain ? 0.42 : 0.18),
+        background: isExplain
+          ? `linear-gradient(135deg, #13222d, ${section.accent})`
+          : `linear-gradient(135deg, ${rgbaFromHex(section.accent, 0.14)}, #ffffff 62%)`,
+      }}
+    >
+      <div className="flex items-start gap-4">
+        <div
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-[16px] text-[11px] font-black tracking-[0.12em]"
+          style={{
+            backgroundColor: isExplain
+              ? "rgba(255,255,255,0.14)"
+              : rgbaFromHex(section.accent, 0.14),
+            color: isExplain ? "#ffffff" : section.accent,
+          }}
+        >
+          {section.emoji}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p
+            className={`text-[11px] font-black uppercase tracking-[0.24em] ${
+              isExplain ? "text-white/70" : ""
+            }`}
+            style={isExplain ? undefined : { color: section.accent }}
+          >
+            {section.eyebrow}
+          </p>
+          <h3
+            className={`mt-2 text-2xl font-black leading-tight ${
+              isExplain ? "text-white" : "text-[var(--navy)]"
+            }`}
+          >
+            {section.title}
+          </h3>
+        </div>
+
+        {section.badge ? (
+          <span
+            className="shrink-0 rounded-full px-3 py-1.5 text-[11px] font-black"
+            style={{
+              backgroundColor: isExplain
+                ? "rgba(255,255,255,0.16)"
+                : section.accent,
+              color: isExplain ? "#ffffff" : "#ffffff",
+            }}
+          >
+            {section.badge}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_118px]">
+        <div>
+          <p
+            className={`text-sm leading-7 ${
+              isExplain ? "text-white/82" : "text-[var(--muted)]"
+            }`}
+          >
+            {section.description}
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {section.highlights.map((item) => (
+              <span
+                key={item}
+                className={`rounded-full px-3 py-2 text-xs font-bold ${
+                  isExplain ? "text-white" : "text-[var(--navy)]"
+                }`}
+                style={{
+                  backgroundColor: isExplain
+                    ? "rgba(255,255,255,0.12)"
+                    : "rgba(255,255,255,0.9)",
+                  border: `1px solid ${rgbaFromHex(section.accent, isExplain ? 0.22 : 0.16)}`,
+                }}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <PlatformSectionVisual
+          section={section}
+          business={business}
+          invert={isExplain}
+        />
+      </div>
+    </article>
+  );
+}
+
+function PlatformSectionVisual({
+  section,
+  business,
+  invert = false,
+}: {
+  section: PlatformSection;
+  business?: BusinessItem;
+  invert?: boolean;
+}) {
+  if (business) {
+    return (
+      <div className="overflow-hidden rounded-[24px] border border-white/20 bg-white shadow-[0_12px_24px_rgba(9,32,77,0.1)]">
+        <div className="relative h-[164px] w-full min-w-[118px]">
+          <BusinessPhoto business={business} darken />
+          <div
+            className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black text-white"
+            style={{ backgroundColor: section.accent }}
+          >
+            {section.badge ?? section.emoji}
+          </div>
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent px-3 pb-3 pt-8">
+            <div className="text-sm font-black text-white">{business.name}</div>
+            <div className="mt-1 text-[11px] text-white/80">{business.subtitle}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`flex min-h-[164px] flex-col items-center justify-center rounded-[24px] border px-4 py-5 text-center ${
+        invert ? "text-white" : "text-[var(--navy)]"
+      }`}
+      style={{
+        backgroundColor: invert ? "rgba(255,255,255,0.08)" : "#ffffff",
+        borderColor: rgbaFromHex(section.accent, invert ? 0.22 : 0.16),
+      }}
+    >
+      <div
+        className="grid h-16 w-16 place-items-center rounded-full text-[13px] font-black tracking-[0.14em]"
+        style={{
+          backgroundColor: invert
+            ? "rgba(255,255,255,0.14)"
+            : rgbaFromHex(section.accent, 0.14),
+          color: invert ? "#ffffff" : section.accent,
+        }}
+      >
+        {section.emoji}
+      </div>
+      <div className="mt-4 text-sm font-black leading-6">
+        {section.highlights[0]}
+      </div>
+      <div className={`mt-2 text-xs ${invert ? "text-white/72" : "text-[var(--muted)]"}`}>
+        {section.highlights[1]}
+      </div>
+    </div>
+  );
+}
+
 function BusinessPhoto({
   business,
   darken = false,
@@ -508,6 +734,56 @@ function BusinessPhoto({
       ) : null}
     </div>
   );
+}
+
+function uniqueBusinesses(data: CatalogView) {
+  const items = [...data.featured, ...data.popular];
+  const seen = new Set<string>();
+
+  return items.filter((item) => {
+    const key = item.id || item.name;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function selectBusinessVisual(data: CatalogView, hint?: string) {
+  const items = uniqueBusinesses(data);
+  const needle = hint?.trim().toLowerCase();
+
+  if (needle) {
+    const matched = items.find((item) =>
+      `${item.name} ${item.subtitle} ${item.coverVariant}`.toLowerCase().includes(needle),
+    );
+
+    if (matched) {
+      return matched;
+    }
+  }
+
+  return items[0];
+}
+
+function rgbaFromHex(hex: string, alpha: number) {
+  const cleaned = hex.replace("#", "").trim();
+  const normalized = cleaned.length === 3
+    ? cleaned
+        .split("")
+        .map((value) => `${value}${value}`)
+        .join("")
+    : cleaned;
+
+  const safeHex = normalized.padEnd(6, "0").slice(0, 6);
+  const value = Number.parseInt(safeHex, 16);
+  const red = (value >> 16) & 255;
+  const green = (value >> 8) & 255;
+  const blue = value & 255;
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
 function FooterCol({ title, items }: { title: string; items: string[] }) {

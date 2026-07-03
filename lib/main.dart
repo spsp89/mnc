@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'src/catalog_models.dart';
 import 'src/catalog_seed.dart';
 import 'src/catalog_service.dart';
+import 'src/platform_sections.dart';
 
 const brandNavy = Color(0xFF0B2F74);
 const brandNavyDeep = Color(0xFF041C55);
@@ -17,7 +18,6 @@ const brandSoft = Color(0xFFF2F5FB);
 const brandLine = Color(0xFFE4E8F1);
 const brandMuted = Color(0xFF6B7E9D);
 const brandHeroText = Color(0xFFDEE7FF);
-const categoryPalette = [brandGold, brandNavy, brandGoldDeep, brandNavyBright];
 
 void main() {
   runApp(const NearuApp());
@@ -179,9 +179,7 @@ class _NearuHomePageState extends State<NearuHomePage> {
   final CatalogService _catalogService = CatalogService();
 
   CatalogData _catalog = fallbackCatalog;
-  bool _isSyncing = true;
   bool _usingFallback = false;
-  DateTime? _lastSynced;
 
   @override
   void initState() {
@@ -190,12 +188,6 @@ class _NearuHomePageState extends State<NearuHomePage> {
   }
 
   Future<void> _refreshCatalog() async {
-    if (mounted) {
-      setState(() {
-        _isSyncing = true;
-      });
-    }
-
     try {
       final catalog = await _catalogService.fetchCatalog();
       if (!mounted) {
@@ -204,9 +196,7 @@ class _NearuHomePageState extends State<NearuHomePage> {
 
       setState(() {
         _catalog = catalog;
-        _isSyncing = false;
         _usingFallback = false;
-        _lastSynced = DateTime.now();
       });
     } catch (_) {
       if (!mounted) {
@@ -215,7 +205,6 @@ class _NearuHomePageState extends State<NearuHomePage> {
 
       setState(() {
         _catalog = fallbackCatalog;
-        _isSyncing = false;
         _usingFallback = true;
       });
     }
@@ -229,9 +218,7 @@ class _NearuHomePageState extends State<NearuHomePage> {
 
         Widget screen = _MobileHomeScreen(
           catalog: _catalog,
-          isSyncing: _isSyncing,
           usingFallback: _usingFallback,
-          lastSynced: _lastSynced,
           onRefresh: _refreshCatalog,
           showPreviewChrome: usePreviewShell,
         );
@@ -272,17 +259,13 @@ class _NearuHomePageState extends State<NearuHomePage> {
 class _MobileHomeScreen extends StatelessWidget {
   const _MobileHomeScreen({
     required this.catalog,
-    required this.isSyncing,
     required this.usingFallback,
-    required this.lastSynced,
     required this.onRefresh,
     required this.showPreviewChrome,
   });
 
   final CatalogData catalog;
-  final bool isSyncing;
   final bool usingFallback;
-  final DateTime? lastSynced;
   final Future<void> Function() onRefresh;
   final bool showPreviewChrome;
 
@@ -305,9 +288,7 @@ class _MobileHomeScreen extends StatelessWidget {
                     children: [
                       _HeroSection(
                         catalog: catalog,
-                        isSyncing: isSyncing,
                         usingFallback: usingFallback,
-                        lastSynced: lastSynced,
                         onRefresh: onRefresh,
                         showPreviewChrome: showPreviewChrome,
                       ),
@@ -336,22 +317,30 @@ class _MobileHomeScreen extends StatelessWidget {
 class _HeroSection extends StatelessWidget {
   const _HeroSection({
     required this.catalog,
-    required this.isSyncing,
     required this.usingFallback,
-    required this.lastSynced,
     required this.onRefresh,
     required this.showPreviewChrome,
   });
 
   final CatalogData catalog;
-  final bool isSyncing;
   final bool usingFallback;
-  final DateTime? lastSynced;
   final Future<void> Function() onRefresh;
   final bool showPreviewChrome;
 
   @override
   Widget build(BuildContext context) {
+    final heroPrimary = _selectBusinessVisual(
+      catalog,
+      categoryHint: 'tailor',
+      fallbackIndex: 1,
+    );
+    final heroSecondary = _selectBusinessVisual(
+      catalog,
+      categoryHint: 'grocery',
+      fallbackIndex: 2,
+      excludingId: heroPrimary.id,
+    );
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -361,14 +350,10 @@ class _HeroSection extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(20, showPreviewChrome ? 14 : 10, 20, 42),
+        padding: EdgeInsets.fromLTRB(20, showPreviewChrome ? 14 : 10, 20, 34),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showPreviewChrome) ...[
-              const _StatusRow(),
-              const SizedBox(height: 14),
-            ],
             Row(
               children: [
                 const Icon(Icons.location_on, color: Colors.white, size: 23),
@@ -403,28 +388,6 @@ class _HeroSection extends StatelessWidget {
                 const _RemoteAvatar(imageUrl: profileImageUrl),
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _SyncChip(
-                        isSyncing: isSyncing,
-                        usingFallback: usingFallback,
-                      ),
-                      if (lastSynced != null && !isSyncing)
-                        _InfoChip(label: _formatTime(lastSynced!)),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                _RefreshButton(onTap: onRefresh),
-              ],
-            ),
             const SizedBox(height: 14),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -456,13 +419,14 @@ class _HeroSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const _HeroGraphic(),
+                _HeroGraphic(
+                  primary: heroPrimary,
+                  secondary: heroSecondary,
+                ),
               ],
             ),
             const SizedBox(height: 16),
             _SearchBar(onTap: onRefresh),
-            const SizedBox(height: 14),
-            _StatsPanel(stats: catalog.stats),
           ],
         ),
       ),
@@ -517,155 +481,6 @@ class _HeroSection extends StatelessWidget {
   }
 }
 
-class _StatusRow extends StatelessWidget {
-  const _StatusRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Text(
-          '9:41',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 19,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        Spacer(),
-        _DynamicIsland(),
-        Spacer(),
-        Icon(Icons.signal_cellular_alt, color: Colors.white, size: 18),
-        SizedBox(width: 8),
-        Icon(Icons.wifi, color: Colors.white, size: 18),
-        SizedBox(width: 8),
-        Icon(Icons.battery_full, color: Colors.white, size: 20),
-      ],
-    );
-  }
-}
-
-class _DynamicIsland extends StatelessWidget {
-  const _DynamicIsland();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 120,
-      height: 34,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Container(
-          width: 24,
-          height: 24,
-          margin: const EdgeInsets.only(right: 12),
-          decoration: const BoxDecoration(
-            color: Color(0xFF111C2A),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.camera_alt,
-            size: 12,
-            color: Color(0xFF20418C),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SyncChip extends StatelessWidget {
-  const _SyncChip({required this.isSyncing, required this.usingFallback});
-
-  final bool isSyncing;
-  final bool usingFallback;
-
-  @override
-  Widget build(BuildContext context) {
-    final background = isSyncing
-        ? Colors.white.withValues(alpha: 0.12)
-        : usingFallback
-        ? const Color(0x33FF8A65)
-        : const Color(0x3327D07D);
-
-    final iconColor = isSyncing
-        ? const Color(0xFFFFE4A6)
-        : usingFallback
-        ? const Color(0xFFFFC0A9)
-        : const Color(0xFFB8FFD8);
-
-    final label = isSyncing
-        ? 'Syncing server...'
-        : usingFallback
-        ? 'Offline fallback'
-        : 'Server connected';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isSyncing)
-            const SizedBox(
-              width: 12,
-              height: 12,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(Color(0xFFFFE4A6)),
-              ),
-            )
-          else
-            Icon(Icons.cloud_done_rounded, size: 14, color: iconColor),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.92),
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.85),
-          fontSize: 11.5,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
 class _NotificationBell extends StatelessWidget {
   const _NotificationBell();
 
@@ -702,65 +517,146 @@ class _NotificationBell extends StatelessWidget {
   }
 }
 
-class _RefreshButton extends StatelessWidget {
-  const _RefreshButton({required this.onTap});
-
-  final Future<void> Function() onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () => onTap(),
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: const Color(0x26FFBE2E),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0x40FFBE2E)),
-        ),
-        child: const Icon(
-          Icons.refresh_rounded,
-          size: 20,
-          color: Color(0xFFFFD670),
-        ),
-      ),
-    );
-  }
-}
-
 class _HeroGraphic extends StatelessWidget {
-  const _HeroGraphic();
+  const _HeroGraphic({required this.primary, required this.secondary});
+
+  final BusinessItem primary;
+  final BusinessItem secondary;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 124,
-      height: 132,
+      width: 126,
+      height: 146,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned(
-            left: 4,
+            left: 10,
             right: 0,
-            bottom: 4,
+            bottom: 10,
             child: Container(
               height: 34,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(999),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.10),
-                    brandNavyBright.withValues(alpha: 0.40),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1E4A97), Color(0xFF2B66D0)],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            top: 2,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: brandGold,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x44110900),
+                    blurRadius: 14,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.location_on, color: brandNavy, size: 22),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            top: 10,
+            child: Container(
+              width: 92,
+              height: 122,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(
+                  color: brandGold.withValues(alpha: 0.65),
+                  width: 1.2,
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x26031644),
+                    blurRadius: 20,
+                    offset: Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _RemoteBusinessImage(
+                      imageUrl: primary.imageUrl,
+                      variant: primary.coverVariant,
+                      darken: true,
+                    ),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.10),
+                            Colors.black.withValues(alpha: 0.45),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 8,
+                      right: 8,
+                      bottom: 8,
+                      child: Text(
+                        primary.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
           Positioned(
-            right: -8,
-            bottom: 8,
-            child: Transform.scale(scale: 0.84, child: const _PinBagArt()),
+            left: 10,
+            bottom: 0,
+            child: Container(
+              width: 52,
+              height: 52,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.6)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x21000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: _RemoteBusinessImage(
+                  imageUrl: secondary.imageUrl,
+                  variant: secondary.coverVariant,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -800,111 +696,6 @@ class _RemoteAvatar extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _PinBagArt extends StatelessWidget {
-  const _PinBagArt();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 145,
-      height: 110,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 10,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              height: 34,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(999),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1D4B9E), Color(0xFF275CB7)],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 32,
-            bottom: 28,
-            child: CustomPaint(
-              size: const Size(54, 76),
-              painter: _PinPainter(),
-            ),
-          ),
-          Positioned(
-            right: 22,
-            bottom: 25,
-            child: Container(
-              width: 46,
-              height: 58,
-              decoration: BoxDecoration(
-                color: brandGold,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x441A0E00),
-                    blurRadius: 10,
-                    offset: Offset(0, 6),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            right: 30,
-            top: 18,
-            child: Container(
-              width: 24,
-              height: 18,
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF153F8E), width: 3),
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 78,
-            bottom: 18,
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(
-                color: const Color(0xFFC58A35),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 64,
-            bottom: 32,
-            child: Container(
-              width: 14,
-              height: 14,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD5A04A),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 16,
-            child: Container(
-              width: 18,
-              height: 26,
-              decoration: BoxDecoration(
-                color: const Color(0xFF6CB63A),
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -960,105 +751,6 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
-class _StatsPanel extends StatelessWidget {
-  const _StatsPanel({required this.stats});
-
-  final CatalogStats stats;
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      _StatItem(
-        Icons.dashboard_customize_outlined,
-        _formatCount(stats.categories),
-        'Categories',
-      ),
-      _StatItem(
-        Icons.storefront_outlined,
-        _formatCount(stats.businesses),
-        'Shops & Pros',
-      ),
-      _StatItem(
-        Icons.sentiment_satisfied_alt_outlined,
-        stats.happyUsers,
-        'Happy Users',
-      ),
-      _StatItem(
-        Icons.verified_user_outlined,
-        _formatCount(stats.trusted),
-        'Trusted Pros',
-      ),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-      ),
-      child: Row(
-        children: List.generate(items.length, (index) {
-          final item = items[index];
-          return Expanded(
-            child: Row(
-              children: [
-                if (index != 0)
-                  Container(
-                    width: 1,
-                    height: 38,
-                    margin: const EdgeInsets.only(right: 12),
-                    color: Colors.white.withValues(alpha: 0.16),
-                  ),
-                Expanded(child: _StatCell(item: item)),
-              ],
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-class _StatCell extends StatelessWidget {
-  const _StatCell({required this.item});
-
-  final _StatItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(item.icon, color: brandGold, size: 24),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              Text(
-                item.label,
-                style: const TextStyle(
-                  color: brandHeroText,
-                  fontSize: 12,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ContentSection extends StatelessWidget {
   const _ContentSection({required this.catalog});
 
@@ -1066,6 +758,18 @@ class _ContentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dealPrimary = _selectBusinessVisual(
+      catalog,
+      categoryHint: 'grocery',
+      fallbackIndex: 2,
+    );
+    final dealSecondary = _selectBusinessVisual(
+      catalog,
+      categoryHint: 'restaurant',
+      fallbackIndex: 0,
+      excludingId: dealPrimary.id,
+    );
+
     return Container(
       decoration: const BoxDecoration(
         color: brandSurface,
@@ -1077,10 +781,12 @@ class _ContentSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _CategoryRail(categories: catalog.categories),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
             const _SegmentControl(),
+            const SizedBox(height: 16),
+            _DealBanner(primary: dealPrimary, secondary: dealSecondary),
             const SizedBox(height: 18),
-            const _DealBanner(),
+            _PlatformShowcase(catalog: catalog),
             const SizedBox(height: 22),
             const _SectionHeader(
               title: 'Featured near you',
@@ -1134,9 +840,9 @@ class _CategoryRail extends StatelessWidget {
           final category = categories[index];
           return Padding(
             padding: EdgeInsets.only(
-              right: index == categories.length - 1 ? 0 : 12,
+              right: index == categories.length - 1 ? 0 : 10,
             ),
-            child: _CategoryCard(category: category, index: index),
+            child: _CategoryCard(category: category),
           );
         }),
       ),
@@ -1145,50 +851,49 @@ class _CategoryRail extends StatelessWidget {
 }
 
 class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.category, required this.index});
+  const _CategoryCard({required this.category});
 
   final CategoryItem category;
-  final int index;
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = categoryPalette[index % categoryPalette.length];
+    final accentColor = _colorFromHex(category.accent);
     final iconColor = category.isActive ? Colors.white : accentColor;
     final backgroundColor = category.isActive
         ? brandNavy
         : accentColor.withValues(alpha: 0.12);
 
     return Container(
-      width: 98,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      width: 88,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
         color: brandSurface,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: brandLine),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0F08204A),
-            blurRadius: 18,
-            offset: Offset(0, 8),
+            blurRadius: 14,
+            offset: Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: backgroundColor,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               _iconForSlug(category.icon),
               color: iconColor,
-              size: 28,
+              size: 24,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             category.name,
             textAlign: TextAlign.center,
@@ -1196,8 +901,8 @@ class _CategoryCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: brandNavy,
-              fontSize: 14,
-              height: 1.15,
+              fontSize: 13,
+              height: 1.1,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -1213,7 +918,7 @@ class _SegmentControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: brandSoft,
         borderRadius: BorderRadius.circular(999),
@@ -1223,7 +928,7 @@ class _SegmentControl extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
                 color: brandNavy,
                 borderRadius: BorderRadius.circular(999),
@@ -1241,6 +946,7 @@ class _SegmentControl extends StatelessWidget {
                     'Products',
                     style: TextStyle(
                       color: Colors.white,
+                      fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -1250,7 +956,7 @@ class _SegmentControl extends StatelessWidget {
           ),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(999),
               ),
@@ -1263,6 +969,7 @@ class _SegmentControl extends StatelessWidget {
                     'Services',
                     style: TextStyle(
                       color: brandMuted,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -1277,7 +984,10 @@ class _SegmentControl extends StatelessWidget {
 }
 
 class _DealBanner extends StatelessWidget {
-  const _DealBanner();
+  const _DealBanner({required this.primary, required this.secondary});
+
+  final BusinessItem primary;
+  final BusinessItem secondary;
 
   @override
   Widget build(BuildContext context) {
@@ -1319,8 +1029,405 @@ class _DealBanner extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          const _GiftArt(),
+          const SizedBox(width: 10),
+          _DealPhotoCluster(primary: primary, secondary: secondary),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlatformShowcase extends StatelessWidget {
+  const _PlatformShowcase({required this.catalog});
+
+  final CatalogData catalog;
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: platformSections.length,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SectionHeader(title: 'BNC platform'),
+          const SizedBox(height: 10),
+          Container(
+            height: 46,
+            decoration: BoxDecoration(
+              color: brandSoft,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: TabBar(
+              isScrollable: true,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              dividerColor: Colors.transparent,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                color: brandNavy,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              labelColor: Colors.white,
+              unselectedLabelColor: brandNavy,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+              tabs: [
+                for (final section in platformSections)
+                  Tab(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        section.label,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 320,
+            child: TabBarView(
+              children: [
+                for (final section in platformSections)
+                  _PlatformSectionCard(
+                    section: section,
+                    visual: section.imageHint == null
+                        ? null
+                        : _selectBusinessVisual(
+                            catalog,
+                            categoryHint: section.imageHint,
+                          ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlatformSectionCard extends StatelessWidget {
+  const _PlatformSectionCard({required this.section, required this.visual});
+
+  final PlatformSectionData section;
+  final BusinessItem? visual;
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = _colorFromHex(section.accentHex);
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: LinearGradient(
+          colors: [accent.withValues(alpha: 0.12), Colors.white],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: accent.withValues(alpha: 0.2)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1408204A),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: Text(
+                    section.emoji,
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      section.eyebrow,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: accent,
+                        fontSize: 10.5,
+                        letterSpacing: 0.9,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      section.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: brandNavy,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (section.badge != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: accent,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    section.badge!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        section.title,
+                        style: const TextStyle(
+                          color: brandNavy,
+                          fontSize: 18,
+                          height: 1.08,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        section.description,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: brandMuted,
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
+                      ),
+                      const Spacer(),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final item in section.highlights.take(2))
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 7,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: accent.withValues(alpha: 0.16),
+                                ),
+                              ),
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  color: brandNavy,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                _PlatformSectionVisual(
+                  section: section,
+                  accent: accent,
+                  visual: visual,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlatformSectionVisual extends StatelessWidget {
+  const _PlatformSectionVisual({
+    required this.section,
+    required this.accent,
+    required this.visual,
+  });
+
+  final PlatformSectionData section;
+  final Color accent;
+  final BusinessItem? visual;
+
+  @override
+  Widget build(BuildContext context) {
+    if (visual == null) {
+      return Container(
+        width: 108,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.88),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: accent.withValues(alpha: 0.18)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.14),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  section.emoji,
+                  style: TextStyle(
+                    color: accent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              section.highlights.first,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: brandNavy,
+                fontSize: 12.5,
+                height: 1.25,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: 112,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: _RemoteBusinessImage(
+                      imageUrl: visual!.imageUrl,
+                      variant: visual!.coverVariant,
+                      darken: true,
+                    ),
+                  ),
+                  Positioned(
+                    left: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accent.withValues(alpha: 0.94),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        section.badge ?? section.emoji,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 10,
+                    right: 10,
+                    bottom: 10,
+                    child: Text(
+                      visual!.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11.5,
+                        height: 1.2,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              visual!.subtitle,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: brandNavy,
+                fontSize: 11,
+                height: 1.25,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1772,83 +1879,155 @@ class _BlueBadgeButton extends StatelessWidget {
   }
 }
 
-class _GiftArt extends StatelessWidget {
-  const _GiftArt();
+class _DealPhotoCluster extends StatelessWidget {
+  const _DealPhotoCluster({required this.primary, required this.secondary});
+
+  final BusinessItem primary;
+  final BusinessItem secondary;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 130,
-      height: 92,
+      width: 126,
+      height: 108,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned(
-            left: 38,
+            right: 0,
+            top: 2,
+            child: Container(
+              width: 94,
+              height: 94,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.92),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0xFFF5DA9E)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x1808204A),
+                    blurRadius: 18,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _RemoteBusinessImage(
+                      imageUrl: primary.imageUrl,
+                      variant: primary.coverVariant,
+                      darken: true,
+                    ),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.12),
+                            Colors.black.withValues(alpha: 0.35),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 7,
+                      right: 7,
+                      bottom: 7,
+                      child: Text(
+                        primary.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
             bottom: 0,
             child: Container(
-              width: 52,
-              height: 50,
+              width: 54,
+              height: 54,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.65)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x18000000),
+                    blurRadius: 14,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: _RemoteBusinessImage(
+                  imageUrl: secondary.imageUrl,
+                  variant: secondary.coverVariant,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 8,
+            top: -4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: brandGold,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 59,
-            bottom: 0,
-            child: Container(width: 10, height: 50, color: brandGoldDeep),
-          ),
-          Positioned(
-            left: 38,
-            bottom: 20,
-            child: Container(width: 52, height: 10, color: brandGoldDeep),
-          ),
-          Positioned(
-            left: 44,
-            top: 8,
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(
-                border: Border.all(color: brandGoldDeep, width: 5),
                 borderRadius: BorderRadius.circular(999),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x2EF4B227),
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Text(
+                primary.badgeText ?? 'Hot Deal',
+                style: const TextStyle(
+                  color: brandNavy,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ),
           Positioned(
-            left: 66,
-            top: 8,
+            left: 30,
+            right: 16,
+            bottom: 8,
             child: Container(
-              width: 18,
-              height: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFFF35D24), width: 5),
-                borderRadius: BorderRadius.circular(999),
+                color: Colors.white.withValues(alpha: 0.92),
+                borderRadius: BorderRadius.circular(14),
               ),
-            ),
-          ),
-          Positioned(
-            right: 6,
-            bottom: 0,
-            child: Container(
-              width: 34,
-              height: 46,
-              decoration: BoxDecoration(
-                color: const Color(0xFF163F8E),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 13,
-            top: 10,
-            child: Container(
-              width: 20,
-              height: 10,
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF163F8E), width: 3),
-                borderRadius: BorderRadius.circular(999),
+              child: Text(
+                primary.subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: brandNavy,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -1919,55 +2098,6 @@ class _BottomNavItem extends StatelessWidget {
   }
 }
 
-class _PinPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..shader = const LinearGradient(
-        colors: [Color(0xFFFFD14D), Color(0xFFF1A900)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(Offset.zero & size);
-
-    final path = Path()
-      ..moveTo(size.width * 0.5, size.height)
-      ..quadraticBezierTo(
-        size.width * 0.84,
-        size.height * 0.58,
-        size.width * 0.84,
-        size.height * 0.33,
-      )
-      ..arcToPoint(
-        Offset(size.width * 0.16, size.height * 0.33),
-        radius: Radius.circular(size.width * 0.34),
-      )
-      ..quadraticBezierTo(
-        size.width * 0.16,
-        size.height * 0.58,
-        size.width * 0.5,
-        size.height,
-      );
-
-    canvas.drawPath(path, paint);
-    canvas.drawCircle(
-      Offset(size.width * 0.5, size.height * 0.34),
-      size.width * 0.14,
-      Paint()..color = brandNavy,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _StatItem {
-  const _StatItem(this.icon, this.value, this.label);
-
-  final IconData icon;
-  final String value;
-  final String label;
-}
-
 class _NavItemData {
   const _NavItemData(this.icon, this.label, this.active);
 
@@ -1976,24 +2106,53 @@ class _NavItemData {
   final bool active;
 }
 
-String _formatCount(int count) {
-  if (count >= 1000) {
-    final formatted = count >= 10000
-        ? (count / 1000).toStringAsFixed(0)
-        : (count / 1000).toStringAsFixed(1);
-    return '${formatted}K+';
+List<BusinessItem> _uniqueBusinesses(CatalogData catalog) {
+  final result = <BusinessItem>[];
+  final seen = <String>{};
+
+  for (final item in [...catalog.featured, ...catalog.popular]) {
+    final key = item.id.isEmpty ? item.name : item.id;
+    if (seen.add(key)) {
+      result.add(item);
+    }
   }
 
-  return '$count+';
+  if (result.isEmpty) {
+    return fallbackCatalog.featured;
+  }
+
+  return result;
 }
 
-String _formatTime(DateTime time) {
-  final hour = time.hour == 0
-      ? 12
-      : (time.hour > 12 ? time.hour - 12 : time.hour);
-  final minute = time.minute.toString().padLeft(2, '0');
-  final period = time.hour >= 12 ? 'PM' : 'AM';
-  return '$hour:$minute $period';
+BusinessItem _selectBusinessVisual(
+  CatalogData catalog, {
+  String? categoryHint,
+  int fallbackIndex = 0,
+  String? excludingId,
+}) {
+  final items = _uniqueBusinesses(catalog);
+
+  if (categoryHint != null && categoryHint.trim().isNotEmpty) {
+    final needle = categoryHint.toLowerCase();
+    for (final item in items) {
+      final haystack =
+          '${item.categoryName} ${item.subtitle} ${item.name}'.toLowerCase();
+      if (item.id != excludingId && haystack.contains(needle)) {
+        return item;
+      }
+    }
+  }
+
+  for (final item in items) {
+    if (item.id != excludingId) {
+      return item;
+    }
+  }
+
+  final safeIndex = fallbackIndex >= 0 && fallbackIndex < items.length
+      ? fallbackIndex
+      : 0;
+  return items[safeIndex];
 }
 
 Color _colorFromHex(String hex) {
