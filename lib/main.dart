@@ -233,6 +233,7 @@ class _NearuHomePageState extends State<NearuHomePage> {
           usingFallback: _usingFallback,
           lastSynced: _lastSynced,
           onRefresh: _refreshCatalog,
+          showPreviewChrome: usePreviewShell,
         );
 
         if (usePreviewShell) {
@@ -275,6 +276,7 @@ class _MobileHomeScreen extends StatelessWidget {
     required this.usingFallback,
     required this.lastSynced,
     required this.onRefresh,
+    required this.showPreviewChrome,
   });
 
   final CatalogData catalog;
@@ -282,6 +284,7 @@ class _MobileHomeScreen extends StatelessWidget {
   final bool usingFallback;
   final DateTime? lastSynced;
   final Future<void> Function() onRefresh;
+  final bool showPreviewChrome;
 
   @override
   Widget build(BuildContext context) {
@@ -306,9 +309,10 @@ class _MobileHomeScreen extends StatelessWidget {
                         usingFallback: usingFallback,
                         lastSynced: lastSynced,
                         onRefresh: onRefresh,
+                        showPreviewChrome: showPreviewChrome,
                       ),
                       Transform.translate(
-                        offset: const Offset(0, -28),
+                        offset: const Offset(0, -22),
                         child: _ContentSection(catalog: catalog),
                       ),
                     ],
@@ -336,6 +340,7 @@ class _HeroSection extends StatelessWidget {
     required this.usingFallback,
     required this.lastSynced,
     required this.onRefresh,
+    required this.showPreviewChrome,
   });
 
   final CatalogData catalog;
@@ -343,6 +348,7 @@ class _HeroSection extends StatelessWidget {
   final bool usingFallback;
   final DateTime? lastSynced;
   final Future<void> Function() onRefresh;
+  final bool showPreviewChrome;
 
   @override
   Widget build(BuildContext context) {
@@ -355,47 +361,73 @@ class _HeroSection extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 14, 22, 52),
+        padding: EdgeInsets.fromLTRB(20, showPreviewChrome ? 14 : 10, 20, 42),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _StatusRow(),
-            const SizedBox(height: 16),
+            if (showPreviewChrome) ...[
+              const _StatusRow(),
+              const SizedBox(height: 14),
+            ],
             Row(
               children: [
                 const Icon(Icons.location_on, color: Colors.white, size: 23),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    catalog.locationLabel,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          catalog.locationLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ],
                   ),
                 ),
-                const Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Colors.white,
-                  size: 22,
-                ),
+                const SizedBox(width: 12),
+                const _NotificationBell(),
+                const SizedBox(width: 12),
+                const _RemoteAvatar(imageUrl: profileImageUrl),
               ],
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _SyncChip(isSyncing: isSyncing, usingFallback: usingFallback),
-                if (lastSynced != null && !isSyncing)
-                  _InfoChip(label: 'Updated ${_formatTime(lastSynced!)}'),
-                _ActionChip(label: 'Refresh', onTap: onRefresh),
-              ],
-            ),
-            const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _SyncChip(
+                        isSyncing: isSyncing,
+                        usingFallback: usingFallback,
+                      ),
+                      if (lastSynced != null && !isSyncing)
+                        _InfoChip(label: _formatTime(lastSynced!)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _RefreshButton(onTap: onRefresh),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
                   child: Column(
@@ -403,38 +435,33 @@ class _HeroSection extends StatelessWidget {
                     children: [
                       _titleLine('Discover'),
                       _titleLine('the best'),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       _highlightLine('products & services'),
                       _highlightLine('near you', showPin: true),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 10),
                       Text(
                         usingFallback
-                            ? 'Showing saved catalog while the server reconnects.'
-                            : 'Connected to your live server catalog.',
+                            ? 'Showing saved listings while reconnecting.'
+                            : 'Top-rated shops, services and offers around you.',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: brandHeroText,
-                          fontSize: 15,
-                          height: 1.45,
-                        ),
-                      ),
-                      const Text(
-                        'Pull down anytime to sync fresh businesses and deals.',
-                        style: TextStyle(
-                          color: brandHeroText,
-                          fontSize: 15,
-                          height: 1.45,
+                          fontSize: 14,
+                          height: 1.32,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 const _HeroGraphic(),
               ],
             ),
-            const SizedBox(height: 22),
-            _SearchBar(onTap: onRefresh),
             const SizedBox(height: 16),
+            _SearchBar(onTap: onRefresh),
+            const SizedBox(height: 14),
             _StatsPanel(stats: catalog.stats),
           ],
         ),
@@ -452,8 +479,8 @@ class _HeroSection extends StatelessWidget {
           text,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 36,
-            height: 0.95,
+            fontSize: 34,
+            height: 0.9,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -474,14 +501,14 @@ class _HeroSection extends StatelessWidget {
               text,
               style: const TextStyle(
                 color: brandGold,
-                fontSize: 32,
-                height: 0.98,
+                fontSize: 29,
+                height: 0.96,
                 fontWeight: FontWeight.w900,
               ),
             ),
             if (showPin) ...[
               const SizedBox(width: 4),
-              const Icon(Icons.location_on, color: brandGold, size: 25),
+              const Icon(Icons.location_on, color: brandGold, size: 24),
             ],
           ],
         ),
@@ -578,7 +605,7 @@ class _SyncChip extends StatelessWidget {
         : 'Server connected';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
@@ -603,7 +630,7 @@ class _SyncChip extends StatelessWidget {
             label,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.92),
-              fontSize: 12,
+              fontSize: 11.5,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -621,7 +648,7 @@ class _InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(999),
@@ -631,7 +658,7 @@ class _InfoChip extends StatelessWidget {
         label,
         style: TextStyle(
           color: Colors.white.withValues(alpha: 0.85),
-          fontSize: 12,
+          fontSize: 11.5,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -639,38 +666,64 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-class _ActionChip extends StatelessWidget {
-  const _ActionChip({required this.label, required this.onTap});
+class _NotificationBell extends StatelessWidget {
+  const _NotificationBell();
 
-  final String label;
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const Icon(Icons.notifications_none, color: Colors.white, size: 29),
+        Positioned(
+          right: -3,
+          top: -4,
+          child: Container(
+            width: 18,
+            height: 18,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFB91D),
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Text(
+                '3',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RefreshButton extends StatelessWidget {
+  const _RefreshButton({required this.onTap});
+
   final Future<void> Function() onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: BorderRadius.circular(16),
       onTap: () => onTap(),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
           color: const Color(0x26FFBE2E),
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0x40FFBE2E)),
         ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.refresh_rounded, size: 14, color: Color(0xFFFFD670)),
-            SizedBox(width: 8),
-            Text(
-              'Refresh',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
+        child: const Icon(
+          Icons.refresh_rounded,
+          size: 20,
+          color: Color(0xFFFFD670),
         ),
       ),
     );
@@ -683,53 +736,32 @@ class _HeroGraphic extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 158,
-      height: 182,
+      width: 124,
+      height: 132,
       child: Stack(
         children: [
           Positioned(
+            left: 4,
             right: 0,
-            top: 0,
-            child: Row(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Icon(
-                      Icons.notifications_none,
-                      color: Colors.white,
-                      size: 31,
-                    ),
-                    Positioned(
-                      right: -3,
-                      top: -4,
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFFB91D),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '3',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+            bottom: 4,
+            child: Container(
+              height: 34,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.10),
+                    brandNavyBright.withValues(alpha: 0.40),
                   ],
                 ),
-                const SizedBox(width: 12),
-                _RemoteAvatar(imageUrl: profileImageUrl),
-              ],
+              ),
             ),
           ),
-          const Positioned(right: 6, bottom: 16, child: _PinBagArt()),
+          Positioned(
+            right: -8,
+            bottom: 8,
+            child: Transform.scale(scale: 0.84, child: const _PinBagArt()),
+          ),
         ],
       ),
     );
@@ -886,23 +918,23 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
         children: [
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Icon(Icons.search, color: brandMuted, size: 30),
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Icon(Icons.search, color: brandMuted, size: 28),
           ),
           const Expanded(
             child: Text(
               'Search products, shops or services',
               style: TextStyle(
                 color: brandMuted,
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -911,15 +943,15 @@ class _SearchBar extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: brandGold,
               foregroundColor: brandNavy,
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(18),
               ),
             ),
             onPressed: () => onTap(),
             child: const Text(
               'Search',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -959,7 +991,7 @@ class _StatsPanel extends StatelessWidget {
     ];
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(24),
