@@ -217,13 +217,13 @@ export function PublicHome({ data }: { data: CatalogView }) {
         </div>
       </section>
 
-      <div className="sticky top-0 z-30 border-y border-white/8 bg-[#13222d]">
+      <div className="sticky top-0 z-30 border-y border-[#223746] bg-[#13222d]/95 shadow-[0_14px_34px_rgba(7,13,24,0.24)] backdrop-blur">
         <div className="mx-auto flex max-w-[1440px] gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-10">
           {platformSections.map((section, index) => (
             <a
               key={section.id}
               href={`#${section.id}`}
-              className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+              className={`shrink-0 rounded-full px-5 py-2.5 text-[15px] font-semibold transition ${
                 index === 0
                   ? "bg-[var(--gold)] text-[var(--navy)]"
                   : section.id === "explain"
@@ -239,6 +239,39 @@ export function PublicHome({ data }: { data: CatalogView }) {
 
       <main className="-mt-10 pb-16">
         <div className="mx-auto max-w-[1440px] rounded-t-[38px] bg-white px-4 pb-12 pt-6 shadow-[0_18px_45px_rgba(9,32,77,0.08)] sm:px-6 lg:px-10">
+          <section className="mb-10">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#7d2232]">
+                  BNC ecosystem
+                </p>
+                <h2 className="mt-2 text-[2rem] font-black text-[var(--navy)]">
+                  Every BNC section, placed up front
+                </h2>
+                <p className="mt-3 max-w-[760px] text-sm leading-7 text-[var(--muted)]">
+                  Business Card, B2B Network, Jobs, Be A Winner, Community Feed,
+                  Plans, Merchant Dashboard, Admin &amp; Partners and Explanations now
+                  sit near the top of the experience instead of being buried lower in
+                  the page.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+              {extendedSections.map((section) => (
+                <PlatformSectionCard
+                  key={section.id}
+                  section={section}
+                  business={
+                    section.imageHint
+                      ? selectBusinessVisual(data, section.imageHint)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          </section>
+
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-7">
             {data.categories.map((category, index) => {
               const Icon = iconMap[category.icon as keyof typeof iconMap] ?? LayoutGrid;
@@ -343,38 +376,6 @@ export function PublicHome({ data }: { data: CatalogView }) {
               <PopularCard key={business.id} business={business} />
             ))}
           </div>
-
-          <section className="mt-12">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#7d2232]">
-                  BNC ecosystem
-                </p>
-                <h2 className="mt-2 text-[2rem] font-black text-[var(--navy)]">
-                  More sections from the BNC platform
-                </h2>
-                <p className="mt-3 max-w-[760px] text-sm leading-7 text-[var(--muted)]">
-                  The mockup also includes business cards, B2B sourcing, jobs,
-                  winner campaigns, community feed, pricing, merchant tools and
-                  admin views. These previews are now part of the web flow too.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
-              {extendedSections.map((section) => (
-                <PlatformSectionCard
-                  key={section.id}
-                  section={section}
-                  business={
-                    section.imageHint
-                      ? selectBusinessVisual(data, section.imageHint)
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
-          </section>
         </div>
       </main>
 

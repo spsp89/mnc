@@ -780,13 +780,13 @@ class _ContentSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _PlatformPriorityRail(catalog: catalog),
+            const SizedBox(height: 18),
             _CategoryRail(categories: catalog.categories),
             const SizedBox(height: 14),
             const _SegmentControl(),
             const SizedBox(height: 16),
             _DealBanner(primary: dealPrimary, secondary: dealSecondary),
-            const SizedBox(height: 18),
-            _PlatformShowcase(catalog: catalog),
             const SizedBox(height: 22),
             const _SectionHeader(
               title: 'Featured near you',
@@ -1037,74 +1037,108 @@ class _DealBanner extends StatelessWidget {
   }
 }
 
-class _PlatformShowcase extends StatelessWidget {
-  const _PlatformShowcase({required this.catalog});
+class _PlatformPriorityRail extends StatelessWidget {
+  const _PlatformPriorityRail({required this.catalog});
 
   final CatalogData catalog;
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: platformSections.length,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _SectionHeader(title: 'BNC platform'),
-          const SizedBox(height: 10),
-          Container(
-            height: 46,
-            decoration: BoxDecoration(
-              color: brandSoft,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: TabBar(
-              isScrollable: true,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              dividerColor: Colors.transparent,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: BoxDecoration(
-                color: brandNavy,
-                borderRadius: BorderRadius.circular(999),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF13222D),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0x1FC9A227)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1408204A),
+                blurRadius: 18,
+                offset: Offset(0, 8),
               ),
-              labelColor: Colors.white,
-              unselectedLabelColor: brandNavy,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-              tabs: [
-                for (final section in platformSections)
-                  Tab(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        section.label,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
+            ],
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(platformSections.length, (index) {
+                final section = platformSections[index];
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: index == platformSections.length - 1 ? 0 : 6,
+                  ),
+                  child: _PlatformNavChip(
+                    label: section.label,
+                    active: index == 0,
+                    isExplain: section.id == 'explain',
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 322,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: platformSections.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final section = platformSections[index];
+              return SizedBox(
+                width: 286,
+                child: _PlatformSectionCard(
+                  section: section,
+                  visual: section.imageHint == null
+                      ? null
+                      : _selectBusinessVisual(
+                          catalog,
+                          categoryHint: section.imageHint,
                         ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: 320,
-            child: TabBarView(
-              children: [
-                for (final section in platformSections)
-                  _PlatformSectionCard(
-                    section: section,
-                    visual: section.imageHint == null
-                        ? null
-                        : _selectBusinessVisual(
-                            catalog,
-                            categoryHint: section.imageHint,
-                          ),
-                  ),
-              ],
-            ),
-          ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class _PlatformNavChip extends StatelessWidget {
+  const _PlatformNavChip({
+    required this.label,
+    required this.active,
+    required this.isExplain,
+  });
+
+  final String label;
+  final bool active;
+  final bool isExplain;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: active ? brandGold : Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: active
+              ? const Color(0xFF13222D)
+              : isExplain
+              ? const Color(0xFFF0B0B0)
+              : Colors.white.withValues(alpha: 0.86),
+          fontSize: 13,
+          fontWeight: active ? FontWeight.w900 : FontWeight.w700,
+        ),
       ),
     );
   }
@@ -1223,22 +1257,24 @@ class _PlatformSectionCard extends StatelessWidget {
                     children: [
                       Text(
                         section.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: brandNavy,
-                          fontSize: 18,
-                          height: 1.08,
+                          fontSize: 17,
+                          height: 1.12,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Text(
                         section.description,
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: brandMuted,
-                          fontSize: 13,
-                          height: 1.4,
+                          fontSize: 12.5,
+                          height: 1.35,
                         ),
                       ),
                       const Spacer(),
@@ -1246,7 +1282,7 @@ class _PlatformSectionCard extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          for (final item in section.highlights.take(2))
+                          for (final item in section.highlights.take(1))
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
