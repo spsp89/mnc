@@ -1,574 +1,640 @@
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 import Link from "next/link";
 import {
   Bell,
+  BriefcaseBusiness,
+  Cake,
   ChevronDown,
   ChevronRight,
+  CircleUserRound,
+  FileText,
+  Grid2X2,
   Heart,
+  Home,
+  Lightbulb,
   MapPin,
+  Monitor,
+  Network,
   Search,
   ShieldCheck,
+  Shirt,
+  Smartphone,
   Sparkles,
   Star,
   Store,
-  UserRound,
+  Trophy,
+  UtensilsCrossed,
+  Wrench,
+  ShoppingCart,
 } from "lucide-react";
 
-import { platformSections } from "@/lib/platform-sections";
+type IconType = ComponentType<{ className?: string }>;
 
-type CategoryItem = {
-  id: string;
-  name: string;
-  slug: string;
-  icon: string;
-  accent: string;
-  isActive: boolean;
+type CategoryTile = {
+  label: string;
+  icon: IconType;
+  color: string;
+  tint: string;
 };
 
-type BusinessItem = {
-  id: string;
-  name: string;
-  subtitle: string;
-  area: string;
-  city: string;
-  rating: number;
-  reviewCount: number;
-  distanceKm: number;
-  badgeText: string | null;
-  badgeColor: string | null;
-  coverVariant: string;
-  imageUrl: string;
-};
-
-type CatalogView = {
-  categories: CategoryItem[];
-  featured: BusinessItem[];
-  popular: BusinessItem[];
-  stats: {
-    categories: number;
-    businesses: number;
-    trusted: number;
-    happyUsers: string;
-  };
-};
-
-type ShowcaseCategory = {
-  id: string;
-  name: string;
-  symbol: string;
-  accent: string;
-  background: string;
-};
-
-type ShowcaseShop = {
-  id: string;
-  name: string;
-  subtitle: string;
-  area: string;
-  rating: number;
-  reviewCount: number;
-  distanceKm: number;
-  tier: string;
-  tierColor: string;
-  imageUrl: string;
-  promo?: string;
-};
-
-type SpotlightDeal = {
-  id: string;
+type DealCardData = {
   badge: string;
   badgeColor: string;
   title: string;
-  description: string;
-  business: string;
-  background: string;
-  imageUrl: string;
+  text: string;
+  shop: string;
+  image: string;
+  gradient: string;
 };
 
-type OfferBanner = {
-  id: string;
-  eyebrow: string;
+type ShopCardData = {
+  name: string;
+  category: string;
+  rating: string;
+  reviews: string;
+  distance: string;
+  image: string;
+  badge: string;
+  badgeColor: string;
+  ribbon?: string;
+};
+
+type OfferCardData = {
   title: string;
-  description: string;
+  text: string;
+  shop: string;
   code: string;
-  background: string;
-  imageUrl: string;
+  image: string;
+  gradient: string;
 };
 
-const topNavItems = [
-  { label: "Discover", href: "#discover", active: true },
-  { label: "Business Card", href: "#card" },
+type EcosystemCardData = {
+  id: string;
+  title: string;
+  text: string;
+  icon: IconType;
+};
+
+const navItems = [
+  { label: "Discover", href: "#discover" },
+  { label: "Business Card", href: "#business-card" },
   { label: "B2B", href: "#b2b" },
   { label: "Jobs", href: "#jobs" },
   { label: "Winner", href: "#winner" },
   { label: "Feed", href: "#feed" },
   { label: "Plans", href: "#plans" },
-  { label: "Dashboard", href: "#merchant" },
+  { label: "Dashboard", href: "#dashboard" },
   { label: "Admin", href: "#admin" },
-  { label: "Help", href: "#explain" },
+  { label: "Help", href: "#explanations" },
 ];
 
-const categoryTiles: ShowcaseCategory[] = [
+const categoryTiles: CategoryTile[] = [
+  { label: "Grocery", icon: ShoppingCart, color: "#f2a715", tint: "#fff6df" },
+  { label: "Restaurant", icon: UtensilsCrossed, color: "#0b2f74", tint: "#f3f6fb" },
+  { label: "Bakery", icon: Cake, color: "#f2a715", tint: "#fff6df" },
+  { label: "Textiles", icon: Shirt, color: "#0b2f74", tint: "#f3f6fb" },
+  { label: "Beauty", icon: Sparkles, color: "#d34c90", tint: "#fff0f7" },
+  { label: "Mobile", icon: Smartphone, color: "#254fb3", tint: "#f1f4ff" },
+  { label: "Electronics", icon: Monitor, color: "#0b2f74", tint: "#f3f6fb" },
+  { label: "Home Services", icon: Home, color: "#0b2f74", tint: "#f3f6fb" },
+  { label: "More", icon: Grid2X2, color: "#0b2f74", tint: "#f7f4ee" },
+];
+
+const spotlightDeals: DealCardData[] = [
   {
-    id: "grocery",
-    name: "Grocery",
-    symbol: "🛒",
-    accent: "#f4a91f",
-    background: "rgba(244, 178, 39, 0.12)",
+    badge: "20% OFF",
+    badgeColor: "#25a451",
+    title: "Weekend Special",
+    text: "Get 20% off on all bakery items",
+    shop: "Sweet Bakery",
+    image: "/mockup/im-bakery.jpg",
+    gradient: "linear-gradient(135deg,#edfbea,#ffffff 58%,#e9f8ea)",
   },
   {
-    id: "restaurant",
-    name: "Restaurant",
-    symbol: "🍽",
-    accent: "#0b2f74",
-    background: "rgba(11, 47, 116, 0.10)",
+    badge: "₹599",
+    badgeColor: "#2565c7",
+    title: "Limited Time Offer",
+    text: "Full body health checkup at just Rs599",
+    shop: "City Care Lab",
+    image: "/mockup/im-pharmacy.jpg",
+    gradient: "linear-gradient(135deg,#eef5ff,#ffffff 58%,#e7f0ff)",
   },
   {
-    id: "bakery",
-    name: "Bakery",
-    symbol: "🎂",
-    accent: "#f0a61c",
-    background: "rgba(244, 178, 39, 0.12)",
+    badge: "15% OFF",
+    badgeColor: "#f3a51a",
+    title: "Fashion Fiesta",
+    text: "Flat 15% off on all men's wear",
+    shop: "Royale Tailors",
+    image: "/mockup/im-card_suit.jpg",
+    gradient: "linear-gradient(135deg,#fff2d8,#ffffff 58%,#fff0ce)",
   },
   {
-    id: "textiles",
-    name: "Textiles",
-    symbol: "👕",
-    accent: "#0b2f74",
-    background: "rgba(11, 47, 116, 0.12)",
-  },
-  {
-    id: "beauty",
-    name: "Beauty",
-    symbol: "💅",
-    accent: "#e0569a",
-    background: "rgba(247, 127, 183, 0.12)",
-  },
-  {
-    id: "mobile",
-    name: "Mobile",
-    symbol: "📱",
-    accent: "#4057c6",
-    background: "rgba(64, 87, 198, 0.10)",
-  },
-  {
-    id: "electronics",
-    name: "Electronics",
-    symbol: "🖥",
-    accent: "#2a4f9e",
-    background: "rgba(28, 78, 161, 0.12)",
-  },
-  {
-    id: "home-services",
-    name: "Home Services",
-    symbol: "🏠",
-    accent: "#163e73",
-    background: "rgba(11, 47, 116, 0.12)",
-  },
-  {
-    id: "more",
-    name: "More",
-    symbol: "▦",
-    accent: "#163e73",
-    background: "rgba(11, 47, 116, 0.10)",
+    badge: "B1G1",
+    badgeColor: "#7242b8",
+    title: "Buy 1 Get 1",
+    text: "On selected burgers & fries",
+    shop: "ALUKKY Hotel",
+    image: "/mockup/im-restaurant.jpg",
+    gradient: "linear-gradient(135deg,#f4eaff,#ffffff 58%,#eadcff)",
   },
 ];
 
-const heroChips = [
-  { symbol: "★", label: "Star shops" },
-  { symbol: "◎", label: "Best matches" },
-  { symbol: "🎁", label: "Weekly draw" },
-  { symbol: "🎀", label: "Gifts" },
+const featuredShops: ShopCardData[] = [
+  {
+    name: "Rajeevan Tailors",
+    category: "Tailor / Clothing",
+    rating: "4.6",
+    reviews: "126",
+    distance: "1.2 km",
+    image: "/mockup/im-tailor.jpg",
+    badge: "Star Shop",
+    badgeColor: "#2469d6",
+  },
+  {
+    name: "ALUKKY Hotel",
+    category: "Restaurant",
+    rating: "4.7",
+    reviews: "89",
+    distance: "1.5 km",
+    image: "/mockup/im-restaurant.jpg",
+    badge: "Popular",
+    badgeColor: "#f4a51c",
+  },
+  {
+    name: "Sweet Bakery",
+    category: "Bakery",
+    rating: "4.5",
+    reviews: "162",
+    distance: "2.1 km",
+    image: "/mockup/im-bakery.jpg",
+    badge: "Top Rated",
+    badgeColor: "#d94842",
+  },
+  {
+    name: "Star Jewelers",
+    category: "Jewelry",
+    rating: "4.6",
+    reviews: "98",
+    distance: "2.4 km",
+    image: "/mockup/im-jewellery.jpg",
+    badge: "Star Shop",
+    badgeColor: "#2469d6",
+  },
+  {
+    name: "Hanga Mobiles",
+    category: "Mobile Store",
+    rating: "4.4",
+    reviews: "113",
+    distance: "2.6 km",
+    image: "/mockup/im-mobile.jpg",
+    badge: "Popular",
+    badgeColor: "#f4a51c",
+  },
 ];
 
-const shopFilters = ["All", "Restaurant", "Grocery", "Mobile", "Beauty", "Open Now", "Offers"];
-
-const footerColumns = [
+const allShops: ShopCardData[] = [
+  ...featuredShops,
   {
-    title: "Explore",
-    items: ["Star shops", "Best matches", "Deals", "All categories"],
+    name: "Thache Electronics",
+    category: "Electronics",
+    rating: "4.3",
+    reviews: "77",
+    distance: "2.8 km",
+    image: "/mockup/im-electronics.jpg",
+    badge: "Offer",
+    badgeColor: "#d94842",
   },
   {
-    title: "For Businesses",
-    items: ["Business Card", "B2B Network", "Plans & Pricing", "Dashboard"],
+    name: "Fresh Basket",
+    category: "Grocery",
+    rating: "4.6",
+    reviews: "152",
+    distance: "3.0 km",
+    image: "/mockup/im-vegetables.jpg",
+    badge: "New",
+    badgeColor: "#25a451",
   },
   {
-    title: "Company",
-    items: ["About Us", "Careers", "Blog", "Contact Us"],
+    name: "Spice Garden",
+    category: "Restaurant / Cafe",
+    rating: "4.6",
+    reviews: "126",
+    distance: "3.2 km",
+    image: "/mockup/im-restaurant.jpg",
+    badge: "Offer",
+    badgeColor: "#d94842",
   },
   {
-    title: "Support",
-    items: ["Help Center", "Terms of Use", "Privacy Policy", "Sitemap"],
+    name: "Maya Beauty Salon",
+    category: "Beauty Salon",
+    rating: "4.7",
+    reviews: "76",
+    distance: "3.4 km",
+    image: "/mockup/im-beauty.jpg",
+    badge: "Popular",
+    badgeColor: "#f4a51c",
+  },
+  {
+    name: "Quick Mart",
+    category: "Grocery Store",
+    rating: "4.6",
+    reviews: "98",
+    distance: "3.6 km",
+    image: "/mockup/im-supermarket.jpg",
+    badge: "New",
+    badgeColor: "#25a451",
+  },
+  {
+    name: "Tech Hub",
+    category: "Electronics Store",
+    rating: "4.5",
+    reviews: "124",
+    distance: "3.8 km",
+    image: "/mockup/im-electronics.jpg",
+    badge: "Top Rated",
+    badgeColor: "#d94842",
+  },
+  {
+    name: "HomeFix Pro",
+    category: "Home Services",
+    rating: "4.6",
+    reviews: "53",
+    distance: "4.0 km",
+    image: "/mockup/im-electrical.jpg",
+    badge: "Offer",
+    badgeColor: "#f4a51c",
   },
 ];
 
-export function PublicHome({ data }: { data: CatalogView }) {
-  const imageBank = buildImageBank(data);
-  const allShops = buildShowcaseShops(imageBank);
-  const featuredShops = allShops.slice(0, 5);
-  const spotlightDeals = buildSpotlightDeals(imageBank);
-  const topOffers = buildTopOffers(imageBank);
-  const ecosystemCards = platformSections.filter((section) => section.id !== "discover");
-  const profileImage =
-    "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=600";
+const offers: OfferCardData[] = [
+  {
+    title: "20% Off",
+    text: "On all home cleaning services",
+    shop: "HomeFix Pro",
+    code: "CLEAN20",
+    image: "/mockup/im-occ_helper.jpg",
+    gradient: "linear-gradient(135deg,#08713f,#0b5636)",
+  },
+  {
+    title: "₹599 Offer",
+    text: "Hair Spa + Haircut Combo",
+    shop: "Maya Beauty Salon",
+    code: "SPA599",
+    image: "/mockup/im-occ_beauty.jpg",
+    gradient: "linear-gradient(135deg,#12459b,#092b70)",
+  },
+  {
+    title: "15% Off",
+    text: "On all fresh vegetables",
+    shop: "Fresh Basket",
+    code: "VEG15",
+    image: "/mockup/im-vegetables.jpg",
+    gradient: "linear-gradient(135deg,#cb790b,#8a4d04)",
+  },
+  {
+    title: "B1G1",
+    text: "Buy 1 Get 1 On Pizzas",
+    shop: "Spice Garden",
+    code: "PIZZA1",
+    image: "/mockup/im-restaurant.jpg",
+    gradient: "linear-gradient(135deg,#08713f,#064d2e)",
+  },
+  {
+    title: "Festival Offer",
+    text: "Up to 30% off on selected items",
+    shop: "Quick Mart",
+    code: "PICK21",
+    image: "/mockup/im-gifts.jpg",
+    gradient: "linear-gradient(135deg,#5825bb,#291986)",
+  },
+];
+
+const rankedShops = [
+  {
+    rank: 1,
+    name: "Star Stitch Center",
+    category: "Tailor / Clothing",
+    rating: "4.8",
+    reviews: "134",
+    distance: "1.1 km",
+    image: "/mockup/im-card_machine.jpg",
+  },
+  {
+    rank: 2,
+    name: "Rajeevan Tailors",
+    category: "Tailor / Clothing",
+    rating: "4.6",
+    reviews: "126",
+    distance: "1.2 km",
+    image: "/mockup/im-tailor.jpg",
+  },
+  {
+    rank: 3,
+    name: "Maya Tailors",
+    category: "Tailor / Clothing",
+    rating: "4.5",
+    reviews: "77",
+    distance: "1.6 km",
+    image: "/mockup/im-card_fabric.jpg",
+  },
+];
+
+const ecosystemCards: EcosystemCardData[] = [
+  { id: "business-card", title: "Business Card", text: "Create & share your digital business card", icon: CircleUserRound },
+  { id: "b2b", title: "B2B Network", text: "Connect & grow with businesses", icon: Network },
+  { id: "jobs", title: "Jobs", text: "Find jobs or hire local talent", icon: BriefcaseBusiness },
+  { id: "winner", title: "Winner", text: "Join contests & win exciting prizes", icon: Trophy },
+  { id: "feed", title: "Feed", text: "Read & share local stories & updates", icon: FileText },
+  { id: "plans", title: "Plans", text: "Choose the best plan for your business", icon: ShieldCheck },
+  { id: "dashboard", title: "Dashboard", text: "Manage your business performance", icon: Store },
+  { id: "admin", title: "Admin", text: "Manage users, reports & system", icon: Wrench },
+  { id: "explanations", title: "Explanations", text: "Guides, help articles & resources", icon: Lightbulb },
+];
+
+const filters = ["All", "Restaurant", "Grocery", "Mobile", "Beauty", "Open Now", "Offers"];
+
+export function PublicHome({ data }: { data: unknown }) {
+  void data;
 
   return (
-    <div className="min-h-screen bg-[var(--paper)] text-[var(--navy)]">
-      <section
-        id="discover"
-        className="relative overflow-hidden bg-[radial-gradient(circle_at_left_top,_#1d4ea0,_#0b2f74_38%,_#041c55_100%)] text-white"
-      >
-        <div className="absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-full w-px bg-white/6" />
-          <div className="absolute right-10 top-14 grid grid-cols-7 gap-2 opacity-25">
-            {Array.from({ length: 42 }).map((_, index) => (
-              <span key={index} className="h-1.5 w-1.5 rounded-full bg-[#86a6ef]" />
-            ))}
-          </div>
-        </div>
-
-        <div className="relative mx-auto max-w-[1500px] px-4 pb-10 pt-5 sm:px-6 lg:px-10">
-          <header className="flex flex-wrap items-center gap-3 rounded-[28px] border border-white/10 bg-[rgba(5,19,60,0.22)] px-4 py-3 shadow-[0_14px_34px_rgba(2,10,33,0.18)] backdrop-blur lg:flex-nowrap lg:px-6">
-            <Link href="/" className="flex items-center gap-2 text-[2.05rem] font-black tracking-[-0.05em]">
-              <MapPin className="h-8 w-8 fill-[var(--gold)] text-[var(--gold)]" />
-              <span>BNC</span>
-            </Link>
-
-            <div className="ml-0 flex flex-wrap items-center gap-2 lg:ml-3">
-              <Pill>
-                <div className="h-2 w-2 rounded-full bg-white" />
-                <span>Nearu</span>
-              </Pill>
-              <Pill>
-                <MapPin className="h-3.5 w-3.5" />
-                <span>Kozhikode, Kerala</span>
-                <ChevronDown className="h-4 w-4 text-white/70" />
-              </Pill>
-            </div>
-
-            <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex">
-              {topNavItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`relative pb-2 text-sm font-semibold transition ${
-                    item.active ? "text-[var(--gold)]" : "text-white/92 hover:text-white"
-                  }`}
-                >
-                  {item.label}
-                  {item.active ? (
-                    <span className="absolute inset-x-0 -bottom-1 h-[3px] rounded-full bg-[var(--gold)]" />
-                  ) : null}
-                </a>
-              ))}
-            </nav>
-
-            <div className="ml-auto flex items-center gap-3">
-              <button className="relative grid h-11 w-11 place-items-center rounded-full border border-white/12 bg-white/6 text-white">
-                <Bell className="h-5 w-5" />
-                <span className="absolute right-1 top-1 h-4 min-w-4 rounded-full bg-[var(--gold)] px-1 text-[10px] font-black leading-4 text-[var(--navy)]">
-                  1
-                </span>
-              </button>
-
-              <button className="flex items-center gap-3 rounded-full border border-white/12 bg-white/6 py-1.5 pl-1.5 pr-3 text-left text-white">
-                <div
-                  className="h-10 w-10 rounded-full border border-white/18 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${profileImage})` }}
-                />
-                <div className="hidden leading-tight sm:block">
-                  <div className="text-sm font-black">John Doe</div>
-                  <div className="text-xs text-white/70">Business</div>
-                </div>
-                <ChevronDown className="hidden h-4 w-4 text-white/70 sm:block" />
-              </button>
-            </div>
-          </header>
-
-          <div className="mt-8 grid items-end gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(420px,0.98fr)]">
-            <div className="max-w-[620px] pb-4">
-              <h1 className="text-[3.3rem] font-black leading-[0.96] tracking-[-0.055em] sm:text-[4.55rem]">
+    <div className="min-h-screen bg-[#fffdf7] text-[#0b2f74]">
+      <section id="discover" className="bg-[#061f55] text-white">
+        <TopBar />
+        <div className="relative overflow-hidden bg-[radial-gradient(circle_at_15%_20%,#164caa,#082d75_44%,#061f55_100%)]">
+          <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-end gap-10 px-5 pb-9 pt-8 md:px-10 lg:grid-cols-[1fr_0.98fr]">
+            <div className="max-w-[720px] pb-2">
+              <h1 className="text-[52px] font-black leading-[0.98] sm:text-[68px] lg:text-[74px]">
                 Find any shop, service
                 <span className="block">or deal near you</span>
               </h1>
-              <p className="mt-5 max-w-[520px] text-[1.06rem] leading-8 text-white/82">
-                Discover trusted local shops, services and exclusive offers
-                <span className="font-bold text-[var(--gold)]"> in Kozhikode</span> all in one
+              <p className="mt-5 max-w-[560px] text-[17px] leading-7 text-white/86">
+                Discover trusted local shops, services and exclusive offers in{" "}
+                <span className="font-black text-[#f5b625]">Kozhikode</span> all in one
                 place.
               </p>
-
-              <div className="mt-8 overflow-hidden rounded-[26px] border border-white/12 bg-white p-2.5 shadow-[0_20px_38px_rgba(2,9,31,0.28)]">
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <div className="flex min-h-[62px] flex-1 items-center gap-4 px-5 text-[var(--muted)]">
-                    <Search className="h-6 w-6 shrink-0" />
-                    <span className="text-base font-semibold">
-                      Search shops, products, services or deals
-                    </span>
-                  </div>
-                  <button className="rounded-[20px] bg-[var(--gold)] px-10 py-4 text-base font-black text-[var(--navy)] shadow-[0_12px_28px_rgba(199,137,8,0.24)]">
-                    Search
-                  </button>
+              <div className="mt-8 flex max-w-[860px] items-center rounded-[17px] bg-white p-2 shadow-[0_18px_36px_rgba(0,0,0,0.28)]">
+                <Search className="ml-4 h-6 w-6 shrink-0 text-[#8ea0bd]" />
+                <div className="flex-1 px-5 text-[15px] font-semibold text-[#71809b]">
+                  Search shops, products, services or deals
                 </div>
+                <button className="rounded-[14px] bg-[#f5b625] px-9 py-4 text-[15px] font-black text-[#08285f]">
+                  Search
+                </button>
               </div>
-
-              <div className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-3 text-sm text-white/82">
-                {heroChips.map((item) => (
-                  <div key={item.label} className="inline-flex items-center gap-2 font-semibold">
-                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white/8 text-[15px] text-[var(--gold)]">
-                      {item.symbol}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
-                ))}
+              <div className="mt-5 flex flex-wrap gap-8 text-[14px] font-semibold text-white/84">
+                <HeroChip icon={<Star className="h-5 w-5 fill-[#f5b625] text-[#f5b625]" />} text="Star shops" />
+                <HeroChip icon={<Sparkles className="h-5 w-5 text-[#f5b625]" />} text="Best matches" />
+                <HeroChip icon={<GiftIcon />} text="Weekly draw" />
+                <HeroChip icon={<GiftIcon />} text="Gifts" />
               </div>
             </div>
-
-            <div className="flex justify-center lg:justify-end">
-              <HeroTownGraphic />
-            </div>
+            <HeroScene />
           </div>
         </div>
       </section>
 
-      <main className="pb-16">
-        <div className="mx-auto max-w-[1500px] px-4 pt-8 sm:px-6 lg:px-10">
-          <SectionHeading title="Browse by category" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 xl:grid-cols-9">
-            {categoryTiles.map((category) => (
-              <article
-                key={category.id}
-                className="rounded-[26px] border border-[var(--line)] bg-white px-4 py-5 text-center shadow-[0_14px_34px_rgba(10,30,68,0.05)]"
+      <main className="mx-auto max-w-[1800px] px-5 pb-14 pt-5 md:px-10">
+        <SectionTitle title="Browse by category" />
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-9">
+          {categoryTiles.map((item) => (
+            <CategoryCard key={item.label} item={item} />
+          ))}
+        </div>
+
+        <SectionTitle title="Deals in spotlight" action="View all deals" />
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {spotlightDeals.map((deal) => (
+            <SpotlightDeal key={deal.title} deal={deal} />
+          ))}
+        </div>
+
+        <SectionTitle title="Featured shops" action="View all shops" />
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+          {featuredShops.map((shop) => (
+            <FeaturedShop key={shop.name} shop={shop} />
+          ))}
+        </div>
+
+        <SectionTitle title="Today's top offers" />
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+          {offers.map((offer) => (
+            <OfferCard key={offer.title} offer={offer} />
+          ))}
+        </div>
+
+        <div className="mt-9 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-[25px] font-black leading-none text-[#0b2f74]">
+              All shops in Kozhikode
+            </h2>
+            <p className="mt-1 text-[13px] font-semibold text-[#71809b]">
+              Showing trusted local businesses near you
+            </p>
+          </div>
+          <a className="hidden items-center gap-1 text-[13px] font-black text-[#0b2f74] sm:flex" href="#ranked">
+            View all
+            <ChevronRight className="h-4 w-4" />
+          </a>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {filters.map((filter, index) => (
+            <button
+              key={filter}
+              className={`rounded-full border px-5 py-2.5 text-[12px] font-black ${
+                index === 0
+                  ? "border-[#0b2f74] bg-[#0b2f74] text-white"
+                  : "border-[#dfe6f2] bg-white text-[#405474]"
+              }`}
+            >
+              <span
+                className={
+                  filter === "Open Now"
+                    ? "mr-2 inline-block h-2 w-2 rounded-full bg-[#31c563]"
+                    : filter === "Offers"
+                      ? "mr-2 inline-block h-2 w-2 rounded-full bg-[#e84141]"
+                      : "hidden"
+                }
+              />
+              {filter}
+            </button>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {allShops.map((shop) => (
+            <ShopGridCard key={`${shop.name}-${shop.distance}`} shop={shop} />
+          ))}
+        </div>
+        <div className="mt-7 flex justify-center">
+          <button className="inline-flex items-center gap-2 rounded-full border border-[#cbd7ea] bg-white px-7 py-3 text-[14px] font-black text-[#0b2f74] shadow-[0_8px_20px_rgba(11,47,116,0.06)]">
+            Explore more shops
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        <section id="ranked" className="mt-9">
+          <SectionTitle title="Search ranked shops" compact />
+          <div className="-mt-2 mb-4 flex flex-wrap gap-3">
+            {["Best Match", "Most Rated", "Nearby", "Offers", "New"].map((label, index) => (
+              <button
+                key={label}
+                className={`rounded-full border px-5 py-2 text-[12px] font-black ${
+                  index === 0
+                    ? "border-[#0b2f74] bg-[#0b2f74] text-white"
+                    : "border-[#dfe6f2] bg-white text-[#405474]"
+                }`}
               >
-                <div
-                  className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-[18px] text-[1.85rem]"
-                  style={{
-                    backgroundColor: category.background,
-                    color: category.accent,
-                  }}
-                >
-                  {category.symbol}
-                </div>
-                <div className="text-[15px] font-bold leading-5 text-[var(--navy)]">
-                  {category.name}
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <SectionHeading title="Deals in spotlight" action="View all deals" />
-          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-            {spotlightDeals.map((deal) => (
-              <SpotlightDealCard key={deal.id} deal={deal} />
-            ))}
-          </div>
-
-          <SectionHeading title="Featured shops" action="View all shops" />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            {featuredShops.map((shop) => (
-              <FeaturedShopCard key={shop.id} shop={shop} />
-            ))}
-          </div>
-
-          <SectionHeading title="Today's top offers" />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            {topOffers.map((offer) => (
-              <OfferBannerCard key={offer.id} offer={offer} />
-            ))}
-          </div>
-
-          <div id="all-shops" className="mt-10">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <h2 className="text-[2rem] font-black tracking-[-0.04em] text-[var(--navy)]">
-                  All shops in Kozhikode
-                </h2>
-                <p className="mt-1 text-sm text-[var(--muted)]">
-                  Showing trusted local businesses near you
-                </p>
-              </div>
-              <a
-                href="#ranked"
-                className="inline-flex items-center gap-1 text-sm font-bold text-[var(--muted)]"
-              >
-                View all
-                <ChevronRight className="h-4 w-4" />
-              </a>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              {shopFilters.map((filter, index) => (
-                <button
-                  key={filter}
-                  className={`rounded-full px-5 py-2.5 text-sm font-bold transition ${
-                    index === 0
-                      ? "bg-[var(--navy)] text-white shadow-[0_12px_24px_rgba(11,47,116,0.16)]"
-                      : "bg-[#f1f5fc] text-[var(--navy)]"
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-              {allShops.map((shop) => (
-                <ShopGridCard key={shop.id} shop={shop} />
-              ))}
-            </div>
-
-            <div className="mt-7 flex justify-center">
-              <button className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white px-6 py-3.5 text-sm font-bold text-[var(--navy)] shadow-[0_10px_22px_rgba(10,30,68,0.06)]">
-                Explore more shops
-                <ChevronRight className="h-4 w-4" />
+                {label}
               </button>
-            </div>
+            ))}
           </div>
-
-          <div id="ranked" className="mt-11">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <h2 className="text-[2rem] font-black tracking-[-0.04em] text-[var(--navy)]">
-                  Search ranked shops
-                </h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {["Best Match", "Most Rated", "Nearby", "Offers", "New"].map(
-                    (label, index) => (
-                      <span
-                        key={label}
-                        className={`rounded-full px-4 py-2 text-xs font-bold ${
-                          index === 0
-                            ? "bg-[var(--navy)] text-white"
-                            : "bg-[#f4f7fc] text-[var(--muted)]"
-                        }`}
-                      >
-                        {label}
-                      </span>
-                    ),
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-4 xl:grid-cols-3">
-              {featuredShops.slice(0, 3).map((shop, index) => (
-                <RankedShopCard key={shop.id} shop={shop} rank={index + 1} />
-              ))}
-            </div>
+          <div className="grid gap-5 xl:grid-cols-3">
+            {rankedShops.map((shop) => (
+              <RankedShop key={shop.rank} shop={shop} />
+            ))}
           </div>
+        </section>
 
-          <div className="mt-11">
-            <SectionHeading title="More from BNC ecosystem" />
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {ecosystemCards.map((section) => (
-                <a
-                  key={section.id}
-                  id={section.id}
-                  href={`#${section.id}`}
-                  className="group flex items-center gap-4 rounded-[24px] border border-[var(--line)] bg-white px-5 py-4 shadow-[0_12px_28px_rgba(10,30,68,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_rgba(10,30,68,0.08)]"
-                >
-                  <div
-                    className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] text-[12px] font-black tracking-[0.08em]"
-                    style={{
-                      color: section.accent,
-                      backgroundColor: rgbaFromHex(section.accent, 0.12),
-                    }}
-                  >
-                    {section.emoji}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-lg font-black text-[var(--navy)]">{section.label}</div>
-                    <div className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                      {section.title}
-                    </div>
-                  </div>
-                  <div className="grid h-9 w-9 place-items-center rounded-full bg-[#f6f8fd] text-[var(--muted)] transition group-hover:text-[var(--navy)]">
-                    <ChevronRight className="h-4 w-4" />
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
+        <SectionTitle title="More from BNC ecosystem" />
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {ecosystemCards.map((item) => (
+            <EcosystemCard key={item.title} item={item} />
+          ))}
         </div>
       </main>
 
-      <footer className="bg-[linear-gradient(180deg,#102c69_0%,#0a2258_100%)] text-white">
-        <div className="mx-auto grid max-w-[1500px] gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.25fr_0.85fr_0.95fr_0.8fr_0.8fr_1.15fr] lg:px-10">
-          <div>
-            <div className="flex items-center gap-2 text-[2rem] font-black tracking-[-0.05em]">
-              <MapPin className="h-8 w-8 fill-[var(--gold)] text-[var(--gold)]" />
-              <span>BNC</span>
-              <span className="text-lg font-bold text-white/72">|</span>
-              <span className="text-[1.4rem] font-bold text-white/82">Nearu</span>
-            </div>
-            <p className="mt-4 max-w-[270px] text-sm leading-7 text-white/76">
-              Your trusted local discovery and business ecosystem in Kozhikode.
-            </p>
-            <div className="mt-5 flex gap-3">
-              <FooterSocial icon={<Store className="h-4 w-4" />} />
-              <FooterSocial icon={<Sparkles className="h-4 w-4" />} />
-              <FooterSocial icon={<ShieldCheck className="h-4 w-4" />} />
-              <FooterSocial icon={<UserRound className="h-4 w-4" />} />
-            </div>
-          </div>
+      <Footer />
+    </div>
+  );
+}
 
-          {footerColumns.map((column) => (
-            <FooterColumn key={column.title} title={column.title} items={column.items} />
+function TopBar() {
+  return (
+    <header className="border-b border-white/10 bg-[#061f55]">
+      <div className="mx-auto flex h-[72px] max-w-[1800px] items-center gap-5 px-5 md:px-10">
+        <Link href="/" className="flex shrink-0 items-center gap-2 text-[34px] font-black leading-none">
+          <MapPin className="h-9 w-9 fill-[#f5b625] text-[#f5b625]" />
+          <span>BNC</span>
+        </Link>
+        <div className="hidden items-center gap-2 rounded-full border border-white/16 bg-white/6 px-4 py-2.5 text-[13px] font-bold text-white/84 md:flex">
+          <MapPin className="h-4 w-4" />
+          Nearu
+        </div>
+        <div className="hidden items-center gap-2 rounded-full border border-white/16 bg-white/6 px-4 py-2.5 text-[13px] font-bold text-white/84 lg:flex">
+          <MapPin className="h-4 w-4" />
+          Kozhikode, Kerala
+          <ChevronDown className="h-4 w-4" />
+        </div>
+        <nav className="ml-auto hidden h-full items-center gap-7 lg:flex">
+          {navItems.map((item, index) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className={`relative flex h-full items-center text-[13px] font-black ${
+                index === 0 ? "text-[#f5b625]" : "text-white/92"
+              }`}
+            >
+              {item.label}
+              {index === 0 ? (
+                <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-full bg-[#f5b625]" />
+              ) : null}
+            </a>
           ))}
-
-          <div>
-            <h4 className="text-lg font-black">Stay in the loop</h4>
-            <p className="mt-3 text-sm leading-7 text-white/76">
-              Get updates on the best deals &amp; offers near you.
-            </p>
-            <div className="mt-5 flex gap-3">
-              <div className="flex-1 rounded-2xl border border-white/14 bg-white/6 px-4 py-4 text-sm text-white/60">
-                Enter your email
-              </div>
-              <button className="rounded-2xl bg-[var(--gold)] px-6 py-4 font-black text-[var(--navy)]">
-                Subscribe
-              </button>
-            </div>
+        </nav>
+        <button className="relative grid h-11 w-11 place-items-center rounded-full border border-white/14 text-white">
+          <Bell className="h-5 w-5" />
+        </button>
+        <div className="hidden items-center gap-3 text-white sm:flex">
+          <div className="h-11 w-11 rounded-full border border-white/20 bg-[url('/mockup/im-occ_sales.jpg')] bg-cover bg-center" />
+          <div className="leading-tight">
+            <div className="text-[13px] font-black">John Doe</div>
+            <div className="text-[12px] font-semibold text-white/72">Business</div>
           </div>
+          <ChevronDown className="h-4 w-4 text-white/70" />
         </div>
+      </div>
+    </header>
+  );
+}
 
-        <div className="border-t border-white/10">
-          <div className="mx-auto flex max-w-[1500px] flex-col gap-3 px-4 py-4 text-sm text-white/68 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-10">
-            <div>© 2024 BNC / Nearu. All rights reserved.</div>
-            <div className="flex flex-wrap items-center gap-4">
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                Kozhikode, Kerala
-              </span>
-              <span>English</span>
-              <span>INR</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+function HeroChip({ icon, text }: { icon: ReactNode; text: string }) {
+  return (
+    <div className="inline-flex items-center gap-2">
+      {icon}
+      <span>{text}</span>
     </div>
   );
 }
 
-function Pill({ children }: { children: ReactNode }) {
+function GiftIcon() {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/7 px-4 py-2.5 text-sm font-semibold text-white/88">
-      {children}
+    <span className="grid h-5 w-5 place-items-center rounded-[4px] border-2 border-[#f5b625] text-[10px] font-black text-[#f5b625]">
+      +
+    </span>
+  );
+}
+
+function HeroScene() {
+  return (
+    <div className="relative mx-auto h-[330px] w-full max-w-[700px]">
+      <div className="absolute inset-x-0 bottom-0 h-[240px] opacity-55">
+        <div className="absolute bottom-0 left-0 h-[132px] w-[78px] rounded-t-[12px] bg-[#2e55a1]" />
+        <div className="absolute bottom-0 left-[92px] h-[180px] w-[92px] rounded-t-[12px] bg-[#244a96]" />
+        <div className="absolute bottom-0 left-[200px] h-[220px] w-[118px] rounded-t-[12px] bg-[#315aa8]" />
+        <div className="absolute bottom-0 right-[156px] h-[186px] w-[104px] rounded-t-[12px] bg-[#244a96]" />
+        <div className="absolute bottom-0 right-[54px] h-[145px] w-[76px] rounded-t-[12px] bg-[#315aa8]" />
+        <div className="absolute bottom-[12px] left-[18px] h-5 w-5 rounded-full bg-white/10" />
+      </div>
+      <div className="absolute bottom-1 left-1/2 h-[50px] w-[420px] -translate-x-1/2 rounded-full bg-[#103f91]/70 blur-[2px]" />
+      <div className="absolute bottom-0 left-1/2 h-[146px] w-[230px] -translate-x-1/2 rounded-t-[24px] bg-[#1b4a99]">
+        <div className="absolute left-1/2 top-[-44px] h-[76px] w-[250px] -translate-x-1/2 overflow-hidden rounded-t-[28px] bg-[#13408e]">
+          <div className="absolute inset-x-0 bottom-0 flex h-[70px]">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className={`flex-1 rounded-b-[18px] ${index % 2 === 0 ? "bg-white" : "bg-[#2d66c1]"}`}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-[34px] h-[96px] w-[76px] rounded-t-[16px] bg-white/95" />
+        <div className="absolute bottom-0 right-[34px] h-[96px] w-[76px] rounded-t-[16px] bg-white/95" />
+        <div className="absolute bottom-0 left-1/2 h-[112px] w-[62px] -translate-x-1/2 rounded-t-[18px] bg-[#113b87]" />
+      </div>
+      <div className="absolute bottom-[145px] left-1/2 h-[128px] w-[128px] -translate-x-1/2 rounded-full border-[26px] border-[#f5b625]" />
+      <div className="absolute bottom-[92px] left-1/2 h-[100px] w-[34px] -translate-x-1/2 rounded-b-full bg-[#d79408]" />
+      <Person className="absolute bottom-[8px] left-[118px]" />
+      <Person className="absolute bottom-[8px] right-[76px]" flip />
+      <div className="absolute right-0 top-0 grid grid-cols-7 gap-3 opacity-35">
+        {Array.from({ length: 35 }).map((_, index) => (
+          <span key={index} className="h-1.5 w-1.5 rounded-full bg-[#f5b625]" />
+        ))}
+      </div>
+      <div className="absolute left-20 top-12 h-8 w-24 rounded-full bg-white/10" />
+      <div className="absolute right-28 top-22 h-7 w-20 rounded-full bg-white/10" />
     </div>
   );
 }
 
-function SectionHeading({ title, action }: { title: string; action?: string }) {
+function Person({ className = "", flip = false }: { className?: string; flip?: boolean }) {
   return (
-    <div className="mb-4 mt-10 flex items-center gap-4">
-      <h2 className="text-[1.9rem] font-black tracking-[-0.04em] text-[var(--navy)]">
-        {title}
-      </h2>
+    <div className={`${className} ${flip ? "scale-x-[-1]" : ""} h-[98px] w-[42px]`}>
+      <div className="mx-auto h-5 w-5 rounded-full bg-[#ffc66f]" />
+      <div className="mx-auto mt-1 h-11 w-5 rounded-full bg-[#f5b625]" />
+      <div className="mx-auto mt-0 flex w-7 justify-between">
+        <span className="h-10 w-2 rounded-full bg-[#092f78]" />
+        <span className="h-10 w-2 rounded-full bg-[#092f78]" />
+      </div>
+    </div>
+  );
+}
+
+function SectionTitle({ title, action, compact = false }: { title: string; action?: string; compact?: boolean }) {
+  return (
+    <div className={`flex items-center gap-4 ${compact ? "mt-0" : "mt-9"} mb-4`}>
+      <h2 className="text-[23px] font-black leading-none text-[#0b2f74]">{title}</h2>
       {action ? (
-        <a
-          href="#all-shops"
-          className="ml-auto inline-flex items-center gap-1 text-sm font-bold text-[var(--muted)]"
-        >
+        <a className="ml-auto inline-flex items-center gap-1 text-[13px] font-black text-[#0b2f74]" href="#all-shops">
           {action}
           <ChevronRight className="h-4 w-4" />
         </a>
@@ -577,636 +643,242 @@ function SectionHeading({ title, action }: { title: string; action?: string }) {
   );
 }
 
-function SpotlightDealCard({ deal }: { deal: SpotlightDeal }) {
+function CategoryCard({ item }: { item: CategoryTile }) {
+  const Icon = item.icon;
   return (
-    <article
-      className="overflow-hidden rounded-[26px] border border-white/30 shadow-[0_14px_34px_rgba(10,30,68,0.06)]"
-      style={{ background: deal.background }}
-    >
-      <div className="flex min-h-[176px] items-center gap-4 px-5 py-5">
-        <div className="max-w-[210px]">
-          <span
-            className="inline-flex rounded-full px-3 py-1.5 text-xs font-black text-white"
-            style={{ backgroundColor: deal.badgeColor }}
-          >
+    <article className="rounded-[14px] border border-[#dfe6f2] bg-white px-4 py-5 text-center shadow-[0_10px_24px_rgba(11,47,116,0.05)]">
+      <div
+        className="mx-auto grid h-[62px] w-[62px] place-items-center rounded-[18px]"
+        style={{ color: item.color, backgroundColor: item.tint }}
+      >
+        <Icon className="h-8 w-8" />
+      </div>
+      <div className="mt-3 min-h-[22px] text-[13px] font-black leading-tight text-[#0b2f74]">
+        {item.label}
+      </div>
+    </article>
+  );
+}
+
+function SpotlightDeal({ deal }: { deal: DealCardData }) {
+  return (
+    <article className="overflow-hidden rounded-[15px] border border-[#dfe6f2] shadow-[0_12px_26px_rgba(11,47,116,0.06)]" style={{ background: deal.gradient }}>
+      <div className="flex h-[158px] items-center gap-4 px-5">
+        <div className="min-w-0 flex-1">
+          <span className="inline-flex rounded-full px-4 py-1.5 text-[20px] font-black leading-none text-white" style={{ backgroundColor: deal.badgeColor }}>
             {deal.badge}
           </span>
-          <h3 className="mt-4 text-[1.7rem] font-black leading-[1.02] tracking-[-0.04em] text-[var(--navy)]">
-            {deal.title}
-          </h3>
-          <p className="mt-3 text-sm leading-6 text-[#516987]">{deal.description}</p>
-          <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--navy)]">
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-white/70">
-              <Store className="h-3.5 w-3.5" />
-            </span>
-            {deal.business}
+          <h3 className="mt-3 text-[19px] font-black leading-tight text-[#0b2f74]">{deal.title}</h3>
+          <p className="mt-2 text-[13px] font-semibold leading-5 text-[#596a82]">{deal.text}</p>
+          <div className="mt-4 flex items-center gap-2 text-[12px] font-black text-[#0b2f74]">
+            <span className="h-6 w-6 rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${deal.image})` }} />
+            {deal.shop}
           </div>
         </div>
-        <div className="ml-auto h-[126px] w-[126px] shrink-0 overflow-hidden rounded-[26px] border border-white/45 bg-white/55 shadow-[0_14px_28px_rgba(10,30,68,0.08)]">
-          <PhotoFill imageUrl={deal.imageUrl} />
+        <div className="h-[132px] w-[150px] shrink-0 overflow-hidden rounded-[12px] bg-white/40">
+          <ImageFill src={deal.image} />
         </div>
       </div>
     </article>
   );
 }
 
-function FeaturedShopCard({ shop }: { shop: ShowcaseShop }) {
+function FeaturedShop({ shop }: { shop: ShopCardData }) {
   return (
-    <article className="overflow-hidden rounded-[24px] border border-[var(--line)] bg-white shadow-[0_14px_30px_rgba(10,30,68,0.08)]">
-      <div className="relative h-[176px] bg-slate-100">
-        <PhotoFill imageUrl={shop.imageUrl} darken />
-        <span
-          className="absolute left-3 top-3 rounded-full px-3 py-1.5 text-[11px] font-black text-white"
-          style={{ backgroundColor: shop.tierColor }}
-        >
-          {shop.tier}
-        </span>
-        <button className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-black/22 text-white">
-          <Heart className="h-4 w-4" />
-        </button>
-      </div>
-      <div className="space-y-3 px-4 py-4">
-        <div>
-          <h3 className="text-lg font-black text-[var(--navy)]">{shop.name}</h3>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            {shop.subtitle} · {shop.area}
-          </p>
-        </div>
-        <div className="flex items-center gap-4 text-sm text-[var(--muted)]">
-          <span className="inline-flex items-center gap-1">
-            <Star className="h-4 w-4 fill-[var(--gold)] text-[var(--gold)]" />
-            {shop.rating.toFixed(1)} ({shop.reviewCount})
-          </span>
-          <span>Open now</span>
-        </div>
-      </div>
+    <article className="overflow-hidden rounded-[13px] border border-[#dfe6f2] bg-white shadow-[0_12px_25px_rgba(11,47,116,0.07)]">
+      <ShopImage image={shop.image} badge={shop.badge} badgeColor={shop.badgeColor} height="h-[150px]" />
+      <ShopBody shop={shop} />
     </article>
   );
 }
 
-function OfferBannerCard({ offer }: { offer: OfferBanner }) {
+function OfferCard({ offer }: { offer: OfferCardData }) {
   return (
-    <article
-      className="relative overflow-hidden rounded-[24px] px-5 py-5 text-white shadow-[0_16px_34px_rgba(10,30,68,0.1)]"
-      style={{ background: offer.background }}
-    >
-      <div className="max-w-[180px]">
-        <div className="text-xs font-black uppercase tracking-[0.18em] text-white/78">
-          {offer.eyebrow}
-        </div>
-        <h3 className="mt-3 text-[2rem] font-black leading-none tracking-[-0.05em]">
-          {offer.title}
-        </h3>
-        <p className="mt-3 text-sm leading-6 text-white/82">{offer.description}</p>
-        <div className="mt-4 inline-flex rounded-full bg-white/16 px-3 py-1.5 text-xs font-black">
+    <article className="relative h-[142px] overflow-hidden rounded-[15px] p-5 text-white shadow-[0_12px_26px_rgba(11,47,116,0.1)]" style={{ background: offer.gradient }}>
+      <div className="relative z-10 max-w-[190px]">
+        <h3 className="text-[28px] font-black leading-none">{offer.title}</h3>
+        <p className="mt-2 text-[13px] font-bold leading-5 text-white/86">{offer.text}</p>
+        <div className="mt-3 text-[12px] font-black text-white/90">{offer.shop}</div>
+        <div className="mt-2 inline-flex rounded-[6px] bg-white/18 px-2.5 py-1 text-[11px] font-black">
           Use Code: {offer.code}
         </div>
       </div>
-      <div className="absolute bottom-0 right-0 h-[112px] w-[112px] overflow-hidden rounded-tl-[28px] border-l border-t border-white/14">
-        <PhotoFill imageUrl={offer.imageUrl} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/22 to-transparent" />
+      <div className="absolute bottom-0 right-0 h-[132px] w-[142px] overflow-hidden rounded-tl-[20px]">
+        <ImageFill src={offer.image} />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/12" />
       </div>
     </article>
   );
 }
 
-function ShopGridCard({ shop }: { shop: ShowcaseShop }) {
+function ShopGridCard({ shop }: { shop: ShopCardData }) {
   return (
-    <article className="overflow-hidden rounded-[22px] border border-[var(--line)] bg-white shadow-[0_12px_28px_rgba(10,30,68,0.06)]">
-      <div className="relative h-[146px] bg-slate-100">
-        <PhotoFill imageUrl={shop.imageUrl} darken />
-        <span
-          className="absolute left-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black text-white"
-          style={{ backgroundColor: shop.tierColor }}
-        >
-          {shop.tier}
+    <article className="overflow-hidden rounded-[13px] border border-[#dfe6f2] bg-white shadow-[0_12px_25px_rgba(11,47,116,0.06)]">
+      <ShopImage image={shop.image} badge={shop.badge} badgeColor={shop.badgeColor} ribbon={shop.ribbon} height="h-[128px]" />
+      <ShopBody shop={shop} dense />
+    </article>
+  );
+}
+
+function ShopImage({ image, badge, badgeColor, ribbon, height }: { image: string; badge: string; badgeColor: string; ribbon?: string; height: string }) {
+  return (
+    <div className={`relative ${height} bg-slate-100`}>
+      <ImageFill src={image} darken />
+      <span className="absolute left-3 top-3 rounded-[6px] px-2.5 py-1 text-[11px] font-black text-white" style={{ backgroundColor: badgeColor }}>
+        {badge}
+      </span>
+      {ribbon ? (
+        <span className="absolute right-3 top-3 rounded-[6px] bg-[#d94842] px-2.5 py-1 text-[10px] font-black text-white">
+          {ribbon}
         </span>
-        {shop.promo ? (
-          <span className="absolute left-3 top-12 rounded-full bg-white/88 px-2.5 py-1 text-[10px] font-black text-[var(--navy)]">
-            {shop.promo}
-          </span>
-        ) : null}
-        <button className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-black/18 text-white">
-          <Heart className="h-4 w-4" />
-        </button>
-      </div>
-      <div className="space-y-2 px-4 py-4">
-        <h3 className="truncate text-[1.02rem] font-black text-[var(--navy)]">{shop.name}</h3>
-        <p className="truncate text-sm text-[var(--muted)]">{shop.subtitle}</p>
-        <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
-          <span className="inline-flex items-center gap-1">
-            <Star className="h-4 w-4 fill-[var(--gold)] text-[var(--gold)]" />
-            {shop.rating.toFixed(1)} ({shop.reviewCount})
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
-            {shop.distanceKm.toFixed(1)} km
-          </span>
-        </div>
-      </div>
-    </article>
+      ) : null}
+      <button className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-black/24 text-white">
+        <Heart className="h-4 w-4" />
+      </button>
+    </div>
   );
 }
 
-function RankedShopCard({ shop, rank }: { shop: ShowcaseShop; rank: number }) {
+function ShopBody({ shop, dense = false }: { shop: ShopCardData; dense?: boolean }) {
   return (
-    <article className="flex items-center gap-4 rounded-[24px] border border-[var(--line)] bg-white px-4 py-4 shadow-[0_12px_28px_rgba(10,30,68,0.05)]">
-      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,#f4b227,#d38f0f)] text-lg font-black text-white">
-        {rank}
+    <div className={dense ? "px-3 py-3" : "px-4 py-4"}>
+      <h3 className="truncate text-[14px] font-black text-[#0b2f74]">{shop.name}</h3>
+      <p className="mt-1 truncate text-[12px] font-semibold text-[#71809b]">{shop.category}</p>
+      <div className="mt-3 flex items-center justify-between gap-2 text-[12px] font-semibold text-[#71809b]">
+        <span className="inline-flex items-center gap-1">
+          <Star className="h-3.5 w-3.5 fill-[#f5b625] text-[#f5b625]" />
+          {shop.rating} ({shop.reviews})
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5" />
+          {shop.distance}
+        </span>
       </div>
-      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[18px] bg-slate-100">
-        <PhotoFill imageUrl={shop.imageUrl} />
+    </div>
+  );
+}
+
+function RankedShop({ shop }: { shop: (typeof rankedShops)[number] }) {
+  return (
+    <article className="flex items-center gap-4 rounded-[13px] border border-[#dfe6f2] bg-white p-4 shadow-[0_12px_25px_rgba(11,47,116,0.05)]">
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,#f5b625,#c98200)] text-[18px] font-black text-white">
+        {shop.rank}
+      </div>
+      <div className="h-16 w-24 shrink-0 overflow-hidden rounded-[10px] bg-slate-100">
+        <ImageFill src={shop.image} />
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-base font-black text-[var(--navy)]">{shop.name}</h3>
-        <p className="truncate text-sm text-[var(--muted)]">
-          {shop.subtitle} · {shop.area}
-        </p>
-        <div className="mt-2 flex items-center gap-3 text-xs text-[var(--muted)]">
+        <h3 className="truncate text-[14px] font-black text-[#0b2f74]">{shop.name}</h3>
+        <p className="mt-1 truncate text-[12px] font-semibold text-[#71809b]">{shop.category}</p>
+        <div className="mt-2 flex gap-3 text-[11px] font-semibold text-[#71809b]">
           <span className="inline-flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 fill-[var(--gold)] text-[var(--gold)]" />
-            {shop.rating.toFixed(1)} ({shop.reviewCount})
+            <Star className="h-3.5 w-3.5 fill-[#f5b625] text-[#f5b625]" />
+            {shop.rating} ({shop.reviews})
           </span>
-          <span>{shop.distanceKm.toFixed(1)} km</span>
+          <span>{shop.distance}</span>
         </div>
       </div>
-      <button className="grid h-9 w-9 place-items-center rounded-full bg-[#f4f7fd] text-[var(--muted)]">
+      <button className="grid h-9 w-9 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74]">
         <ChevronRight className="h-4 w-4" />
       </button>
     </article>
   );
 }
 
-function FooterSocial({ icon }: { icon: ReactNode }) {
-  return <div className="grid h-9 w-9 place-items-center rounded-full bg-white/10">{icon}</div>;
-}
-
-function FooterColumn({ title, items }: { title: string; items: string[] }) {
+function EcosystemCard({ item }: { item: EcosystemCardData }) {
+  const Icon = item.icon;
   return (
-    <div>
-      <h4 className="text-lg font-black">{title}</h4>
-      <ul className="mt-4 space-y-3 text-sm text-white/72">
-        {items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-    </div>
+    <article id={item.id} className="flex scroll-mt-24 items-center gap-5 rounded-[13px] border border-[#dfe6f2] bg-white p-5 shadow-[0_10px_22px_rgba(11,47,116,0.05)]">
+      <div className="grid h-16 w-16 shrink-0 place-items-center rounded-[10px] bg-[#edf3ff] text-[#0b2f74]">
+        <Icon className="h-9 w-9" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <h3 className="text-[16px] font-black text-[#0b2f74]">{item.title}</h3>
+        <p className="mt-1 text-[13px] font-semibold leading-5 text-[#71809b]">{item.text}</p>
+      </div>
+      <button className="grid h-9 w-9 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74]">
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    </article>
   );
 }
 
-function PhotoFill({
-  imageUrl,
-  darken = false,
-}: {
-  imageUrl: string;
-  darken?: boolean;
-}) {
-  return (
-    <div className="relative h-full w-full overflow-hidden bg-slate-100">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${imageUrl})` }}
-      />
-      {darken ? (
-        <div className="absolute inset-0 bg-gradient-to-t from-black/46 via-black/6 to-black/10" />
-      ) : null}
-    </div>
-  );
-}
-
-function HeroTownGraphic() {
-  return (
-    <div className="relative h-[320px] w-full max-w-[560px]">
-      <div className="absolute inset-x-14 bottom-6 h-8 rounded-full bg-[#123a89]/76 blur-[3px]" />
-      <svg
-        viewBox="0 0 560 320"
-        className="absolute inset-0 h-full w-full"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M64 286C128 250 170 232 224 222C294 209 376 208 517 232V320H64V286Z"
-          fill="rgba(7,22,67,0.34)"
-        />
-        <path
-          d="M54 286C135 250 226 230 332 230C414 230 468 239 532 252V320H54V286Z"
-          fill="rgba(14,42,104,0.42)"
-        />
-        <circle cx="138" cy="62" r="18" fill="rgba(255,255,255,0.12)" />
-        <circle cx="170" cy="62" r="14" fill="rgba(255,255,255,0.12)" />
-        <circle cx="150" cy="47" r="16" fill="rgba(255,255,255,0.12)" />
-        <circle cx="448" cy="76" r="16" fill="rgba(255,255,255,0.12)" />
-        <circle cx="474" cy="76" r="12" fill="rgba(255,255,255,0.12)" />
-        <circle cx="460" cy="61" r="14" fill="rgba(255,255,255,0.12)" />
-
-        {[
-          { x: 110, y: 110, w: 50, h: 122 },
-          { x: 168, y: 126, w: 60, h: 106 },
-          { x: 238, y: 92, w: 64, h: 140 },
-          { x: 314, y: 116, w: 56, h: 116 },
-          { x: 392, y: 96, w: 50, h: 136 },
-          { x: 456, y: 122, w: 42, h: 110 },
-        ].map((building, index) => (
-          <g key={index} opacity="0.32">
-            <rect
-              x={building.x}
-              y={building.y}
-              width={building.w}
-              height={building.h}
-              rx="8"
-              fill="#4B67B5"
-            />
-            {Array.from({ length: 4 }).map((_, row) =>
-              Array.from({ length: 2 }).map((__, column) => (
-                <rect
-                  key={`${row}-${column}`}
-                  x={building.x + 10 + column * 16}
-                  y={building.y + 14 + row * 24}
-                  width="9"
-                  height="12"
-                  rx="2"
-                  fill="rgba(255,255,255,0.18)"
-                />
-              )),
-            )}
-          </g>
-        ))}
-
-        <ellipse cx="319" cy="278" rx="128" ry="28" fill="#17479C" />
-        <ellipse cx="319" cy="278" rx="104" ry="21" fill="#285AB7" />
-
-        <g transform="translate(218 96)">
-          <path
-            d="M108 0C138 0 162 24 162 54C162 85 139 106 122 126C112 138 106 149 108 166C91 151 83 138 75 126C59 105 38 83 38 54C38 24 62 0 92 0H108Z"
-            fill="#F4B227"
-          />
-          <circle cx="100" cy="57" r="28" fill="#123A8C" opacity="0.28" />
-          <circle cx="100" cy="57" r="18" fill="#F4B227" />
-        </g>
-
-        <g transform="translate(248 162)">
-          <rect x="0" y="46" width="112" height="74" rx="12" fill="#375DAD" />
-          <rect x="12" y="0" width="88" height="46" rx="12" fill="#214A9D" />
-          <rect x="22" y="58" width="68" height="62" rx="12" fill="#F7FBFF" />
-          <rect x="48" y="74" width="16" height="46" fill="#234A99" />
-          <rect x="24" y="17" width="64" height="14" rx="7" fill="#133A8B" />
-          <path
-            d="M10 44H104L96 67H18L10 44Z"
-            fill="#F4B227"
-          />
-          {Array.from({ length: 4 }).map((_, index) => (
-            <path
-              key={index}
-              d={`M${18 + index * 20} 44H36L34 67H20L18 ${44}Z`}
-              fill={index % 2 === 0 ? "#ffffff" : "#3B63B1"}
-            />
-          ))}
-          <rect x="35" y="82" width="18" height="38" rx="9" fill="#194290" />
-          <rect x="58" y="82" width="18" height="26" rx="9" fill="#DDE8FB" />
-        </g>
-
-        <g transform="translate(414 228)">
-          <path d="M18 0C7 0 0 8 0 18V56H38V18C38 8 31 0 18 0Z" fill="#173F90" />
-          <rect x="7" y="8" width="24" height="34" rx="8" fill="#F4B227" />
-          <path d="M9 8C9 2 13 0 19 0C25 0 29 2 29 8" stroke="#173F90" strokeWidth="4" />
-        </g>
-
-        <g transform="translate(196 246)">
-          <circle cx="12" cy="12" r="12" fill="#FFCA6B" />
-          <rect x="6" y="24" width="12" height="34" rx="6" fill="#1F4F9A" />
-          <rect x="0" y="31" width="24" height="8" rx="4" fill="#F4B227" />
-          <rect x="2" y="56" width="7" height="28" rx="3.5" fill="#14387B" />
-          <rect x="15" y="56" width="7" height="28" rx="3.5" fill="#14387B" />
-        </g>
-
-        <g transform="translate(470 242)">
-          <circle cx="12" cy="12" r="12" fill="#FFCA6B" />
-          <rect x="6" y="24" width="12" height="34" rx="6" fill="#14387B" />
-          <rect x="1" y="56" width="7" height="28" rx="3.5" fill="#173F90" />
-          <rect x="16" y="56" width="7" height="28" rx="3.5" fill="#173F90" />
-          <rect x="-6" y="36" width="18" height="20" rx="5" fill="#F4B227" />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function buildImageBank(data: CatalogView) {
-  const variants = new Map<string, string>();
-  for (const item of [...data.featured, ...data.popular]) {
-    variants.set(item.coverVariant, item.imageUrl);
-  }
-
-  return {
-    suit:
-      variants.get("suit") ??
-      "https://images.pexels.com/photos/6766299/pexels-photo-6766299.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    restaurant:
-      variants.get("plate") ??
-      "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    bakery:
-      "https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    jewellery:
-      "https://images.pexels.com/photos/145418/pexels-photo-145418.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    phone:
-      variants.get("phone") ??
-      "https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    electronics:
-      "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    grocery:
-      variants.get("basket") ??
-      "https://images.pexels.com/photos/9070106/pexels-photo-9070106.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    supermarket:
-      variants.get("shelf") ??
-      "https://images.pexels.com/photos/264547/pexels-photo-264547.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    beauty:
-      variants.get("salon") ??
-      "https://images.pexels.com/photos/3993446/pexels-photo-3993446.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    service:
-      variants.get("worker") ??
-      "https://images.pexels.com/photos/5691622/pexels-photo-5691622.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    burger:
-      "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    clinic:
-      "https://images.pexels.com/photos/8376277/pexels-photo-8376277.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    pizza:
-      "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    tv:
-      "https://images.pexels.com/photos/271816/pexels-photo-271816.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    produce:
-      "https://images.pexels.com/photos/2286776/pexels-photo-2286776.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    boutique:
-      "https://images.pexels.com/photos/7679720/pexels-photo-7679720.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    gifts:
-      "https://images.pexels.com/photos/1666065/pexels-photo-1666065.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    dining:
-      "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1200",
-  };
-}
-
-function buildShowcaseShops(images: ReturnType<typeof buildImageBank>): ShowcaseShop[] {
-  return [
-    {
-      id: "rajeevan",
-      name: "Rajeevan Tailors",
-      subtitle: "Tailor / Clothing",
-      area: "1.2 km",
-      rating: 4.6,
-      reviewCount: 126,
-      distanceKm: 1.2,
-      tier: "Star Shop",
-      tierColor: "#2E63D8",
-      imageUrl: images.suit,
-    },
-    {
-      id: "alukky",
-      name: "ALUKKY Hotel",
-      subtitle: "Restaurant",
-      area: "1.5 km",
-      rating: 4.7,
-      reviewCount: 89,
-      distanceKm: 1.5,
-      tier: "Popular",
-      tierColor: "#F4A91F",
-      imageUrl: images.restaurant,
-    },
-    {
-      id: "sweet-bakery",
-      name: "Sweet Bakery",
-      subtitle: "Bakery",
-      area: "2.1 km",
-      rating: 4.5,
-      reviewCount: 162,
-      distanceKm: 2.1,
-      tier: "Top Rated",
-      tierColor: "#C73C35",
-      imageUrl: images.bakery,
-    },
-    {
-      id: "star-jewelers",
-      name: "Star Jewelers",
-      subtitle: "Jewelry",
-      area: "2.4 km",
-      rating: 4.6,
-      reviewCount: 98,
-      distanceKm: 2.4,
-      tier: "Star Shop",
-      tierColor: "#2E63D8",
-      imageUrl: images.jewellery,
-    },
-    {
-      id: "hanga-mobiles",
-      name: "Hanga Mobiles",
-      subtitle: "Mobile Store",
-      area: "2.6 km",
-      rating: 4.4,
-      reviewCount: 113,
-      distanceKm: 2.6,
-      tier: "Popular",
-      tierColor: "#F4A91F",
-      imageUrl: images.phone,
-    },
-    {
-      id: "thaha-electronics",
-      name: "Thaha Electronics",
-      subtitle: "Electronics",
-      area: "2.8 km",
-      rating: 4.3,
-      reviewCount: 77,
-      distanceKm: 2.8,
-      tier: "Offer",
-      tierColor: "#E0514B",
-      imageUrl: images.tv,
-    },
-    {
-      id: "fresh-basket",
-      name: "Fresh Basket",
-      subtitle: "Grocery",
-      area: "3.0 km",
-      rating: 4.6,
-      reviewCount: 137,
-      distanceKm: 3.0,
-      tier: "New",
-      tierColor: "#40A85E",
-      imageUrl: images.produce,
-    },
-    {
-      id: "spice-garden",
-      name: "Spice Garden",
-      subtitle: "Restaurant / Cafe",
-      area: "3.2 km",
-      rating: 4.6,
-      reviewCount: 120,
-      distanceKm: 3.2,
-      tier: "Offer",
-      tierColor: "#E0514B",
-      imageUrl: images.dining,
-    },
-    {
-      id: "maya-beauty",
-      name: "Maya Beauty Salon",
-      subtitle: "Beauty Salon",
-      area: "3.4 km",
-      rating: 4.7,
-      reviewCount: 90,
-      distanceKm: 3.4,
-      tier: "Popular",
-      tierColor: "#8D47E7",
-      imageUrl: images.beauty,
-    },
-    {
-      id: "quick-mart",
-      name: "Quick Mart",
-      subtitle: "Grocery Store",
-      area: "3.6 km",
-      rating: 4.6,
-      reviewCount: 86,
-      distanceKm: 3.6,
-      tier: "New",
-      tierColor: "#40A85E",
-      imageUrl: images.supermarket,
-    },
-    {
-      id: "tech-hub",
-      name: "Tech Hub",
-      subtitle: "Electronics Store",
-      area: "3.8 km",
-      rating: 4.5,
-      reviewCount: 124,
-      distanceKm: 3.8,
-      tier: "Top Rated",
-      tierColor: "#C73C35",
-      imageUrl: images.electronics,
-    },
-    {
-      id: "homefix",
-      name: "HomeFix Pro",
-      subtitle: "Home Service",
-      area: "4.0 km",
-      rating: 4.6,
-      reviewCount: 53,
-      distanceKm: 4.0,
-      tier: "Offer",
-      tierColor: "#F4A91F",
-      imageUrl: images.service,
-    },
-  ].map((shop, index) => ({
-    ...shop,
-    promo:
-      ["20% OFF", "Kuzhimandhi", "15% cakes", "Onam offer", undefined, undefined, "Fresh", "Offer", "Bridal", "Popular", "Weekend", "Offer"][index],
-  }));
-}
-
-function buildSpotlightDeals(images: ReturnType<typeof buildImageBank>): SpotlightDeal[] {
-  return [
-    {
-      id: "weekend-special",
-      badge: "20% OFF",
-      badgeColor: "#2FA34F",
-      title: "Weekend Special",
-      description: "Get 20% off on all bakery items",
-      business: "Sweet Bakery",
-      background: "linear-gradient(135deg,#ebfaef 0%,#f7fff7 62%,#e3f3e7 100%)",
-      imageUrl: images.bakery,
-    },
-    {
-      id: "limited-time",
-      badge: "₹599",
-      badgeColor: "#2E63D8",
-      title: "Limited Time Offer",
-      description: "Full body health checkup at just ₹599",
-      business: "City Care Lab",
-      background: "linear-gradient(135deg,#eef4ff 0%,#f9fbff 58%,#e6f0ff 100%)",
-      imageUrl: images.clinic,
-    },
-    {
-      id: "fashion-fiesta",
-      badge: "15% OFF",
-      badgeColor: "#F4A91F",
-      title: "Fashion Fiesta",
-      description: "Flat 15% off on all men's wear",
-      business: "Royale Tailors",
-      background: "linear-gradient(135deg,#fff3dd 0%,#fffaf1 58%,#fff2d5 100%)",
-      imageUrl: images.suit,
-    },
-    {
-      id: "burger-b1g1",
-      badge: "B1G1",
-      badgeColor: "#8451D7",
-      title: "Buy 1 Get 1",
-      description: "On selected burgers & fries",
-      business: "ALUKKY Hotel",
-      background: "linear-gradient(135deg,#f3ebff 0%,#fbf7ff 58%,#efe2ff 100%)",
-      imageUrl: images.burger,
-    },
+function Footer() {
+  const columns = [
+    ["Explore", "Star shops", "Best matches", "Deals", "All categories"],
+    ["For Businesses", "Business Card", "B2B Network", "Plans & Pricing", "Dashboard"],
+    ["Company", "About Us", "Careers", "Blog", "Contact Us"],
+    ["Support", "Help Center", "Terms of Use", "Privacy Policy", "Sitemap"],
   ];
+
+  return (
+    <footer className="bg-[linear-gradient(135deg,#082d75,#061f55)] text-white">
+      <div className="mx-auto grid max-w-[1800px] gap-10 px-5 py-9 md:px-10 lg:grid-cols-[1.35fr_0.8fr_1fr_0.8fr_0.85fr_1.25fr]">
+        <div>
+          <div className="flex items-center gap-2 text-[32px] font-black leading-none">
+            <MapPin className="h-8 w-8 fill-[#f5b625] text-[#f5b625]" />
+            <span>BNC</span>
+            <span className="mx-1 text-[18px] text-white/50">|</span>
+            <span className="text-[18px] font-black text-white/82">Nearu</span>
+          </div>
+          <p className="mt-4 max-w-[280px] text-[13px] font-semibold leading-6 text-white/74">
+            Your trusted local discovery and business ecosystem in Kozhikode.
+          </p>
+          <div className="mt-5 flex gap-3">
+            {[Store, Sparkles, Search, Monitor].map((Icon) => (
+              <span key={Icon.displayName ?? Icon.name} className="grid h-9 w-9 place-items-center rounded-full bg-white/10">
+                <Icon className="h-4 w-4" />
+              </span>
+            ))}
+          </div>
+        </div>
+        {columns.map(([title, ...items]) => (
+          <div key={title}>
+            <h4 className="text-[15px] font-black">{title}</h4>
+            <ul className="mt-4 space-y-2.5 text-[13px] font-semibold text-white/72">
+              {items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <div>
+          <h4 className="text-[15px] font-black">Stay in the loop</h4>
+          <p className="mt-4 max-w-[310px] text-[13px] font-semibold leading-6 text-white/72">
+            Get updates on the best deals & offers near you.
+          </p>
+          <div className="mt-5 flex gap-3">
+            <div className="flex-1 rounded-[10px] border border-white/18 px-4 py-3 text-[13px] font-semibold text-white/52">
+              Enter your email
+            </div>
+            <button className="rounded-[10px] bg-[#f5b625] px-6 py-3 text-[13px] font-black text-[#08285f]">
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-[1800px] flex-col gap-3 px-5 py-4 text-[13px] font-semibold text-white/60 md:px-10 lg:flex-row lg:items-center lg:justify-between">
+          <div>© 2024 BNC / Nearu. All rights reserved.</div>
+          <div className="flex flex-wrap gap-6">
+            <span className="inline-flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Kozhikode, Kerala
+            </span>
+            <span>English</span>
+            <span>INR</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
 }
 
-function buildTopOffers(images: ReturnType<typeof buildImageBank>): OfferBanner[] {
-  return [
-    {
-      id: "cleaning-offer",
-      eyebrow: "20% Off",
-      title: "20% Off",
-      description: "On all home cleaning services",
-      code: "CLEAN20",
-      background: "linear-gradient(135deg,#0E7A4D,#0D5838)",
-      imageUrl: images.service,
-    },
-    {
-      id: "hair-spa",
-      eyebrow: "₹599 Offer",
-      title: "₹599 Offer",
-      description: "Hair Spa + Haircut Combo",
-      code: "SPA599",
-      background: "linear-gradient(135deg,#184693,#0B2F74)",
-      imageUrl: images.beauty,
-    },
-    {
-      id: "veg-offer",
-      eyebrow: "15% Off",
-      title: "15% Off",
-      description: "On all fresh vegetables",
-      code: "VEG15",
-      background: "linear-gradient(135deg,#D1830A,#9B5B00)",
-      imageUrl: images.grocery,
-    },
-    {
-      id: "pizza-offer",
-      eyebrow: "B1G1",
-      title: "B1G1",
-      description: "On pizzas",
-      code: "PIZZA1",
-      background: "linear-gradient(135deg,#14773A,#0B5B2B)",
-      imageUrl: images.pizza,
-    },
-    {
-      id: "festival-offer",
-      eyebrow: "Festival Offer",
-      title: "Festival Offer",
-      description: "Up to 30% off on selected items",
-      code: "FEST30",
-      background: "linear-gradient(135deg,#5A28C7,#2C1E92)",
-      imageUrl: images.gifts,
-    },
-  ];
-}
-
-function rgbaFromHex(hex: string, alpha: number) {
-  const cleaned = hex.replace("#", "").trim();
-  const normalized =
-    cleaned.length === 3
-      ? cleaned
-          .split("")
-          .map((value) => `${value}${value}`)
-          .join("")
-      : cleaned;
-
-  const safeHex = normalized.padEnd(6, "0").slice(0, 6);
-  const value = Number.parseInt(safeHex, 16);
-  const red = (value >> 16) & 255;
-  const green = (value >> 8) & 255;
-  const blue = value & 255;
-
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+function ImageFill({ src, darken = false }: { src: string; darken?: boolean }) {
+  return (
+    <div className="relative h-full w-full overflow-hidden">
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${src})` }} />
+      {darken ? <div className="absolute inset-0 bg-gradient-to-t from-black/38 via-transparent to-black/8" /> : null}
+    </div>
+  );
 }
