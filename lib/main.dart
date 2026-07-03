@@ -284,19 +284,11 @@ class _MobileHomeScreen extends StatelessWidget {
               ),
               slivers: [
                 SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      _HeroSection(
-                        catalog: catalog,
-                        usingFallback: usingFallback,
-                        onRefresh: onRefresh,
-                        showPreviewChrome: showPreviewChrome,
-                      ),
-                      Transform.translate(
-                        offset: const Offset(0, -22),
-                        child: _ContentSection(catalog: catalog),
-                      ),
-                    ],
+                  child: _BncMarketplaceHome(
+                    catalog: catalog,
+                    usingFallback: usingFallback,
+                    onRefresh: onRefresh,
+                    showPreviewChrome: showPreviewChrome,
                   ),
                 ),
               ],
@@ -314,6 +306,2115 @@ class _MobileHomeScreen extends StatelessWidget {
   }
 }
 
+class _BncCategorySpec {
+  const _BncCategorySpec(this.label, this.icon, this.color, this.tint);
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final Color tint;
+}
+
+class _BncDealSpec {
+  const _BncDealSpec({
+    required this.badge,
+    required this.badgeColor,
+    required this.title,
+    required this.text,
+    required this.shop,
+    required this.asset,
+    required this.colors,
+  });
+
+  final String badge;
+  final Color badgeColor;
+  final String title;
+  final String text;
+  final String shop;
+  final String asset;
+  final List<Color> colors;
+}
+
+class _BncShopSpec {
+  const _BncShopSpec({
+    required this.name,
+    required this.category,
+    required this.rating,
+    required this.reviews,
+    required this.distance,
+    required this.asset,
+    required this.badge,
+    required this.badgeColor,
+  });
+
+  final String name;
+  final String category;
+  final String rating;
+  final String reviews;
+  final String distance;
+  final String asset;
+  final String badge;
+  final Color badgeColor;
+}
+
+class _BncOfferSpec {
+  const _BncOfferSpec({
+    required this.title,
+    required this.text,
+    required this.shop,
+    required this.code,
+    required this.asset,
+    required this.colors,
+  });
+
+  final String title;
+  final String text;
+  final String shop;
+  final String code;
+  final String asset;
+  final List<Color> colors;
+}
+
+class _BncRankedSpec {
+  const _BncRankedSpec({
+    required this.rank,
+    required this.name,
+    required this.category,
+    required this.rating,
+    required this.reviews,
+    required this.distance,
+    required this.asset,
+  });
+
+  final int rank;
+  final String name;
+  final String category;
+  final String rating;
+  final String reviews;
+  final String distance;
+  final String asset;
+}
+
+class _BncEcosystemSpec {
+  const _BncEcosystemSpec(this.title, this.text, this.icon);
+
+  final String title;
+  final String text;
+  final IconData icon;
+}
+
+const _mockupPath = 'nearu-web/public/mockup';
+
+const _bncCategories = [
+  _BncCategorySpec(
+    'Grocery',
+    Icons.shopping_cart_outlined,
+    Color(0xFFF2A715),
+    Color(0xFFFFF6DF),
+  ),
+  _BncCategorySpec(
+    'Restaurant',
+    Icons.restaurant_menu_rounded,
+    brandNavy,
+    Color(0xFFF3F6FB),
+  ),
+  _BncCategorySpec(
+    'Bakery',
+    Icons.cake_outlined,
+    Color(0xFFF2A715),
+    Color(0xFFFFF6DF),
+  ),
+  _BncCategorySpec(
+    'Textiles',
+    Icons.shopping_bag_outlined,
+    brandNavy,
+    Color(0xFFF3F6FB),
+  ),
+  _BncCategorySpec(
+    'Beauty',
+    Icons.brush_outlined,
+    Color(0xFFD34C90),
+    Color(0xFFFFF0F7),
+  ),
+  _BncCategorySpec(
+    'Mobile',
+    Icons.phone_android_outlined,
+    Color(0xFF254FB3),
+    Color(0xFFF1F4FF),
+  ),
+  _BncCategorySpec(
+    'Electronics',
+    Icons.desktop_windows_outlined,
+    brandNavy,
+    Color(0xFFF3F6FB),
+  ),
+  _BncCategorySpec(
+    'Home Services',
+    Icons.home_repair_service_outlined,
+    brandNavy,
+    Color(0xFFF3F6FB),
+  ),
+  _BncCategorySpec(
+    'More',
+    Icons.grid_view_rounded,
+    brandNavy,
+    Color(0xFFF7F4EE),
+  ),
+];
+
+const _bncDeals = [
+  _BncDealSpec(
+    badge: '20% OFF',
+    badgeColor: Color(0xFF25A451),
+    title: 'Weekend Special',
+    text: 'Get 20% off on all bakery items',
+    shop: 'Sweet Bakery',
+    asset: '$_mockupPath/im-bakery.jpg',
+    colors: [Color(0xFFEDFBEA), Colors.white, Color(0xFFE9F8EA)],
+  ),
+  _BncDealSpec(
+    badge: 'Rs599',
+    badgeColor: Color(0xFF2565C7),
+    title: 'Limited Time Offer',
+    text: 'Full body health checkup at just Rs599',
+    shop: 'City Care Lab',
+    asset: '$_mockupPath/im-pharmacy.jpg',
+    colors: [Color(0xFFEEF5FF), Colors.white, Color(0xFFE7F0FF)],
+  ),
+  _BncDealSpec(
+    badge: '15% OFF',
+    badgeColor: Color(0xFFF3A51A),
+    title: 'Fashion Fiesta',
+    text: 'Flat 15% off on all men wear',
+    shop: 'Royale Tailors',
+    asset: '$_mockupPath/im-card_suit.jpg',
+    colors: [Color(0xFFFFF2D8), Colors.white, Color(0xFFFFF0CE)],
+  ),
+  _BncDealSpec(
+    badge: 'B1G1',
+    badgeColor: Color(0xFF7242B8),
+    title: 'Buy 1 Get 1',
+    text: 'On selected burgers and fries',
+    shop: 'ALUKKY Hotel',
+    asset: '$_mockupPath/im-restaurant.jpg',
+    colors: [Color(0xFFF4EAFF), Colors.white, Color(0xFFEADCFF)],
+  ),
+];
+
+const _featuredBncShops = [
+  _BncShopSpec(
+    name: 'Rajeevan Tailors',
+    category: 'Tailor / Clothing',
+    rating: '4.6',
+    reviews: '126',
+    distance: '1.2 km',
+    asset: '$_mockupPath/im-tailor.jpg',
+    badge: 'Star Shop',
+    badgeColor: Color(0xFF2469D6),
+  ),
+  _BncShopSpec(
+    name: 'ALUKKY Hotel',
+    category: 'Restaurant',
+    rating: '4.7',
+    reviews: '89',
+    distance: '1.5 km',
+    asset: '$_mockupPath/im-restaurant.jpg',
+    badge: 'Popular',
+    badgeColor: Color(0xFFF4A51C),
+  ),
+  _BncShopSpec(
+    name: 'Sweet Bakery',
+    category: 'Bakery',
+    rating: '4.5',
+    reviews: '162',
+    distance: '2.1 km',
+    asset: '$_mockupPath/im-bakery.jpg',
+    badge: 'Top Rated',
+    badgeColor: Color(0xFFD94842),
+  ),
+  _BncShopSpec(
+    name: 'Star Jewelers',
+    category: 'Jewelry',
+    rating: '4.6',
+    reviews: '98',
+    distance: '2.4 km',
+    asset: '$_mockupPath/im-jewellery.jpg',
+    badge: 'Star Shop',
+    badgeColor: Color(0xFF2469D6),
+  ),
+  _BncShopSpec(
+    name: 'Hanga Mobiles',
+    category: 'Mobile Store',
+    rating: '4.4',
+    reviews: '113',
+    distance: '2.6 km',
+    asset: '$_mockupPath/im-mobile.jpg',
+    badge: 'Popular',
+    badgeColor: Color(0xFFF4A51C),
+  ),
+];
+
+const _allBncShops = [
+  ..._featuredBncShops,
+  _BncShopSpec(
+    name: 'Thache Electronics',
+    category: 'Electronics',
+    rating: '4.3',
+    reviews: '77',
+    distance: '2.8 km',
+    asset: '$_mockupPath/im-electronics.jpg',
+    badge: 'Offer',
+    badgeColor: Color(0xFFD94842),
+  ),
+  _BncShopSpec(
+    name: 'Fresh Basket',
+    category: 'Grocery',
+    rating: '4.6',
+    reviews: '152',
+    distance: '3.0 km',
+    asset: '$_mockupPath/im-vegetables.jpg',
+    badge: 'New',
+    badgeColor: Color(0xFF25A451),
+  ),
+  _BncShopSpec(
+    name: 'Spice Garden',
+    category: 'Restaurant / Cafe',
+    rating: '4.6',
+    reviews: '126',
+    distance: '3.2 km',
+    asset: '$_mockupPath/im-restaurant.jpg',
+    badge: 'Offer',
+    badgeColor: Color(0xFFD94842),
+  ),
+  _BncShopSpec(
+    name: 'Maya Beauty Salon',
+    category: 'Beauty Salon',
+    rating: '4.7',
+    reviews: '76',
+    distance: '3.4 km',
+    asset: '$_mockupPath/im-beauty.jpg',
+    badge: 'Popular',
+    badgeColor: Color(0xFFF4A51C),
+  ),
+  _BncShopSpec(
+    name: 'Quick Mart',
+    category: 'Grocery Store',
+    rating: '4.6',
+    reviews: '98',
+    distance: '3.6 km',
+    asset: '$_mockupPath/im-supermarket.jpg',
+    badge: 'New',
+    badgeColor: Color(0xFF25A451),
+  ),
+  _BncShopSpec(
+    name: 'Tech Hub',
+    category: 'Electronics Store',
+    rating: '4.5',
+    reviews: '124',
+    distance: '3.8 km',
+    asset: '$_mockupPath/im-electronics.jpg',
+    badge: 'Top Rated',
+    badgeColor: Color(0xFFD94842),
+  ),
+  _BncShopSpec(
+    name: 'HomeFix Pro',
+    category: 'Home Services',
+    rating: '4.6',
+    reviews: '53',
+    distance: '4.0 km',
+    asset: '$_mockupPath/im-electrical.jpg',
+    badge: 'Offer',
+    badgeColor: Color(0xFFF4A51C),
+  ),
+];
+
+const _bncOffers = [
+  _BncOfferSpec(
+    title: '20% Off',
+    text: 'On all home cleaning services',
+    shop: 'HomeFix Pro',
+    code: 'CLEAN20',
+    asset: '$_mockupPath/im-occ_helper.jpg',
+    colors: [Color(0xFF08713F), Color(0xFF0B5636)],
+  ),
+  _BncOfferSpec(
+    title: 'Rs599 Offer',
+    text: 'Hair Spa + Haircut Combo',
+    shop: 'Maya Beauty Salon',
+    code: 'SPA599',
+    asset: '$_mockupPath/im-occ_beauty.jpg',
+    colors: [Color(0xFF12459B), Color(0xFF092B70)],
+  ),
+  _BncOfferSpec(
+    title: '15% Off',
+    text: 'On all fresh vegetables',
+    shop: 'Fresh Basket',
+    code: 'VEG15',
+    asset: '$_mockupPath/im-vegetables.jpg',
+    colors: [Color(0xFFCB790B), Color(0xFF8A4D04)],
+  ),
+  _BncOfferSpec(
+    title: 'B1G1',
+    text: 'Buy 1 Get 1 on pizzas',
+    shop: 'Spice Garden',
+    code: 'PIZZA1',
+    asset: '$_mockupPath/im-restaurant.jpg',
+    colors: [Color(0xFF08713F), Color(0xFF064D2E)],
+  ),
+  _BncOfferSpec(
+    title: 'Festival Offer',
+    text: 'Up to 30% off on selected items',
+    shop: 'Quick Mart',
+    code: 'PICK21',
+    asset: '$_mockupPath/im-gifts.jpg',
+    colors: [Color(0xFF5825BB), Color(0xFF291986)],
+  ),
+];
+
+const _rankedBncShops = [
+  _BncRankedSpec(
+    rank: 1,
+    name: 'Star Stitch Center',
+    category: 'Tailor / Clothing',
+    rating: '4.8',
+    reviews: '134',
+    distance: '1.1 km',
+    asset: '$_mockupPath/im-card_machine.jpg',
+  ),
+  _BncRankedSpec(
+    rank: 2,
+    name: 'Rajeevan Tailors',
+    category: 'Tailor / Clothing',
+    rating: '4.6',
+    reviews: '126',
+    distance: '1.2 km',
+    asset: '$_mockupPath/im-tailor.jpg',
+  ),
+  _BncRankedSpec(
+    rank: 3,
+    name: 'Maya Tailors',
+    category: 'Tailor / Clothing',
+    rating: '4.5',
+    reviews: '77',
+    distance: '1.6 km',
+    asset: '$_mockupPath/im-card_fabric.jpg',
+  ),
+];
+
+const _bncEcosystem = [
+  _BncEcosystemSpec(
+    'Business Card',
+    'Create & share your digital business card',
+    Icons.badge_outlined,
+  ),
+  _BncEcosystemSpec(
+    'B2B Network',
+    'Connect & grow with businesses',
+    Icons.hub_outlined,
+  ),
+  _BncEcosystemSpec(
+    'Jobs',
+    'Find jobs or hire local talent',
+    Icons.business_center_outlined,
+  ),
+  _BncEcosystemSpec(
+    'Winner',
+    'Join contests & win exciting prizes',
+    Icons.emoji_events_outlined,
+  ),
+  _BncEcosystemSpec(
+    'Feed',
+    'Read & share local stories & updates',
+    Icons.article_outlined,
+  ),
+  _BncEcosystemSpec(
+    'Plans',
+    'Choose the best plan for your business',
+    Icons.shield_outlined,
+  ),
+  _BncEcosystemSpec(
+    'Dashboard',
+    'Manage your business performance',
+    Icons.analytics_outlined,
+  ),
+  _BncEcosystemSpec(
+    'Admin',
+    'Manage users, reports & system',
+    Icons.settings_outlined,
+  ),
+  _BncEcosystemSpec(
+    'Explanations',
+    'Guides, help articles & resources',
+    Icons.lightbulb_outline,
+  ),
+];
+
+class _BncMarketplaceHome extends StatelessWidget {
+  const _BncMarketplaceHome({
+    required this.catalog,
+    required this.usingFallback,
+    required this.onRefresh,
+    required this.showPreviewChrome,
+  });
+
+  final CatalogData catalog;
+  final bool usingFallback;
+  final Future<void> Function() onRefresh;
+  final bool showPreviewChrome;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _BncHero(
+          location: catalog.locationLabel,
+          usingFallback: usingFallback,
+          onSearch: onRefresh,
+          showPreviewChrome: showPreviewChrome,
+        ),
+        Container(
+          decoration: const BoxDecoration(color: brandSurface),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 116),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _BncSectionTitle(title: 'Browse by category'),
+              const SizedBox(height: 12),
+              const _BncCategoryRail(),
+              const SizedBox(height: 22),
+              const _BncSectionTitle(
+                title: 'Deals in spotlight',
+                action: 'View all deals',
+              ),
+              const SizedBox(height: 12),
+              const _BncDealRail(),
+              const SizedBox(height: 22),
+              const _BncSectionTitle(
+                title: 'Featured shops',
+                action: 'View all shops',
+              ),
+              const SizedBox(height: 12),
+              const _BncFeaturedRail(),
+              const SizedBox(height: 22),
+              const _BncSectionTitle(title: 'Today\'s top offers'),
+              const SizedBox(height: 12),
+              const _BncOfferRail(),
+              const SizedBox(height: 24),
+              const _BncAllShopsHeader(),
+              const SizedBox(height: 12),
+              const _BncFilterRail(),
+              const SizedBox(height: 14),
+              const _BncShopGrid(),
+              const SizedBox(height: 16),
+              Center(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: brandNavy,
+                    side: const BorderSide(color: Color(0xFFCBD7EA)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  onPressed: () {},
+                  icon: const Icon(Icons.arrow_forward, size: 18),
+                  label: const Text(
+                    'Explore more shops',
+                    style: TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const _BncSectionTitle(title: 'Search ranked shops'),
+              const SizedBox(height: 10),
+              const _BncRankingFilters(),
+              const SizedBox(height: 12),
+              const _BncRankedList(),
+              const SizedBox(height: 24),
+              const _BncSectionTitle(title: 'More from BNC ecosystem'),
+              const SizedBox(height: 12),
+              const _BncEcosystemGrid(),
+              const SizedBox(height: 22),
+              const _BncMobileFooter(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BncHero extends StatelessWidget {
+  const _BncHero({
+    required this.location,
+    required this.usingFallback,
+    required this.onSearch,
+    required this.showPreviewChrome,
+  });
+
+  final String location;
+  final bool usingFallback;
+  final Future<void> Function() onSearch;
+  final bool showPreviewChrome;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [brandNavyDeep, brandNavy, brandNavyBright],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(18, showPreviewChrome ? 14 : 10, 18, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.location_on, color: brandGold, size: 30),
+                const SizedBox(width: 4),
+                const Text(
+                  'BNC',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    height: 1,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 9,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.14),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.white,
+                          size: 15,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const _BncBell(),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Find any shop,\nservice or deal\nnear you',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
+                          height: 0.98,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        usingFallback
+                            ? 'Showing trusted local listings saved for offline browsing.'
+                            : 'Discover trusted local shops, services and exclusive offers in Kozhikode.',
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.84),
+                          fontSize: 13.5,
+                          height: 1.35,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const _BncHeroScene(),
+              ],
+            ),
+            const SizedBox(height: 18),
+            _BncSearchBox(onSearch: onSearch),
+            const SizedBox(height: 14),
+            const _BncHeroActions(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BncBell extends StatelessWidget {
+  const _BncBell();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+          ),
+          child: const Icon(
+            Icons.notifications_none,
+            color: Colors.white,
+            size: 23,
+          ),
+        ),
+        Positioned(
+          right: 2,
+          top: 1,
+          child: Container(
+            width: 16,
+            height: 16,
+            decoration: const BoxDecoration(
+              color: brandGold,
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Text(
+                '1',
+                style: TextStyle(
+                  color: brandNavy,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BncHeroScene extends StatelessWidget {
+  const _BncHeroScene();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 138,
+      height: 164,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: 10,
+            right: 8,
+            bottom: 8,
+            child: Container(
+              height: 26,
+              decoration: BoxDecoration(
+                color: const Color(0xFF17479C),
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 27,
+            bottom: 22,
+            child: Container(
+              width: 88,
+              height: 62,
+              decoration: const BoxDecoration(
+                color: Color(0xFF1B4A99),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 18,
+            bottom: 76,
+            child: Container(
+              width: 108,
+              height: 30,
+              decoration: const BoxDecoration(
+                color: Color(0xFF13408E),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 19,
+            bottom: 74,
+            child: Row(
+              children: List.generate(5, (index) {
+                return Container(
+                  width: 21,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: index.isEven ? Colors.white : brandNavyBright,
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(10),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+          Positioned(
+            left: 47,
+            bottom: 22,
+            child: Container(
+              width: 18,
+              height: 42,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 45,
+            bottom: 22,
+            child: Container(
+              width: 18,
+              height: 42,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 44,
+            top: 4,
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: brandGold, width: 16),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 69,
+            top: 56,
+            child: Container(
+              width: 18,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: brandGoldDeep,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          const Positioned(left: 5, bottom: 6, child: _BncTinyPerson()),
+          Positioned(
+            right: 0,
+            bottom: 6,
+            child: Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.diagonal3Values(-1, 1, 1),
+              child: const _BncTinyPerson(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncTinyPerson extends StatelessWidget {
+  const _BncTinyPerson();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 28,
+      height: 66,
+      child: Column(
+        children: [
+          Container(
+            width: 14,
+            height: 14,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFC66F),
+              shape: BoxShape.circle,
+            ),
+          ),
+          Container(
+            width: 13,
+            height: 27,
+            decoration: BoxDecoration(
+              color: brandGold,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 5,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: brandNavyDeep,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Container(
+                width: 5,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: brandNavyDeep,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncSearchBox extends StatelessWidget {
+  const _BncSearchBox({required this.onSearch});
+
+  final Future<void> Function() onSearch;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x24000000),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          const Icon(Icons.search, color: brandMuted, size: 25),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(
+              'Search shops, products, services or deals',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: brandMuted,
+                fontSize: 13.5,
+                height: 1.2,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: brandGold,
+              foregroundColor: brandNavy,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            onPressed: () => onSearch(),
+            child: const Text(
+              'Search',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncHeroActions extends StatelessWidget {
+  const _BncHeroActions();
+
+  @override
+  Widget build(BuildContext context) {
+    const items = [
+      (Icons.star_rounded, 'Star shops'),
+      (Icons.track_changes_rounded, 'Best matches'),
+      (Icons.card_giftcard_rounded, 'Weekly draw'),
+      (Icons.redeem_rounded, 'Gifts'),
+    ];
+
+    return Wrap(
+      spacing: 14,
+      runSpacing: 8,
+      children: items.map((item) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(item.$1, color: brandGold, size: 18),
+            const SizedBox(width: 5),
+            Text(
+              item.$2,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.86),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _BncSectionTitle extends StatelessWidget {
+  const _BncSectionTitle({required this.title, this.action});
+
+  final String title;
+  final String? action;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: brandNavy,
+              fontSize: 18,
+              height: 1.1,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+        if (action != null) ...[
+          const SizedBox(width: 10),
+          Text(
+            action!,
+            style: const TextStyle(
+              color: brandNavy,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const Icon(Icons.chevron_right, color: brandNavy, size: 18),
+        ],
+      ],
+    );
+  }
+}
+
+class _BncCategoryRail extends StatelessWidget {
+  const _BncCategoryRail();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 108,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _bncCategories.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final item = _bncCategories[index];
+          return SizedBox(width: 86, child: _BncCategoryTile(item: item));
+        },
+      ),
+    );
+  }
+}
+
+class _BncCategoryTile extends StatelessWidget {
+  const _BncCategoryTile({required this.item});
+
+  final _BncCategorySpec item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: brandLine),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0E08204A),
+            blurRadius: 12,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: item.tint,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(item.icon, color: item.color, size: 25),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Center(
+              child: Text(
+                item.label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: brandNavy,
+                  fontSize: 12,
+                  height: 1.12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncDealRail extends StatelessWidget {
+  const _BncDealRail();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 158,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _bncDeals.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          return SizedBox(
+            width: 304,
+            child: _BncDealCard(deal: _bncDeals[index]),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _BncDealCard extends StatelessWidget {
+  const _BncDealCard({required this.deal});
+
+  final _BncDealSpec deal;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: deal.colors),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: brandLine),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1008204A),
+            blurRadius: 14,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: deal.badgeColor,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      deal.badge,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 9),
+                  Text(
+                    deal.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: brandNavy,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    deal.text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF596A82),
+                      fontSize: 12,
+                      height: 1.25,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      ClipOval(
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: _AssetImageFill(asset: deal.asset),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          deal.shop,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: brandNavy,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 106,
+                height: 120,
+                child: _AssetImageFill(asset: deal.asset),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncFeaturedRail extends StatelessWidget {
+  const _BncFeaturedRail();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 238,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _featuredBncShops.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          return SizedBox(
+            width: 202,
+            child: _BncShopCard(shop: _featuredBncShops[index]),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _BncOfferRail extends StatelessWidget {
+  const _BncOfferRail();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 142,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _bncOffers.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          return SizedBox(
+            width: 248,
+            child: _BncOfferCard(offer: _bncOffers[index]),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _BncOfferCard extends StatelessWidget {
+  const _BncOfferCard({required this.offer});
+
+  final _BncOfferSpec offer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: offer.colors),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1608204A),
+            blurRadius: 14,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: SizedBox(
+              width: 112,
+              height: 120,
+              child: _AssetImageFill(asset: offer.asset),
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withValues(alpha: 0.10),
+                    Colors.transparent,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: SizedBox(
+              width: 142,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    offer.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    offer.text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.86),
+                      fontSize: 12,
+                      height: 1.25,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    offer.shop,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'Use Code: ${offer.code}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncAllShopsHeader extends StatelessWidget {
+  const _BncAllShopsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'All shops in Kozhikode',
+                style: TextStyle(
+                  color: brandNavy,
+                  fontSize: 19,
+                  height: 1.1,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Showing trusted local businesses near you',
+                style: TextStyle(
+                  color: brandMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        TextButton.icon(
+          onPressed: () {},
+          iconAlignment: IconAlignment.end,
+          icon: const Icon(Icons.chevron_right, size: 18),
+          label: const Text('View all'),
+          style: TextButton.styleFrom(
+            foregroundColor: brandNavy,
+            textStyle: const TextStyle(fontWeight: FontWeight.w900),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BncFilterRail extends StatelessWidget {
+  const _BncFilterRail();
+
+  @override
+  Widget build(BuildContext context) {
+    const filters = [
+      'All',
+      'Restaurant',
+      'Grocery',
+      'Mobile',
+      'Beauty',
+      'Open Now',
+      'Offers',
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(filters.length, (index) {
+          final label = filters[index];
+          final active = index == 0;
+          return Padding(
+            padding: EdgeInsets.only(
+              right: index == filters.length - 1 ? 0 : 8,
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                color: active ? brandNavy : Colors.white,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: active ? brandNavy : brandLine),
+              ),
+              child: Row(
+                children: [
+                  if (label == 'Open Now' || label == 'Offers') ...[
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: label == 'Open Now'
+                            ? const Color(0xFF31C563)
+                            : const Color(0xFFE84141),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: active ? Colors.white : const Color(0xFF405474),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _BncShopGrid extends StatelessWidget {
+  const _BncShopGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _allBncShops.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 0.71,
+      ),
+      itemBuilder: (context, index) {
+        return _BncShopCard(shop: _allBncShops[index], dense: true);
+      },
+    );
+  }
+}
+
+class _BncShopCard extends StatelessWidget {
+  const _BncShopCard({required this.shop, this.dense = false});
+
+  final _BncShopSpec shop;
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: brandLine),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F08204A),
+            blurRadius: 13,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: dense ? 112 : 118,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: _AssetImageFill(asset: shop.asset, darken: true),
+                ),
+                Positioned(
+                  left: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: shop.badgeColor,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      shop.badge,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.24),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.favorite_border,
+                      color: Colors.white,
+                      size: 17,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(dense ? 10 : 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  shop.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: brandNavy,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  shop.category,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: brandMuted,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    _BncMeta(
+                      icon: Icons.star_rounded,
+                      color: brandGold,
+                      text: '${shop.rating} (${shop.reviews})',
+                    ),
+                    _BncMeta(
+                      icon: Icons.location_on_outlined,
+                      color: brandMuted,
+                      text: shop.distance,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncMeta extends StatelessWidget {
+  const _BncMeta({required this.icon, required this.color, required this.text});
+
+  final IconData icon;
+  final Color color;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: color, size: 14),
+        const SizedBox(width: 3),
+        Text(
+          text,
+          style: const TextStyle(
+            color: brandMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BncRankingFilters extends StatelessWidget {
+  const _BncRankingFilters();
+
+  @override
+  Widget build(BuildContext context) {
+    const labels = ['Best Match', 'Most Rated', 'Nearby', 'Offers', 'New'];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(labels.length, (index) {
+          final active = index == 0;
+          return Padding(
+            padding: EdgeInsets.only(right: index == labels.length - 1 ? 0 : 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+              decoration: BoxDecoration(
+                color: active ? brandNavy : Colors.white,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: active ? brandNavy : brandLine),
+              ),
+              child: Text(
+                labels[index],
+                style: TextStyle(
+                  color: active ? Colors.white : const Color(0xFF405474),
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _BncRankedList extends StatelessWidget {
+  const _BncRankedList();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(_rankedBncShops.length, (index) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: index == _rankedBncShops.length - 1 ? 0 : 10,
+          ),
+          child: _BncRankedCard(shop: _rankedBncShops[index]),
+        );
+      }),
+    );
+  }
+}
+
+class _BncRankedCard extends StatelessWidget {
+  const _BncRankedCard({required this.shop});
+
+  final _BncRankedSpec shop;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: brandLine),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(colors: [brandGold, brandGoldDeep]),
+            ),
+            child: Center(
+              child: Text(
+                '${shop.rank}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              width: 82,
+              height: 58,
+              child: _AssetImageFill(asset: shop.asset),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  shop.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: brandNavy,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  shop.category,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: brandMuted,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded, color: brandGold, size: 14),
+                    const SizedBox(width: 3),
+                    Expanded(
+                      child: Text(
+                        '${shop.rating} (${shop.reviews}) - ${shop.distance}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: brandMuted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: brandLine),
+            ),
+            child: const Icon(Icons.chevron_right, color: brandNavy, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncEcosystemGrid extends StatelessWidget {
+  const _BncEcosystemGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _bncEcosystem.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 1,
+        mainAxisSpacing: 10,
+        childAspectRatio: 4.15,
+      ),
+      itemBuilder: (context, index) {
+        return _BncEcosystemCard(item: _bncEcosystem[index]);
+      },
+    );
+  }
+}
+
+class _BncEcosystemCard extends StatelessWidget {
+  const _BncEcosystemCard({required this.item});
+
+  final _BncEcosystemSpec item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: brandLine),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEDF3FF),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(item.icon, color: brandNavy, size: 28),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: brandNavy,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  item.text,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: brandMuted,
+                    fontSize: 11.5,
+                    height: 1.2,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: brandLine),
+            ),
+            child: const Icon(Icons.chevron_right, color: brandNavy, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BncMobileFooter extends StatelessWidget {
+  const _BncMobileFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: [brandNavy, brandNavyDeep]),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.location_on, color: brandGold, size: 30),
+              SizedBox(width: 4),
+              Text(
+                'BNC',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(width: 8),
+              Text(
+                '| Nearu',
+                style: TextStyle(
+                  color: Color(0xCCDDE7FF),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Your trusted local discovery and business ecosystem in Kozhikode.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.74),
+              fontSize: 12.5,
+              height: 1.45,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.16),
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    'Enter your email',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.52),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: brandGold,
+                  foregroundColor: brandNavy,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {},
+                child: const Text(
+                  'Subscribe',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AssetImageFill extends StatelessWidget {
+  const _AssetImageFill({required this.asset, this.darken = false});
+
+  final String asset;
+  final bool darken;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          asset,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [brandNavy, brandNavyBright],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            );
+          },
+        ),
+        if (darken)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.black.withValues(alpha: 0.28),
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.10),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ignore: unused_element
 class _HeroSection extends StatelessWidget {
   const _HeroSection({
     required this.catalog,
@@ -419,10 +2520,7 @@ class _HeroSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                _HeroGraphic(
-                  primary: heroPrimary,
-                  secondary: heroSecondary,
-                ),
+                _HeroGraphic(primary: heroPrimary, secondary: heroSecondary),
               ],
             ),
             const SizedBox(height: 16),
@@ -751,6 +2849,7 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _ContentSection extends StatelessWidget {
   const _ContentSection({required this.catalog});
 
@@ -2163,8 +4262,8 @@ BusinessItem _selectBusinessVisual(
   if (categoryHint != null && categoryHint.trim().isNotEmpty) {
     final needle = categoryHint.toLowerCase();
     for (final item in items) {
-      final haystack =
-          '${item.categoryName} ${item.subtitle} ${item.name}'.toLowerCase();
+      final haystack = '${item.categoryName} ${item.subtitle} ${item.name}'
+          .toLowerCase();
       if (item.id != excludingId && haystack.contains(needle)) {
         return item;
       }

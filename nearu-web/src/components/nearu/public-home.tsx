@@ -362,27 +362,27 @@ export function PublicHome({ data }: { data: unknown }) {
       <section id="discover" className="bg-[#061f55] text-white">
         <TopBar />
         <div className="relative overflow-hidden bg-[radial-gradient(circle_at_15%_20%,#164caa,#082d75_44%,#061f55_100%)]">
-          <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-end gap-10 px-5 pb-9 pt-8 md:px-10 lg:grid-cols-[1fr_0.98fr]">
+          <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-end gap-4 px-4 pb-6 pt-5 sm:gap-8 sm:px-5 sm:pb-8 sm:pt-7 md:px-10 lg:grid-cols-[1fr_0.98fr] lg:gap-10">
             <div className="max-w-[720px] pb-2">
-              <h1 className="text-[52px] font-black leading-[0.98] sm:text-[68px] lg:text-[74px]">
+              <h1 className="text-[38px] font-black leading-[0.98] sm:text-[58px] lg:text-[74px]">
                 Find any shop, service
                 <span className="block">or deal near you</span>
               </h1>
-              <p className="mt-5 max-w-[560px] text-[17px] leading-7 text-white/86">
+              <p className="mt-3 max-w-[560px] text-[14px] leading-6 text-white/86 sm:mt-5 sm:text-[17px] sm:leading-7">
                 Discover trusted local shops, services and exclusive offers in{" "}
                 <span className="font-black text-[#f5b625]">Kozhikode</span> all in one
                 place.
               </p>
-              <div className="mt-8 flex max-w-[860px] items-center rounded-[17px] bg-white p-2 shadow-[0_18px_36px_rgba(0,0,0,0.28)]">
-                <Search className="ml-4 h-6 w-6 shrink-0 text-[#8ea0bd]" />
-                <div className="flex-1 px-5 text-[15px] font-semibold text-[#71809b]">
+              <div className="mt-5 flex max-w-[860px] items-center rounded-[17px] bg-white p-1.5 shadow-[0_18px_36px_rgba(0,0,0,0.28)] sm:mt-8 sm:p-2">
+                <Search className="ml-3 h-5 w-5 shrink-0 text-[#8ea0bd] sm:ml-4 sm:h-6 sm:w-6" />
+                <div className="min-w-0 flex-1 truncate px-3 text-[13px] font-semibold text-[#71809b] sm:px-5 sm:text-[15px]">
                   Search shops, products, services or deals
                 </div>
-                <button className="rounded-[14px] bg-[#f5b625] px-9 py-4 text-[15px] font-black text-[#08285f]">
+                <button className="rounded-[13px] bg-[#f5b625] px-5 py-3 text-[13px] font-black text-[#08285f] sm:rounded-[14px] sm:px-9 sm:py-4 sm:text-[15px]">
                   Search
                 </button>
               </div>
-              <div className="mt-5 flex flex-wrap gap-8 text-[14px] font-semibold text-white/84">
+              <div className="mt-4 flex flex-wrap gap-3 text-[12px] font-semibold text-white/84 sm:mt-5 sm:gap-8 sm:text-[14px]">
                 <HeroChip icon={<Star className="h-5 w-5 fill-[#f5b625] text-[#f5b625]" />} text="Star shops" />
                 <HeroChip icon={<Sparkles className="h-5 w-5 text-[#f5b625]" />} text="Best matches" />
                 <HeroChip icon={<GiftIcon />} text="Weekly draw" />
@@ -394,38 +394,38 @@ export function PublicHome({ data }: { data: unknown }) {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1800px] px-5 pb-14 pt-5 md:px-10">
+      <main className="mx-auto max-w-[1800px] px-4 pb-24 pt-4 sm:px-5 sm:pb-14 sm:pt-5 md:px-10">
         <SectionTitle title="Browse by category" />
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-9">
+        <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:px-0 md:grid-cols-5 xl:grid-cols-9">
           {categoryTiles.map((item) => (
             <CategoryCard key={item.label} item={item} />
           ))}
         </div>
 
         <SectionTitle title="Deals in spotlight" action="View all deals" />
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:px-0 xl:grid-cols-4">
           {spotlightDeals.map((deal) => (
             <SpotlightDeal key={deal.title} deal={deal} />
           ))}
         </div>
 
         <SectionTitle title="Featured shops" action="View all shops" />
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+        <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:px-0 xl:grid-cols-5">
           {featuredShops.map((shop) => (
             <FeaturedShop key={shop.name} shop={shop} />
           ))}
         </div>
 
         <SectionTitle title="Today's top offers" />
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+        <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:px-0 xl:grid-cols-5">
           {offers.map((offer) => (
             <OfferCard key={offer.title} offer={offer} />
           ))}
         </div>
 
-        <div className="mt-9 flex items-end justify-between gap-4">
+        <div className="mt-7 flex items-end justify-between gap-4 sm:mt-9">
           <div>
-            <h2 className="text-[25px] font-black leading-none text-[#0b2f74]">
+            <h2 className="text-[22px] font-black leading-none text-[#0b2f74] sm:text-[25px]">
               All shops in Kozhikode
             </h2>
             <p className="mt-1 text-[13px] font-semibold text-[#71809b]">
@@ -437,11 +437,11 @@ export function PublicHome({ data }: { data: unknown }) {
             <ChevronRight className="h-4 w-4" />
           </a>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="-mx-4 mt-3 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:mt-4 sm:flex-wrap sm:gap-3 sm:px-0">
           {filters.map((filter, index) => (
             <button
               key={filter}
-              className={`rounded-full border px-5 py-2.5 text-[12px] font-black ${
+              className={`shrink-0 rounded-full border px-4 py-2 text-[11px] font-black sm:px-5 sm:py-2.5 sm:text-[12px] ${
                 index === 0
                   ? "border-[#0b2f74] bg-[#0b2f74] text-white"
                   : "border-[#dfe6f2] bg-white text-[#405474]"
@@ -460,7 +460,7 @@ export function PublicHome({ data }: { data: unknown }) {
             </button>
           ))}
         </div>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-5 sm:gap-5 lg:grid-cols-3 xl:grid-cols-6">
           {allShops.map((shop) => (
             <ShopGridCard key={`${shop.name}-${shop.distance}`} shop={shop} />
           ))}
@@ -474,11 +474,11 @@ export function PublicHome({ data }: { data: unknown }) {
 
         <section id="ranked" className="mt-9">
           <SectionTitle title="Search ranked shops" compact />
-          <div className="-mt-2 mb-4 flex flex-wrap gap-3">
+          <div className="-mx-4 -mt-2 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:gap-3 sm:px-0">
             {["Best Match", "Most Rated", "Nearby", "Offers", "New"].map((label, index) => (
               <button
                 key={label}
-                className={`rounded-full border px-5 py-2 text-[12px] font-black ${
+                className={`shrink-0 rounded-full border px-4 py-2 text-[11px] font-black sm:px-5 sm:text-[12px] ${
                   index === 0
                     ? "border-[#0b2f74] bg-[#0b2f74] text-white"
                     : "border-[#dfe6f2] bg-white text-[#405474]"
@@ -496,7 +496,7 @@ export function PublicHome({ data }: { data: unknown }) {
         </section>
 
         <SectionTitle title="More from BNC ecosystem" />
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 md:gap-5 xl:grid-cols-3">
           {ecosystemCards.map((item) => (
             <EcosystemCard key={item.title} item={item} />
           ))}
@@ -511,9 +511,9 @@ export function PublicHome({ data }: { data: unknown }) {
 function TopBar() {
   return (
     <header className="border-b border-white/10 bg-[#061f55]">
-      <div className="mx-auto flex h-[72px] max-w-[1800px] items-center gap-5 px-5 md:px-10">
-        <Link href="/" className="flex shrink-0 items-center gap-2 text-[34px] font-black leading-none">
-          <MapPin className="h-9 w-9 fill-[#f5b625] text-[#f5b625]" />
+      <div className="mx-auto flex h-[60px] max-w-[1800px] items-center gap-3 px-4 md:h-[72px] md:gap-5 md:px-10">
+        <Link href="/" className="flex shrink-0 items-center gap-2 text-[26px] font-black leading-none md:text-[34px]">
+          <MapPin className="h-7 w-7 fill-[#f5b625] text-[#f5b625] md:h-9 md:w-9" />
           <span>BNC</span>
         </Link>
         <div className="hidden items-center gap-2 rounded-full border border-white/16 bg-white/6 px-4 py-2.5 text-[13px] font-bold text-white/84 md:flex">
@@ -541,7 +541,7 @@ function TopBar() {
             </a>
           ))}
         </nav>
-        <button className="relative grid h-11 w-11 place-items-center rounded-full border border-white/14 text-white">
+        <button className="relative ml-auto grid h-10 w-10 place-items-center rounded-full border border-white/14 text-white lg:ml-0 md:h-11 md:w-11">
           <Bell className="h-5 w-5" />
         </button>
         <div className="hidden items-center gap-3 text-white sm:flex">
@@ -576,7 +576,7 @@ function GiftIcon() {
 
 function HeroScene() {
   return (
-    <div className="relative mx-auto h-[330px] w-full max-w-[700px]">
+    <div className="relative mx-auto hidden h-[270px] w-full max-w-[700px] sm:block lg:h-[330px]">
       <div className="absolute inset-x-0 bottom-0 h-[240px] opacity-55">
         <div className="absolute bottom-0 left-0 h-[132px] w-[78px] rounded-t-[12px] bg-[#2e55a1]" />
         <div className="absolute bottom-0 left-[92px] h-[180px] w-[92px] rounded-t-[12px] bg-[#244a96]" />
@@ -631,10 +631,10 @@ function Person({ className = "", flip = false }: { className?: string; flip?: b
 
 function SectionTitle({ title, action, compact = false }: { title: string; action?: string; compact?: boolean }) {
   return (
-    <div className={`flex items-center gap-4 ${compact ? "mt-0" : "mt-9"} mb-4`}>
-      <h2 className="text-[23px] font-black leading-none text-[#0b2f74]">{title}</h2>
+    <div className={`flex items-center gap-3 ${compact ? "mt-0" : "mt-7 sm:mt-9"} mb-3 sm:mb-4`}>
+      <h2 className="text-[21px] font-black leading-tight text-[#0b2f74] sm:text-[23px]">{title}</h2>
       {action ? (
-        <a className="ml-auto inline-flex items-center gap-1 text-[13px] font-black text-[#0b2f74]" href="#all-shops">
+        <a className="ml-auto inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[12px] font-black text-[#0b2f74] sm:text-[13px]" href="#all-shops">
           {action}
           <ChevronRight className="h-4 w-4" />
         </a>
@@ -646,14 +646,14 @@ function SectionTitle({ title, action, compact = false }: { title: string; actio
 function CategoryCard({ item }: { item: CategoryTile }) {
   const Icon = item.icon;
   return (
-    <article className="rounded-[14px] border border-[#dfe6f2] bg-white px-4 py-5 text-center shadow-[0_10px_24px_rgba(11,47,116,0.05)]">
+    <article className="w-[92px] shrink-0 snap-start rounded-[16px] border border-[#dfe6f2] bg-white px-2 py-3 text-center shadow-[0_10px_24px_rgba(11,47,116,0.05)] sm:w-auto sm:rounded-[14px] sm:px-4 sm:py-5">
       <div
-        className="mx-auto grid h-[62px] w-[62px] place-items-center rounded-[18px]"
+        className="mx-auto grid h-12 w-12 place-items-center rounded-[15px] sm:h-[62px] sm:w-[62px] sm:rounded-[18px]"
         style={{ color: item.color, backgroundColor: item.tint }}
       >
-        <Icon className="h-8 w-8" />
+        <Icon className="h-6 w-6 sm:h-8 sm:w-8" />
       </div>
-      <div className="mt-3 min-h-[22px] text-[13px] font-black leading-tight text-[#0b2f74]">
+      <div className="mt-2 min-h-[20px] text-[11.5px] font-black leading-tight text-[#0b2f74] sm:mt-3 sm:min-h-[22px] sm:text-[13px]">
         {item.label}
       </div>
     </article>
@@ -661,21 +661,23 @@ function CategoryCard({ item }: { item: CategoryTile }) {
 }
 
 function SpotlightDeal({ deal }: { deal: DealCardData }) {
+  const badge = deal.badge.includes("599") ? "\u20b9599" : deal.badge;
+
   return (
-    <article className="overflow-hidden rounded-[15px] border border-[#dfe6f2] shadow-[0_12px_26px_rgba(11,47,116,0.06)]" style={{ background: deal.gradient }}>
-      <div className="flex h-[158px] items-center gap-4 px-5">
+    <article className="w-[292px] shrink-0 snap-start overflow-hidden rounded-[15px] border border-[#dfe6f2] shadow-[0_12px_26px_rgba(11,47,116,0.06)] md:w-auto" style={{ background: deal.gradient }}>
+      <div className="flex h-[126px] items-center gap-3 px-3 md:h-[158px] md:gap-4 md:px-5">
         <div className="min-w-0 flex-1">
-          <span className="inline-flex rounded-full px-4 py-1.5 text-[20px] font-black leading-none text-white" style={{ backgroundColor: deal.badgeColor }}>
-            {deal.badge}
+          <span className="inline-flex rounded-full px-3 py-1 text-[12px] font-black leading-none text-white md:px-4 md:py-1.5 md:text-[20px]" style={{ backgroundColor: deal.badgeColor }}>
+            {badge}
           </span>
-          <h3 className="mt-3 text-[19px] font-black leading-tight text-[#0b2f74]">{deal.title}</h3>
-          <p className="mt-2 text-[13px] font-semibold leading-5 text-[#596a82]">{deal.text}</p>
-          <div className="mt-4 flex items-center gap-2 text-[12px] font-black text-[#0b2f74]">
+          <h3 className="mt-2 text-[15px] font-black leading-tight text-[#0b2f74] md:mt-3 md:text-[19px]">{deal.title}</h3>
+          <p className="mt-1.5 line-clamp-2 text-[11.5px] font-semibold leading-4 text-[#596a82] md:mt-2 md:text-[13px] md:leading-5">{deal.text}</p>
+          <div className="mt-2 hidden items-center gap-2 text-[12px] font-black text-[#0b2f74] md:flex">
             <span className="h-6 w-6 rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${deal.image})` }} />
             {deal.shop}
           </div>
         </div>
-        <div className="h-[132px] w-[150px] shrink-0 overflow-hidden rounded-[12px] bg-white/40">
+        <div className="h-[96px] w-[112px] shrink-0 overflow-hidden rounded-[12px] bg-white/40 md:h-[132px] md:w-[150px]">
           <ImageFill src={deal.image} />
         </div>
       </div>
@@ -685,25 +687,27 @@ function SpotlightDeal({ deal }: { deal: DealCardData }) {
 
 function FeaturedShop({ shop }: { shop: ShopCardData }) {
   return (
-    <article className="overflow-hidden rounded-[13px] border border-[#dfe6f2] bg-white shadow-[0_12px_25px_rgba(11,47,116,0.07)]">
-      <ShopImage image={shop.image} badge={shop.badge} badgeColor={shop.badgeColor} height="h-[150px]" />
+    <article className="w-[196px] shrink-0 snap-start overflow-hidden rounded-[13px] border border-[#dfe6f2] bg-white shadow-[0_12px_25px_rgba(11,47,116,0.07)] md:w-auto">
+      <ShopImage image={shop.image} badge={shop.badge} badgeColor={shop.badgeColor} height="h-[106px] md:h-[150px]" />
       <ShopBody shop={shop} />
     </article>
   );
 }
 
 function OfferCard({ offer }: { offer: OfferCardData }) {
+  const title = offer.title.includes("599") ? "\u20b9599 Offer" : offer.title;
+
   return (
-    <article className="relative h-[142px] overflow-hidden rounded-[15px] p-5 text-white shadow-[0_12px_26px_rgba(11,47,116,0.1)]" style={{ background: offer.gradient }}>
-      <div className="relative z-10 max-w-[190px]">
-        <h3 className="text-[28px] font-black leading-none">{offer.title}</h3>
-        <p className="mt-2 text-[13px] font-bold leading-5 text-white/86">{offer.text}</p>
+    <article className="relative h-[128px] w-[236px] shrink-0 snap-start overflow-hidden rounded-[15px] p-4 text-white shadow-[0_12px_26px_rgba(11,47,116,0.1)] md:h-[142px] md:w-auto md:p-5" style={{ background: offer.gradient }}>
+      <div className="relative z-10 max-w-[160px] md:max-w-[190px]">
+        <h3 className="text-[22px] font-black leading-none md:text-[28px]">{title}</h3>
+        <p className="mt-1.5 line-clamp-2 text-[11.5px] font-bold leading-4 text-white/86 md:mt-2 md:text-[13px] md:leading-5">{offer.text}</p>
         <div className="mt-3 text-[12px] font-black text-white/90">{offer.shop}</div>
-        <div className="mt-2 inline-flex rounded-[6px] bg-white/18 px-2.5 py-1 text-[11px] font-black">
+        <div className="mt-2 inline-flex rounded-[6px] bg-white/18 px-2 py-1 text-[10px] font-black md:px-2.5 md:text-[11px]">
           Use Code: {offer.code}
         </div>
       </div>
-      <div className="absolute bottom-0 right-0 h-[132px] w-[142px] overflow-hidden rounded-tl-[20px]">
+      <div className="absolute bottom-0 right-0 h-[112px] w-[118px] overflow-hidden rounded-tl-[20px] md:h-[132px] md:w-[142px]">
         <ImageFill src={offer.image} />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/12" />
       </div>
@@ -714,7 +718,7 @@ function OfferCard({ offer }: { offer: OfferCardData }) {
 function ShopGridCard({ shop }: { shop: ShopCardData }) {
   return (
     <article className="overflow-hidden rounded-[13px] border border-[#dfe6f2] bg-white shadow-[0_12px_25px_rgba(11,47,116,0.06)]">
-      <ShopImage image={shop.image} badge={shop.badge} badgeColor={shop.badgeColor} ribbon={shop.ribbon} height="h-[128px]" />
+      <ShopImage image={shop.image} badge={shop.badge} badgeColor={shop.badgeColor} ribbon={shop.ribbon} height="h-[94px] sm:h-[128px]" />
       <ShopBody shop={shop} dense />
     </article>
   );
@@ -724,16 +728,16 @@ function ShopImage({ image, badge, badgeColor, ribbon, height }: { image: string
   return (
     <div className={`relative ${height} bg-slate-100`}>
       <ImageFill src={image} darken />
-      <span className="absolute left-3 top-3 rounded-[6px] px-2.5 py-1 text-[11px] font-black text-white" style={{ backgroundColor: badgeColor }}>
+      <span className="absolute left-2 top-2 rounded-[6px] px-2 py-0.5 text-[9.5px] font-black text-white sm:left-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[11px]" style={{ backgroundColor: badgeColor }}>
         {badge}
       </span>
       {ribbon ? (
-        <span className="absolute right-3 top-3 rounded-[6px] bg-[#d94842] px-2.5 py-1 text-[10px] font-black text-white">
+        <span className="absolute right-2 top-2 rounded-[6px] bg-[#d94842] px-2 py-0.5 text-[9.5px] font-black text-white sm:right-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[10px]">
           {ribbon}
         </span>
       ) : null}
-      <button className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-black/24 text-white">
-        <Heart className="h-4 w-4" />
+      <button className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/24 text-white sm:right-3 sm:top-3 sm:h-8 sm:w-8">
+        <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </button>
     </div>
   );
@@ -741,10 +745,10 @@ function ShopImage({ image, badge, badgeColor, ribbon, height }: { image: string
 
 function ShopBody({ shop, dense = false }: { shop: ShopCardData; dense?: boolean }) {
   return (
-    <div className={dense ? "px-3 py-3" : "px-4 py-4"}>
-      <h3 className="truncate text-[14px] font-black text-[#0b2f74]">{shop.name}</h3>
-      <p className="mt-1 truncate text-[12px] font-semibold text-[#71809b]">{shop.category}</p>
-      <div className="mt-3 flex items-center justify-between gap-2 text-[12px] font-semibold text-[#71809b]">
+    <div className={dense ? "px-2.5 py-2.5 sm:px-3 sm:py-3" : "px-3 py-3 sm:px-4 sm:py-4"}>
+      <h3 className={`${dense ? "text-[12.5px] sm:text-[14px]" : "text-[13px] sm:text-[14px]"} truncate font-black text-[#0b2f74]`}>{shop.name}</h3>
+      <p className={`${dense ? "text-[10.5px] sm:text-[12px]" : "text-[11.5px] sm:text-[12px]"} mt-1 truncate font-semibold text-[#71809b]`}>{shop.category}</p>
+      <div className={`${dense ? "mt-2 flex flex-wrap gap-x-2 gap-y-1 text-[10.5px] sm:mt-3 sm:justify-between sm:text-[12px]" : "mt-2.5 flex items-center justify-between gap-2 text-[11.5px] sm:mt-3 sm:text-[12px]"} font-semibold text-[#71809b]`}>
         <span className="inline-flex items-center gap-1">
           <Star className="h-3.5 w-3.5 fill-[#f5b625] text-[#f5b625]" />
           {shop.rating} ({shop.reviews})
@@ -760,17 +764,17 @@ function ShopBody({ shop, dense = false }: { shop: ShopCardData; dense?: boolean
 
 function RankedShop({ shop }: { shop: (typeof rankedShops)[number] }) {
   return (
-    <article className="flex items-center gap-4 rounded-[13px] border border-[#dfe6f2] bg-white p-4 shadow-[0_12px_25px_rgba(11,47,116,0.05)]">
-      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,#f5b625,#c98200)] text-[18px] font-black text-white">
+    <article className="flex items-center gap-3 rounded-[13px] border border-[#dfe6f2] bg-white p-3 shadow-[0_12px_25px_rgba(11,47,116,0.05)] sm:gap-4 sm:p-4">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,#f5b625,#c98200)] text-[15px] font-black text-white sm:h-11 sm:w-11 sm:text-[18px]">
         {shop.rank}
       </div>
-      <div className="h-16 w-24 shrink-0 overflow-hidden rounded-[10px] bg-slate-100">
+      <div className="h-14 w-20 shrink-0 overflow-hidden rounded-[10px] bg-slate-100 sm:h-16 sm:w-24">
         <ImageFill src={shop.image} />
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-[14px] font-black text-[#0b2f74]">{shop.name}</h3>
         <p className="mt-1 truncate text-[12px] font-semibold text-[#71809b]">{shop.category}</p>
-        <div className="mt-2 flex gap-3 text-[11px] font-semibold text-[#71809b]">
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10.5px] font-semibold text-[#71809b] sm:text-[11px]">
           <span className="inline-flex items-center gap-1">
             <Star className="h-3.5 w-3.5 fill-[#f5b625] text-[#f5b625]" />
             {shop.rating} ({shop.reviews})
@@ -778,7 +782,7 @@ function RankedShop({ shop }: { shop: (typeof rankedShops)[number] }) {
           <span>{shop.distance}</span>
         </div>
       </div>
-      <button className="grid h-9 w-9 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74]">
+      <button className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74] sm:h-9 sm:w-9">
         <ChevronRight className="h-4 w-4" />
       </button>
     </article>
@@ -788,15 +792,15 @@ function RankedShop({ shop }: { shop: (typeof rankedShops)[number] }) {
 function EcosystemCard({ item }: { item: EcosystemCardData }) {
   const Icon = item.icon;
   return (
-    <article id={item.id} className="flex scroll-mt-24 items-center gap-5 rounded-[13px] border border-[#dfe6f2] bg-white p-5 shadow-[0_10px_22px_rgba(11,47,116,0.05)]">
-      <div className="grid h-16 w-16 shrink-0 place-items-center rounded-[10px] bg-[#edf3ff] text-[#0b2f74]">
-        <Icon className="h-9 w-9" />
+    <article id={item.id} className="flex scroll-mt-24 items-center gap-3 rounded-[13px] border border-[#dfe6f2] bg-white p-3 shadow-[0_10px_22px_rgba(11,47,116,0.05)] sm:gap-5 sm:p-5">
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[10px] bg-[#edf3ff] text-[#0b2f74] sm:h-16 sm:w-16">
+        <Icon className="h-7 w-7 sm:h-9 sm:w-9" />
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="text-[16px] font-black text-[#0b2f74]">{item.title}</h3>
-        <p className="mt-1 text-[13px] font-semibold leading-5 text-[#71809b]">{item.text}</p>
+        <h3 className="text-[14px] font-black text-[#0b2f74] sm:text-[16px]">{item.title}</h3>
+        <p className="mt-1 text-[11.5px] font-semibold leading-4 text-[#71809b] sm:text-[13px] sm:leading-5">{item.text}</p>
       </div>
-      <button className="grid h-9 w-9 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74]">
+      <button className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74] sm:h-9 sm:w-9">
         <ChevronRight className="h-4 w-4" />
       </button>
     </article>

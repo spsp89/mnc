@@ -11,7 +11,7 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
 
-    expect(find.text('Discover'), findsOneWidget);
-    expect(find.text('Featured near you'), findsOneWidget);
+    expect(find.textContaining('Find any shop'), findsOneWidget);
+    expect(find.text('Browse by category'), findsOneWidget);
   });
 }
