@@ -1,4 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import 'src/catalog_models.dart';
+import 'src/catalog_seed.dart';
+import 'src/catalog_service.dart';
+
+const brandNavy = Color(0xFF0B2F74);
+const brandNavyDeep = Color(0xFF041C55);
+const brandNavyBright = Color(0xFF1C4EA1);
+const brandGold = Color(0xFFF4B227);
+const brandGoldDeep = Color(0xFFC78908);
+const brandCanvas = Color(0xFFF8F6EF);
+const brandSurface = Color(0xFFFFFCF7);
+const brandSoft = Color(0xFFF2F5FB);
+const brandLine = Color(0xFFE4E8F1);
+const brandMuted = Color(0xFF6B7E9D);
+const brandHeroText = Color(0xFFDEE7FF);
+const categoryPalette = [brandGold, brandNavy, brandGoldDeep, brandNavyBright];
 
 void main() {
   runApp(const NearuApp());
@@ -11,37 +30,215 @@ class NearuApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Nearu',
+      title: 'BNC',
       theme: ThemeData(
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
+        scaffoldBackgroundColor: brandCanvas,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFFBE2E),
+          seedColor: brandGold,
           brightness: Brightness.light,
         ),
         fontFamily: 'Segoe UI',
       ),
-      home: const NearuHomePage(),
+      home: const BncLaunchFlow(),
     );
   }
 }
 
-class NearuHomePage extends StatelessWidget {
+class BncLaunchFlow extends StatefulWidget {
+  const BncLaunchFlow({super.key});
+
+  @override
+  State<BncLaunchFlow> createState() => _BncLaunchFlowState();
+}
+
+class _BncLaunchFlowState extends State<BncLaunchFlow> {
+  bool _showHome = false;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(const Duration(milliseconds: 1800), () {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _showHome = true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 420),
+      child: _showHome
+          ? const NearuHomePage()
+          : const BncSplashScreen(key: ValueKey('bnc-splash')),
+    );
+  }
+}
+
+class BncSplashScreen extends StatelessWidget {
+  const BncSplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [brandNavyDeep, brandNavy, brandNavyBright],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 182,
+                    height: 182,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.96),
+                      borderRadius: BorderRadius.circular(42),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x3301184A),
+                          blurRadius: 34,
+                          offset: Offset(0, 18),
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      'assets/branding/bnc-logo.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  const Text(
+                    'BNC',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Launching your premium local marketplace',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.84),
+                      fontSize: 15,
+                      height: 1.45,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  const SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(brandGold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class NearuHomePage extends StatefulWidget {
   const NearuHomePage({super.key});
+
+  @override
+  State<NearuHomePage> createState() => _NearuHomePageState();
+}
+
+class _NearuHomePageState extends State<NearuHomePage> {
+  final CatalogService _catalogService = CatalogService();
+
+  CatalogData _catalog = fallbackCatalog;
+  bool _isSyncing = true;
+  bool _usingFallback = false;
+  DateTime? _lastSynced;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshCatalog();
+  }
+
+  Future<void> _refreshCatalog() async {
+    if (mounted) {
+      setState(() {
+        _isSyncing = true;
+      });
+    }
+
+    try {
+      final catalog = await _catalogService.fetchCatalog();
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _catalog = catalog;
+        _isSyncing = false;
+        _usingFallback = false;
+        _lastSynced = DateTime.now();
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _catalog = fallbackCatalog;
+        _isSyncing = false;
+        _usingFallback = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final usePreviewShell = constraints.maxWidth > 500;
-        final phoneWidth = usePreviewShell ? 430.0 : constraints.maxWidth;
 
-        Widget screen = _MobileHomeScreen(shellMode: usePreviewShell);
+        Widget screen = _MobileHomeScreen(
+          catalog: _catalog,
+          isSyncing: _isSyncing,
+          usingFallback: _usingFallback,
+          lastSynced: _lastSynced,
+          onRefresh: _refreshCatalog,
+        );
 
         if (usePreviewShell) {
           screen = Center(
             child: Container(
-              width: phoneWidth,
+              width: 430,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.black,
@@ -63,9 +260,7 @@ class NearuHomePage extends StatelessWidget {
         }
 
         return Scaffold(
-          backgroundColor: usePreviewShell
-              ? const Color(0xFFF1F4FA)
-              : const Color(0xFFF5F7FB),
+          backgroundColor: usePreviewShell ? brandSoft : brandCanvas,
           body: SafeArea(top: !usePreviewShell, bottom: false, child: screen),
         );
       },
@@ -74,30 +269,53 @@ class NearuHomePage extends StatelessWidget {
 }
 
 class _MobileHomeScreen extends StatelessWidget {
-  const _MobileHomeScreen({required this.shellMode});
+  const _MobileHomeScreen({
+    required this.catalog,
+    required this.isSyncing,
+    required this.usingFallback,
+    required this.lastSynced,
+    required this.onRefresh,
+  });
 
-  final bool shellMode;
+  final CatalogData catalog;
+  final bool isSyncing;
+  final bool usingFallback;
+  final DateTime? lastSynced;
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: brandSurface,
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    _HeroSection(shellMode: shellMode),
-                    Transform.translate(
-                      offset: const Offset(0, -28),
-                      child: const _ContentSection(),
-                    ),
-                  ],
-                ),
+          RefreshIndicator(
+            color: brandNavy,
+            onRefresh: onRefresh,
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
-            ],
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      _HeroSection(
+                        catalog: catalog,
+                        isSyncing: isSyncing,
+                        usingFallback: usingFallback,
+                        lastSynced: lastSynced,
+                        onRefresh: onRefresh,
+                      ),
+                      Transform.translate(
+                        offset: const Offset(0, -28),
+                        child: _ContentSection(catalog: catalog),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           const Positioned(
             left: 0,
@@ -112,45 +330,70 @@ class _MobileHomeScreen extends StatelessWidget {
 }
 
 class _HeroSection extends StatelessWidget {
-  const _HeroSection({required this.shellMode});
+  const _HeroSection({
+    required this.catalog,
+    required this.isSyncing,
+    required this.usingFallback,
+    required this.lastSynced,
+    required this.onRefresh,
+  });
 
-  final bool shellMode;
+  final CatalogData catalog;
+  final bool isSyncing;
+  final bool usingFallback;
+  final DateTime? lastSynced;
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF041B4A), Color(0xFF0C2E72)],
+          colors: [brandNavyDeep, brandNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(22, shellMode ? 8 : 14, 22, 48),
+        padding: const EdgeInsets.fromLTRB(22, 14, 22, 52),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _StatusRow(),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
-                Icon(Icons.location_on, color: Colors.white, size: 23),
-                SizedBox(width: 8),
+                const Icon(Icons.location_on, color: Colors.white, size: 23),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Kozhikode, Kerala',
-                    style: TextStyle(
+                    catalog.locationLabel,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 22),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _SyncChip(isSyncing: isSyncing, usingFallback: usingFallback),
+                if (lastSynced != null && !isSyncing)
+                  _InfoChip(label: 'Updated ${_formatTime(lastSynced!)}'),
+                _ActionChip(label: 'Refresh', onTap: onRefresh),
+              ],
+            ),
+            const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -164,18 +407,20 @@ class _HeroSection extends StatelessWidget {
                       _highlightLine('products & services'),
                       _highlightLine('near you', showPin: true),
                       const SizedBox(height: 18),
-                      const Text(
-                        'From local favorites to trusted professionals -',
-                        style: TextStyle(
-                          color: Color(0xFFE7EEFF),
+                      Text(
+                        usingFallback
+                            ? 'Showing saved catalog while the server reconnects.'
+                            : 'Connected to your live server catalog.',
+                        style: const TextStyle(
+                          color: brandHeroText,
                           fontSize: 15,
                           height: 1.45,
                         ),
                       ),
                       const Text(
-                        'everything you need, all in one place.',
+                        'Pull down anytime to sync fresh businesses and deals.',
                         style: TextStyle(
-                          color: Color(0xFFE7EEFF),
+                          color: brandHeroText,
                           fontSize: 15,
                           height: 1.45,
                         ),
@@ -183,14 +428,14 @@ class _HeroSection extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 const _HeroGraphic(),
               ],
             ),
             const SizedBox(height: 22),
-            const _SearchBar(),
+            _SearchBar(onTap: onRefresh),
             const SizedBox(height: 16),
-            const _StatsPanel(),
+            _StatsPanel(stats: catalog.stats),
           ],
         ),
       ),
@@ -228,7 +473,7 @@ class _HeroSection extends StatelessWidget {
             Text(
               text,
               style: const TextStyle(
-                color: Color(0xFFFFBE2E),
+                color: brandGold,
                 fontSize: 32,
                 height: 0.98,
                 fontWeight: FontWeight.w900,
@@ -236,7 +481,7 @@ class _HeroSection extends StatelessWidget {
             ),
             if (showPin) ...[
               const SizedBox(width: 4),
-              const Icon(Icons.location_on, color: Color(0xFFFFBE2E), size: 25),
+              const Icon(Icons.location_on, color: brandGold, size: 25),
             ],
           ],
         ),
@@ -250,9 +495,9 @@ class _StatusRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       children: [
-        const Text(
+        Text(
           '9:41',
           style: TextStyle(
             color: Colors.white,
@@ -260,39 +505,174 @@ class _StatusRow extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
-        const Spacer(),
-        Container(
-          width: 120,
-          height: 34,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(24),
+        Spacer(),
+        _DynamicIsland(),
+        Spacer(),
+        Icon(Icons.signal_cellular_alt, color: Colors.white, size: 18),
+        SizedBox(width: 8),
+        Icon(Icons.wifi, color: Colors.white, size: 18),
+        SizedBox(width: 8),
+        Icon(Icons.battery_full, color: Colors.white, size: 20),
+      ],
+    );
+  }
+}
+
+class _DynamicIsland extends StatelessWidget {
+  const _DynamicIsland();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 120,
+      height: 34,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Container(
+          width: 24,
+          height: 24,
+          margin: const EdgeInsets.only(right: 12),
+          decoration: const BoxDecoration(
+            color: Color(0xFF111C2A),
+            shape: BoxShape.circle,
           ),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              width: 24,
-              height: 24,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: const BoxDecoration(
-                color: Color(0xFF111C2A),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.camera_alt,
-                size: 12,
-                color: Color(0xFF20418C),
-              ),
-            ),
+          child: const Icon(
+            Icons.camera_alt,
+            size: 12,
+            color: Color(0xFF20418C),
           ),
         ),
-        const Spacer(),
-        const Icon(Icons.signal_cellular_alt, color: Colors.white, size: 18),
-        const SizedBox(width: 8),
-        const Icon(Icons.wifi, color: Colors.white, size: 18),
-        const SizedBox(width: 8),
-        const Icon(Icons.battery_full, color: Colors.white, size: 20),
-      ],
+      ),
+    );
+  }
+}
+
+class _SyncChip extends StatelessWidget {
+  const _SyncChip({required this.isSyncing, required this.usingFallback});
+
+  final bool isSyncing;
+  final bool usingFallback;
+
+  @override
+  Widget build(BuildContext context) {
+    final background = isSyncing
+        ? Colors.white.withValues(alpha: 0.12)
+        : usingFallback
+        ? const Color(0x33FF8A65)
+        : const Color(0x3327D07D);
+
+    final iconColor = isSyncing
+        ? const Color(0xFFFFE4A6)
+        : usingFallback
+        ? const Color(0xFFFFC0A9)
+        : const Color(0xFFB8FFD8);
+
+    final label = isSyncing
+        ? 'Syncing server...'
+        : usingFallback
+        ? 'Offline fallback'
+        : 'Server connected';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isSyncing)
+            const SizedBox(
+              width: 12,
+              height: 12,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation(Color(0xFFFFE4A6)),
+              ),
+            )
+          else
+            Icon(Icons.cloud_done_rounded, size: 14, color: iconColor),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.92),
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.85),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionChip extends StatelessWidget {
+  const _ActionChip({required this.label, required this.onTap});
+
+  final String label;
+  final Future<void> Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: () => onTap(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0x26FFBE2E),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: const Color(0x40FFBE2E)),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.refresh_rounded, size: 14, color: Color(0xFFFFD670)),
+            SizedBox(width: 8),
+            Text(
+              'Refresh',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -304,7 +684,7 @@ class _HeroGraphic extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 158,
-      height: 180,
+      height: 182,
       child: Stack(
         children: [
           Positioned(
@@ -345,40 +725,49 @@ class _HeroGraphic extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      profileImageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFFFFD1AE), Color(0xFF8A5127)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                          child: const Icon(Icons.person, color: Colors.white),
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                _RemoteAvatar(imageUrl: profileImageUrl),
               ],
             ),
           ),
-          const Positioned(right: 6, bottom: 18, child: _PinBagArt()),
+          const Positioned(right: 6, bottom: 16, child: _PinBagArt()),
         ],
+      ),
+    );
+  }
+}
+
+class _RemoteAvatar extends StatelessWidget {
+  const _RemoteAvatar({required this.imageUrl});
+
+  final String imageUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFFD1AE), Color(0xFF8A5127)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: const Icon(Icons.person, color: Colors.white),
+            );
+          },
+        ),
       ),
     );
   }
@@ -423,7 +812,7 @@ class _PinBagArt extends StatelessWidget {
               width: 46,
               height: 58,
               decoration: BoxDecoration(
-                color: const Color(0xFFFFBE2E),
+                color: brandGold,
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: const [
                   BoxShadow(
@@ -490,7 +879,9 @@ class _PinBagArt extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
-  const _SearchBar();
+  const _SearchBar({required this.onTap});
+
+  final Future<void> Function() onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -504,31 +895,31 @@ class _SearchBar extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Icon(Icons.search, color: Color(0xFF7082A3), size: 30),
+            child: Icon(Icons.search, color: brandMuted, size: 30),
           ),
           const Expanded(
             child: Text(
               'Search products, shops or services',
               style: TextStyle(
-                color: Color(0xFF7082A3),
+                color: brandMuted,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFBE2E),
-              borderRadius: BorderRadius.circular(20),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: brandGold,
+              foregroundColor: brandNavy,
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
+            onPressed: () => onTap(),
             child: const Text(
               'Search',
-              style: TextStyle(
-                color: Color(0xFF102C60),
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -538,15 +929,33 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _StatsPanel extends StatelessWidget {
-  const _StatsPanel();
+  const _StatsPanel({required this.stats});
+
+  final CatalogStats stats;
 
   @override
   Widget build(BuildContext context) {
-    const items = [
-      _StatItem(Icons.dashboard_customize_outlined, '320+', 'Categories'),
-      _StatItem(Icons.storefront_outlined, '1.2K+', 'Shops & Pros'),
-      _StatItem(Icons.sentiment_satisfied_alt_outlined, '10K+', 'Happy Users'),
-      _StatItem(Icons.verified_user_outlined, 'Trusted', '& Verified'),
+    final items = [
+      _StatItem(
+        Icons.dashboard_customize_outlined,
+        _formatCount(stats.categories),
+        'Categories',
+      ),
+      _StatItem(
+        Icons.storefront_outlined,
+        _formatCount(stats.businesses),
+        'Shops & Pros',
+      ),
+      _StatItem(
+        Icons.sentiment_satisfied_alt_outlined,
+        stats.happyUsers,
+        'Happy Users',
+      ),
+      _StatItem(
+        Icons.verified_user_outlined,
+        _formatCount(stats.trusted),
+        'Trusted Pros',
+      ),
     ];
 
     return Container(
@@ -588,7 +997,7 @@ class _StatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(item.icon, color: const Color(0xFFFFBE2E), size: 24),
+        Icon(item.icon, color: brandGold, size: 24),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -605,7 +1014,7 @@ class _StatCell extends StatelessWidget {
               Text(
                 item.label,
                 style: const TextStyle(
-                  color: Color(0xFFD7E2FF),
+                  color: brandHeroText,
                   fontSize: 12,
                   height: 1.2,
                 ),
@@ -619,13 +1028,15 @@ class _StatCell extends StatelessWidget {
 }
 
 class _ContentSection extends StatelessWidget {
-  const _ContentSection();
+  const _ContentSection({required this.catalog});
+
+  final CatalogData catalog;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: brandSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Padding(
@@ -633,7 +1044,7 @@ class _ContentSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _CategoryRow(),
+            _CategoryRail(categories: catalog.categories),
             const SizedBox(height: 18),
             const _SegmentControl(),
             const SizedBox(height: 18),
@@ -648,25 +1059,25 @@ class _ContentSection extends StatelessWidget {
               height: 256,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: featuredBusinesses.length,
+                itemCount: catalog.featured.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 12),
                 itemBuilder: (context, index) =>
-                    _FeaturedCard(data: featuredBusinesses[index]),
+                    _FeaturedCard(data: catalog.featured[index]),
               ),
             ),
             const SizedBox(height: 20),
             const _SectionHeader(title: 'Popular near you'),
             const SizedBox(height: 12),
-            const _FilterChips(),
+            _FilterChips(categories: catalog.categories),
             const SizedBox(height: 14),
             Column(
               children: List.generate(
-                popularBusinesses.length,
+                catalog.popular.length,
                 (index) => Padding(
                   padding: EdgeInsets.only(
-                    bottom: index == popularBusinesses.length - 1 ? 0 : 12,
+                    bottom: index == catalog.popular.length - 1 ? 0 : 12,
                   ),
-                  child: _PopularCard(data: popularBusinesses[index]),
+                  child: _PopularCard(data: catalog.popular[index]),
                 ),
               ),
             ),
@@ -677,8 +1088,10 @@ class _ContentSection extends StatelessWidget {
   }
 }
 
-class _CategoryRow extends StatelessWidget {
-  const _CategoryRow();
+class _CategoryRail extends StatelessWidget {
+  const _CategoryRail({required this.categories});
+
+  final List<CategoryItem> categories;
 
   @override
   Widget build(BuildContext context) {
@@ -691,7 +1104,7 @@ class _CategoryRow extends StatelessWidget {
             padding: EdgeInsets.only(
               right: index == categories.length - 1 ? 0 : 12,
             ),
-            child: _CategoryCard(data: category),
+            child: _CategoryCard(category: category, index: index),
           );
         }),
       ),
@@ -700,38 +1113,59 @@ class _CategoryRow extends StatelessWidget {
 }
 
 class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.data});
+  const _CategoryCard({required this.category, required this.index});
 
-  final _CategoryData data;
+  final CategoryItem category;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 84,
+    final accentColor = categoryPalette[index % categoryPalette.length];
+    final iconColor = category.isActive ? Colors.white : accentColor;
+    final backgroundColor = category.isActive
+        ? brandNavy
+        : accentColor.withValues(alpha: 0.12);
+
+    return Container(
+      width: 98,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      decoration: BoxDecoration(
+        color: brandSurface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: brandLine),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F08204A),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: data.active
-                  ? const Color(0xFF0B285E)
-                  : data.color.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(16),
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Icon(
-              data.icon,
-              color: data.active ? Colors.white : data.color,
+              _iconForSlug(category.icon),
+              color: iconColor,
               size: 28,
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            data.label,
+            category.name,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Color(0xFF0B285E),
-              fontSize: 13,
+              color: brandNavy,
+              fontSize: 14,
+              height: 1.15,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -747,11 +1181,11 @@ class _SegmentControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F7FB),
+        color: brandSoft,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFE5EBF3)),
+        border: Border.all(color: brandLine),
       ),
       child: Row(
         children: [
@@ -759,7 +1193,7 @@ class _SegmentControl extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(
-                color: const Color(0xFF07245D),
+                color: brandNavy,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: const Row(
@@ -768,14 +1202,13 @@ class _SegmentControl extends StatelessWidget {
                   Icon(
                     Icons.shopping_bag_outlined,
                     color: Colors.white,
-                    size: 20,
+                    size: 18,
                   ),
                   SizedBox(width: 8),
                   Text(
                     'Products',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -786,21 +1219,19 @@ class _SegmentControl extends StatelessWidget {
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+              ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.handyman_outlined,
-                    color: Color(0xFF7082A3),
-                    size: 20,
-                  ),
+                  Icon(Icons.handyman_outlined, color: brandMuted, size: 18),
                   SizedBox(width: 8),
                   Text(
                     'Services',
                     style: TextStyle(
-                      color: Color(0xFF7082A3),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                      color: brandMuted,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -819,13 +1250,13 @@ class _DealBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 18, 12, 18),
+      padding: const EdgeInsets.fromLTRB(18, 18, 16, 18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
-          colors: [Color(0xFFFFF7E8), Color(0xFFFFF2D7), Color(0xFFFFF8EC)],
+          colors: [Color(0xFFFFFAEE), Color(0xFFFFF1CC)],
         ),
-        border: Border.all(color: const Color(0xFFF4DF9F)),
+        border: Border.all(color: const Color(0xFFF1D58C)),
       ),
       child: Row(
         children: [
@@ -836,9 +1267,9 @@ class _DealBanner extends StatelessWidget {
                 Text(
                   'Big savings,\nright around you!',
                   style: TextStyle(
-                    color: Color(0xFF0B285E),
-                    fontSize: 22,
-                    height: 1.05,
+                    color: brandNavy,
+                    fontSize: 20,
+                    height: 1.1,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -846,9 +1277,9 @@ class _DealBanner extends StatelessWidget {
                 Text(
                   'Exclusive offers on top products\n& services near you.',
                   style: TextStyle(
-                    color: Color(0xFF38517B),
-                    fontSize: 15,
-                    height: 1.45,
+                    color: Color(0xFF496488),
+                    fontSize: 14,
+                    height: 1.4,
                   ),
                 ),
                 SizedBox(height: 14),
@@ -877,13 +1308,16 @@ class _SectionHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Color(0xFF0B285E),
+              color: brandNavy,
               fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
           ),
         ),
+        if (action != null) const SizedBox(width: 12),
         if (action != null)
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -891,13 +1325,13 @@ class _SectionHeader extends StatelessWidget {
               Text(
                 action!,
                 style: const TextStyle(
-                  color: Color(0xFF7082A3),
+                  color: brandMuted,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, color: Color(0xFF7082A3)),
+              const Icon(Icons.chevron_right, color: brandMuted),
             ],
           ),
       ],
@@ -908,7 +1342,7 @@ class _SectionHeader extends StatelessWidget {
 class _FeaturedCard extends StatelessWidget {
   const _FeaturedCard({required this.data});
 
-  final _BusinessData data;
+  final BusinessItem data;
 
   @override
   Widget build(BuildContext context) {
@@ -935,9 +1369,13 @@ class _FeaturedCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: _BusinessPhoto(data: data, showDarkOverlay: true),
+                    child: _RemoteBusinessImage(
+                      imageUrl: data.imageUrl,
+                      variant: data.coverVariant,
+                      darken: true,
+                    ),
                   ),
-                  if (data.badge != null)
+                  if (data.badgeText != null)
                     Positioned(
                       left: 10,
                       top: 10,
@@ -947,11 +1385,11 @@ class _FeaturedCard extends StatelessWidget {
                           vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: data.badgeColor,
+                          color: _colorFromHex(data.badgeColor ?? '#2961F0'),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
-                          data.badge!,
+                          data.badgeText!,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -989,18 +1427,15 @@ class _FeaturedCard extends StatelessWidget {
                 Text(
                   data.name,
                   style: const TextStyle(
-                    color: Color(0xFF0B285E),
+                    color: brandNavy,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${data.category} - ${data.location}',
-                  style: const TextStyle(
-                    color: Color(0xFF7082A3),
-                    fontSize: 13,
-                  ),
+                  '${data.subtitle} / ${data.area}',
+                  style: const TextStyle(color: brandMuted, fontSize: 13),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -1010,12 +1445,13 @@ class _FeaturedCard extends StatelessWidget {
                     _MetaPill(
                       icon: Icons.star,
                       color: const Color(0xFFFFB11B),
-                      text: '${data.rating} (${data.reviews})',
+                      text:
+                          '${data.rating.toStringAsFixed(1)} (${data.reviewCount})',
                     ),
                     _MetaPill(
                       icon: Icons.location_on_outlined,
                       color: const Color(0xFF7C8CAB),
-                      text: data.distance,
+                      text: '${data.distanceKm.toStringAsFixed(1)} km',
                     ),
                   ],
                 ),
@@ -1029,16 +1465,15 @@ class _FeaturedCard extends StatelessWidget {
 }
 
 class _FilterChips extends StatelessWidget {
-  const _FilterChips();
+  const _FilterChips({required this.categories});
+
+  final List<CategoryItem> categories;
 
   @override
   Widget build(BuildContext context) {
-    const labels = [
+    final labels = [
       'All',
-      'Restaurants',
-      'Grocery',
-      'Beauty',
-      'Tailors',
+      ...categories.take(4).map((category) => category.name),
       'Filters',
     ];
 
@@ -1055,12 +1490,10 @@ class _FilterChips extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               decoration: BoxDecoration(
-                color: active
-                    ? const Color(0xFF07245D)
-                    : const Color(0xFFF4F7FC),
+                color: active ? brandNavy : brandSoft,
                 borderRadius: BorderRadius.circular(999),
                 border: label == 'Filters'
-                    ? Border.all(color: const Color(0xFFE1E7F1))
+                    ? Border.all(color: brandLine)
                     : null,
               ),
               child: Row(
@@ -1068,13 +1501,13 @@ class _FilterChips extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      color: active ? Colors.white : const Color(0xFF223A67),
+                      color: active ? Colors.white : brandNavy,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   if (label == 'Filters') ...[
                     const SizedBox(width: 8),
-                    const Icon(Icons.tune, size: 18, color: Color(0xFF223A67)),
+                    const Icon(Icons.tune, size: 18, color: brandNavy),
                   ],
                 ],
               ),
@@ -1089,16 +1522,16 @@ class _FilterChips extends StatelessWidget {
 class _PopularCard extends StatelessWidget {
   const _PopularCard({required this.data});
 
-  final _BusinessData data;
+  final BusinessItem data;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: brandSurface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6ECF4)),
+        border: Border.all(color: brandLine),
       ),
       child: Row(
         children: [
@@ -1107,7 +1540,10 @@ class _PopularCard extends StatelessWidget {
             child: SizedBox(
               width: 88,
               height: 78,
-              child: _BusinessPhoto(data: data),
+              child: _RemoteBusinessImage(
+                imageUrl: data.imageUrl,
+                variant: data.coverVariant,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -1123,7 +1559,7 @@ class _PopularCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Color(0xFF0B285E),
+                          color: brandNavy,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                         ),
@@ -1132,18 +1568,15 @@ class _PopularCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     const Icon(
                       Icons.favorite_border,
-                      color: Color(0xFF7082A3),
+                      color: brandMuted,
                       size: 20,
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  data.category,
-                  style: const TextStyle(
-                    color: Color(0xFF7082A3),
-                    fontSize: 13,
-                  ),
+                  data.subtitle,
+                  style: const TextStyle(color: brandMuted, fontSize: 13),
                 ),
                 const SizedBox(height: 10),
                 Wrap(
@@ -1153,12 +1586,13 @@ class _PopularCard extends StatelessWidget {
                     _MetaPill(
                       icon: Icons.star,
                       color: const Color(0xFFFFB11B),
-                      text: '${data.rating} (${data.reviews})',
+                      text:
+                          '${data.rating.toStringAsFixed(1)} (${data.reviewCount})',
                     ),
                     _MetaPill(
                       icon: Icons.location_on_outlined,
                       color: const Color(0xFF7C8CAB),
-                      text: data.distance,
+                      text: '${data.distanceKm.toStringAsFixed(1)} km',
                     ),
                   ],
                 ),
@@ -1189,11 +1623,95 @@ class _MetaPill extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: color),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(color: Color(0xFF5D6F92), fontSize: 13),
-        ),
+        Text(text, style: const TextStyle(color: brandMuted, fontSize: 13)),
       ],
+    );
+  }
+}
+
+class _RemoteBusinessImage extends StatelessWidget {
+  const _RemoteBusinessImage({
+    required this.imageUrl,
+    required this.variant,
+    this.darken = false,
+  });
+
+  final String imageUrl;
+  final String variant;
+  final bool darken;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _BusinessPlaceholder(variant: variant),
+        Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) {
+              return child;
+            }
+
+            return _BusinessPlaceholder(variant: variant);
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return _BusinessPlaceholder(variant: variant);
+          },
+        ),
+        if (darken)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.black.withValues(alpha: 0.12),
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.18),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _BusinessPlaceholder extends StatelessWidget {
+  const _BusinessPlaceholder({required this.variant});
+
+  final String variant;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = switch (variant) {
+      'plate' => const [Color(0xFF402313), Color(0xFF85552C)],
+      'suit' => const [Color(0xFF0E1830), Color(0xFF3A4F76)],
+      'basket' => const [Color(0xFF5A351A), Color(0xFFB9873A)],
+      'salon' => const [Color(0xFF402D24), Color(0xFF7B5A47)],
+      'shelf' => const [Color(0xFF8A551B), Color(0xFFD5A257)],
+      'phone' => const [Color(0xFF07111C), Color(0xFF275C9E)],
+      'worker' => const [Color(0xFF163E73), Color(0xFF4E90C3)],
+      _ => const [Color(0xFF163460), Color(0xFF2A5BA0)],
+    };
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          _variantIcon(variant),
+          size: 34,
+          color: Colors.white.withValues(alpha: 0.72),
+        ),
+      ),
     );
   }
 }
@@ -1208,7 +1726,7 @@ class _BlueBadgeButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B285E),
+        color: brandNavy,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Text(
@@ -1239,7 +1757,7 @@ class _GiftArt extends StatelessWidget {
               width: 52,
               height: 50,
               decoration: BoxDecoration(
-                color: const Color(0xFFFFBE2E),
+                color: brandGold,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -1247,20 +1765,12 @@ class _GiftArt extends StatelessWidget {
           Positioned(
             left: 59,
             bottom: 0,
-            child: Container(
-              width: 10,
-              height: 50,
-              color: const Color(0xFFF35D24),
-            ),
+            child: Container(width: 10, height: 50, color: brandGoldDeep),
           ),
           Positioned(
             left: 38,
             bottom: 20,
-            child: Container(
-              width: 52,
-              height: 10,
-              color: const Color(0xFFF35D24),
-            ),
+            child: Container(width: 52, height: 10, color: brandGoldDeep),
           ),
           Positioned(
             left: 44,
@@ -1269,7 +1779,7 @@ class _GiftArt extends StatelessWidget {
               width: 18,
               height: 18,
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFFF35D24), width: 5),
+                border: Border.all(color: brandGoldDeep, width: 5),
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -1361,315 +1871,17 @@ class _BottomNavItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          data.icon,
-          color: data.active
-              ? const Color(0xFF07245D)
-              : const Color(0xFF7A8AA8),
-          size: 26,
-        ),
+        Icon(data.icon, color: data.active ? brandNavy : brandMuted, size: 26),
         const SizedBox(height: 8),
         Text(
           data.label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: data.active
-                ? const Color(0xFF07245D)
-                : const Color(0xFF7A8AA8),
+            color: data.active ? brandNavy : brandMuted,
             fontSize: 12,
             fontWeight: data.active ? FontWeight.w800 : FontWeight.w600,
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _BusinessArt extends StatelessWidget {
-  const _BusinessArt({required this.variant});
-
-  final String variant;
-
-  @override
-  Widget build(BuildContext context) {
-    switch (variant) {
-      case 'plate':
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF24160D), Color(0xFF5A4638)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: Center(
-            child: Container(
-              width: 104,
-              height: 60,
-              decoration: BoxDecoration(
-                color: const Color(0xFFDDE5E7),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  _circle(34, 22, const Color(0xFFD18C47)),
-                  _circle(52, 16, const Color(0xFFDDA252)),
-                  _circle(68, 25, const Color(0xFFBB773F)),
-                  Positioned(
-                    top: 34,
-                    child: Container(
-                      width: 42,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF7BAF4D),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      case 'suit':
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF18100A), Color(0xFF59442F)],
-            ),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                top: 16,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFD5B189),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 46,
-                child: Container(
-                  width: 78,
-                  height: 66,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0B1C38),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 54,
-                child: Container(width: 12, height: 56, color: Colors.white),
-              ),
-            ],
-          ),
-        );
-      case 'basket':
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF4D3118), Color(0xFF7B5730)],
-            ),
-          ),
-          child: Center(
-            child: Container(
-              width: 110,
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFB67B37),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Stack(
-                children: [
-                  _fruit(12, 10, const Color(0xFFE44F40)),
-                  _fruit(34, 8, const Color(0xFFFFB92E)),
-                  _fruit(56, 10, const Color(0xFF77C14A)),
-                  _fruit(78, 10, const Color(0xFFEADA4D)),
-                  _fruit(50, 22, const Color(0xFFDA8F48)),
-                ],
-              ),
-            ),
-          ),
-        );
-      case 'salon':
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF433126), Color(0xFF705944)],
-            ),
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                left: 14,
-                right: 14,
-                bottom: 12,
-                child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF241C17),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 32,
-                top: 12,
-                child: Container(
-                  width: 40,
-                  height: 62,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0CCA0),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      case 'shelf':
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFDDB26E), Color(0xFFB77C2E)],
-            ),
-          ),
-          child: CustomPaint(painter: _ShelfPainter()),
-        );
-      case 'phone':
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF06111A), Color(0xFF1F447A)],
-            ),
-          ),
-          child: Center(
-            child: Transform.rotate(
-              angle: -0.35,
-              child: Container(
-                width: 30,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF13243D),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white70),
-                ),
-              ),
-            ),
-          ),
-        );
-      case 'worker':
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF447AA5), Color(0xFF0A2D5E)],
-            ),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                top: 12,
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFD8B18B),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 38,
-                child: Container(
-                  width: 54,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF123661),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      default:
-        return Container(color: const Color(0xFF173152));
-    }
-  }
-
-  Widget _circle(double left, double top, Color color) {
-    return Positioned(
-      left: left,
-      top: top,
-      child: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      ),
-    );
-  }
-
-  Widget _fruit(double left, double top, Color color) {
-    return Positioned(
-      left: left,
-      top: top,
-      child: Container(
-        width: 22,
-        height: 22,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      ),
-    );
-  }
-}
-
-class _BusinessPhoto extends StatelessWidget {
-  const _BusinessPhoto({required this.data, this.showDarkOverlay = false});
-
-  final _BusinessData data;
-  final bool showDarkOverlay;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _BusinessArt(variant: data.variant),
-        Image.network(
-          data.imageUrl,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) {
-              return child;
-            }
-
-            return _BusinessArt(variant: data.variant);
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return _BusinessArt(variant: data.variant);
-          },
-        ),
-        if (showDarkOverlay)
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withValues(alpha: 0.08),
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.12),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
       ],
     );
   }
@@ -1696,7 +1908,6 @@ class _PinPainter extends CustomPainter {
       ..arcToPoint(
         Offset(size.width * 0.16, size.height * 0.33),
         radius: Radius.circular(size.width * 0.34),
-        clockwise: true,
       )
       ..quadraticBezierTo(
         size.width * 0.16,
@@ -1709,40 +1920,8 @@ class _PinPainter extends CustomPainter {
     canvas.drawCircle(
       Offset(size.width * 0.5, size.height * 0.34),
       size.width * 0.14,
-      Paint()..color = const Color(0xFF0B285E),
+      Paint()..color = brandNavy,
     );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _ShelfPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final shelfPaint = Paint()..color = const Color(0xFF7A4A18);
-    for (double y = 14; y < size.height; y += 18) {
-      canvas.drawRect(Rect.fromLTWH(0, y, size.width, 5), shelfPaint);
-    }
-
-    final colors = [
-      const Color(0xFFE34F43),
-      const Color(0xFF3E72E8),
-      const Color(0xFF58B05F),
-      const Color(0xFFFFBE2E),
-    ];
-
-    for (int column = 0; column < 4; column++) {
-      for (double y = 6; y < size.height; y += 18) {
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromLTWH(8 + column * 14, y, 8, 10),
-            const Radius.circular(2),
-          ),
-          Paint()..color = colors[column],
-        );
-      }
-    }
   }
 
   @override
@@ -1757,44 +1936,6 @@ class _StatItem {
   final String label;
 }
 
-class _CategoryData {
-  const _CategoryData(this.icon, this.label, this.color, this.active);
-
-  final IconData icon;
-  final String label;
-  final Color color;
-  final bool active;
-}
-
-class _BusinessData {
-  const _BusinessData({
-    required this.name,
-    required this.category,
-    required this.location,
-    required this.rating,
-    required this.reviews,
-    required this.distance,
-    required this.variant,
-    required this.imageUrl,
-    this.badge,
-    this.badgeColor = const Color(0xFF2961F0),
-  });
-
-  final String name;
-  final String category;
-  final String location;
-  final double rating;
-  final int reviews;
-  final String distance;
-  final String variant;
-  final String imageUrl;
-  final String? badge;
-  final Color badgeColor;
-}
-
-const profileImageUrl =
-    'https://images.pexels.com/photos/20882062/pexels-photo-20882062.jpeg?auto=compress&cs=tinysrgb&w=300';
-
 class _NavItemData {
   const _NavItemData(this.icon, this.label, this.active);
 
@@ -1803,110 +1944,55 @@ class _NavItemData {
   final bool active;
 }
 
-const categories = [
-  _CategoryData(
-    Icons.shopping_cart_checkout_outlined,
-    'Grocery',
-    Color(0xFFFF5A4C),
-    false,
-  ),
-  _CategoryData(
-    Icons.restaurant_outlined,
-    'Restaurants',
-    Color(0xFFFFB01E),
-    false,
-  ),
-  _CategoryData(Icons.content_cut_outlined, 'Tailors', Color(0xFFFFFFFF), true),
-  _CategoryData(Icons.face_2_outlined, 'Beauty', Color(0xFFFF7186), false),
-  _CategoryData(
-    Icons.devices_other_outlined,
-    'Electronics',
-    Color(0xFF6A66FF),
-    false,
-  ),
-  _CategoryData(
-    Icons.home_work_outlined,
-    'Home\nServices',
-    Color(0xFF4AB64B),
-    false,
-  ),
-  _CategoryData(Icons.apps_outlined, 'More', Color(0xFF7183A6), false),
-];
+String _formatCount(int count) {
+  if (count >= 1000) {
+    final formatted = count >= 10000
+        ? (count / 1000).toStringAsFixed(0)
+        : (count / 1000).toStringAsFixed(1);
+    return '${formatted}K+';
+  }
 
-const featuredBusinesses = [
-  _BusinessData(
-    name: 'Spice Garden',
-    category: 'Restaurant',
-    location: 'Calicut',
-    rating: 4.6,
-    reviews: 126,
-    distance: '1.2 km',
-    variant: 'plate',
-    imageUrl:
-        'https://images.pexels.com/photos/20418288/pexels-photo-20418288.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    badge: '20% OFF',
-    badgeColor: Color(0xFF2961F0),
-  ),
-  _BusinessData(
-    name: 'Royale Tailors',
-    category: 'Tailor',
-    location: 'Calicut',
-    rating: 4.7,
-    reviews: 89,
-    distance: '1.5 km',
-    variant: 'suit',
-    imageUrl:
-        'https://images.pexels.com/photos/6766299/pexels-photo-6766299.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    badge: 'Popular',
-    badgeColor: Color(0xFFFFA91C),
-  ),
-  _BusinessData(
-    name: 'Fresh Basket',
-    category: 'Grocery',
-    location: 'Calicut',
-    rating: 4.5,
-    reviews: 162,
-    distance: '2.1 km',
-    variant: 'basket',
-    imageUrl:
-        'https://images.pexels.com/photos/9070106/pexels-photo-9070106.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    badge: '10% OFF',
-    badgeColor: Color(0xFF35B44A),
-  ),
-];
+  return '$count+';
+}
 
-const popularBusinesses = [
-  _BusinessData(
-    name: 'Quick Mart',
-    category: 'Grocery Store',
-    location: 'Calicut',
-    rating: 4.6,
-    reviews: 98,
-    distance: '1.2 km',
-    variant: 'shelf',
-    imageUrl:
-        'https://images.pexels.com/photos/16211537/pexels-photo-16211537.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  ),
-  _BusinessData(
-    name: 'Maya Beauty Salon',
-    category: 'Beauty Salon',
-    location: 'Calicut',
-    rating: 4.7,
-    reviews: 76,
-    distance: '1.3 km',
-    variant: 'salon',
-    imageUrl:
-        'https://images.pexels.com/photos/13068359/pexels-photo-13068359.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  ),
-  _BusinessData(
-    name: 'Tech Hub',
-    category: 'Electronics Store',
-    location: 'Calicut',
-    rating: 4.5,
-    reviews: 124,
-    distance: '1.6 km',
-    variant: 'phone',
-    imageUrl:
-        'https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1200',
-  ),
-];
+String _formatTime(DateTime time) {
+  final hour = time.hour == 0
+      ? 12
+      : (time.hour > 12 ? time.hour - 12 : time.hour);
+  final minute = time.minute.toString().padLeft(2, '0');
+  final period = time.hour >= 12 ? 'PM' : 'AM';
+  return '$hour:$minute $period';
+}
+
+Color _colorFromHex(String hex) {
+  final cleaned = hex.replaceAll('#', '').trim();
+  final normalized = cleaned.length == 6 ? 'FF$cleaned' : cleaned;
+  final value = int.tryParse(normalized, radix: 16);
+  return value == null ? const Color(0xFF7183A6) : Color(value);
+}
+
+IconData _iconForSlug(String slug) {
+  return switch (slug) {
+    'shopping-cart' => Icons.shopping_cart_checkout_outlined,
+    'utensils-crossed' => Icons.restaurant_outlined,
+    'scissors' => Icons.content_cut_outlined,
+    'sparkles' => Icons.auto_awesome_outlined,
+    'monitor-smartphone' => Icons.devices_other_outlined,
+    'house-plus' => Icons.home_repair_service_outlined,
+    'layout-grid' => Icons.apps_outlined,
+    _ => Icons.category_outlined,
+  };
+}
+
+IconData _variantIcon(String variant) {
+  return switch (variant) {
+    'plate' => Icons.ramen_dining_outlined,
+    'suit' => Icons.checkroom_outlined,
+    'basket' => Icons.local_grocery_store_outlined,
+    'salon' => Icons.content_cut_outlined,
+    'shelf' => Icons.storefront_outlined,
+    'phone' => Icons.smartphone_outlined,
+    'worker' => Icons.handyman_outlined,
+    _ => Icons.image_outlined,
+  };
+}

@@ -84,10 +84,17 @@ const filterLabels = [
   "Home Services",
 ];
 
+const categoryPalette = [
+  { backgroundColor: "rgba(244, 178, 39, 0.14)", color: "var(--gold)" },
+  { backgroundColor: "rgba(11, 47, 116, 0.12)", color: "var(--navy)" },
+  { backgroundColor: "rgba(199, 137, 8, 0.14)", color: "var(--gold-deep)" },
+  { backgroundColor: "rgba(28, 78, 161, 0.12)", color: "var(--navy-bright)" },
+];
+
 export function PublicHome({ data }: { data: CatalogView }) {
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--navy)]">
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_#123d91,_#082d78_38%,_#03194b_100%)] text-white">
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_#1c4ea1,_#0b2f74_40%,_#041c55_100%)] text-white">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute right-12 top-16 h-48 w-48 rounded-full border border-white/10" />
           <div className="absolute bottom-24 right-0 h-px w-[48%] bg-white/20" />
@@ -179,7 +186,7 @@ export function PublicHome({ data }: { data: CatalogView }) {
             </div>
           </div>
 
-          <div className="mt-5 grid gap-4 rounded-[28px] border border-white/12 bg-[#092862]/70 px-5 py-5 shadow-[0_18px_30px_rgba(0,14,45,0.18)] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-5 grid gap-4 rounded-[28px] border border-white/12 bg-[rgba(8,32,82,0.72)] px-5 py-5 shadow-[0_18px_30px_rgba(3,18,53,0.2)] sm:grid-cols-2 xl:grid-cols-4">
             <Stat
               icon={<Grid2X2 className="h-7 w-7 text-[var(--gold)]" />}
               value={`${data.stats.categories}+`}
@@ -207,8 +214,11 @@ export function PublicHome({ data }: { data: CatalogView }) {
       <main className="-mt-10 pb-16">
         <div className="mx-auto max-w-[1440px] rounded-t-[38px] bg-white px-4 pb-12 pt-6 shadow-[0_18px_45px_rgba(9,32,77,0.08)] sm:px-6 lg:px-10">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-7">
-            {data.categories.map((category) => {
+            {data.categories.map((category, index) => {
               const Icon = iconMap[category.icon as keyof typeof iconMap] ?? LayoutGrid;
+              const swatch = category.isActive
+                ? { backgroundColor: "var(--navy)", color: "#ffffff" }
+                : categoryPalette[index % categoryPalette.length];
               return (
                 <div
                   key={category.id}
@@ -216,10 +226,7 @@ export function PublicHome({ data }: { data: CatalogView }) {
                 >
                   <div
                     className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-[18px]"
-                    style={{
-                      backgroundColor: category.isActive ? "#0b285e" : `${category.accent}18`,
-                      color: category.isActive ? "#ffffff" : category.accent,
-                    }}
+                    style={swatch}
                   >
                     <Icon className="h-7 w-7" />
                   </div>
@@ -243,7 +250,7 @@ export function PublicHome({ data }: { data: CatalogView }) {
           </div>
 
           <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_360px]">
-            <section className="rounded-[28px] border border-[#f4dfa3] bg-[linear-gradient(135deg,#fff8e7,#fff4dc_55%,#fffaf0)] px-6 py-5">
+            <section className="rounded-[28px] border border-[#f1d58c] bg-[linear-gradient(135deg,#fff9ea,#fff2d0_55%,#fffaf2)] px-6 py-5">
               <div className="flex flex-col gap-6 md:flex-row md:items-center">
                 <div className="max-w-[320px]">
                   <h2 className="text-[2rem] font-black leading-[1.05] text-[var(--navy)]">
@@ -251,7 +258,7 @@ export function PublicHome({ data }: { data: CatalogView }) {
                     <br />
                     right around you!
                   </h2>
-                  <p className="mt-4 text-base leading-7 text-[#38517b]">
+                  <p className="mt-4 text-base leading-7 text-[#496488]">
                     Exclusive offers on top products &amp; services near you.
                   </p>
                   <button className="mt-5 rounded-2xl bg-[var(--navy)] px-5 py-3 font-bold text-white">

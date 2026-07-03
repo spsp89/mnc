@@ -1,0 +1,9 @@
+flutter_native_splash:
+  color: "#F8F6EF"
+  image: assets/branding/bnc-logo.png
+  android: true
+  ios: false
+  web: false
+  android_12:
+    color: "#F8F6EF"
+    image: assets/branding/bnc-logo.png

@@ -23,9 +23,9 @@ export default async function AdminPage() {
   const popularCount = businesses.filter((business) => business.isPopular).length;
 
   return (
-    <div className="min-h-screen bg-[#f3f6fb] px-4 py-6 text-[var(--navy)] sm:px-6 lg:px-10">
+    <div className="min-h-screen bg-[var(--background)] px-4 py-6 text-[var(--navy)] sm:px-6 lg:px-10">
       <div className="mx-auto max-w-[1440px]">
-        <div className="mb-8 rounded-[28px] bg-[linear-gradient(135deg,#081e53,#0c2b6d,#153f8d)] px-6 py-7 text-white shadow-[0_20px_40px_rgba(3,25,75,0.24)]">
+        <div className="mb-8 rounded-[28px] bg-[linear-gradient(135deg,#041c55,#0b2f74,#1c4ea1)] px-6 py-7 text-white shadow-[0_20px_40px_rgba(4,28,85,0.24)]">
           <p className="text-sm font-bold uppercase tracking-[0.28em] text-white/70">
             Next.js Admin Panel
           </p>
@@ -65,7 +65,7 @@ export default async function AdminPage() {
           <div className="space-y-6">
             <section className="rounded-[26px] border border-[var(--line)] bg-white p-5 shadow-[0_14px_30px_rgba(9,32,77,0.06)]">
               <div className="mb-4 flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eef3fb] text-[var(--navy)]">
+                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[rgba(11,47,116,0.08)] text-[var(--navy)]">
                   <Plus className="h-5 w-5" />
                 </div>
                 <div>
@@ -105,7 +105,7 @@ export default async function AdminPage() {
 
             <section className="rounded-[26px] border border-[var(--line)] bg-white p-5 shadow-[0_14px_30px_rgba(9,32,77,0.06)]">
               <div className="mb-4 flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#fff4d8] text-[#b87400]">
+                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[rgba(244,178,39,0.16)] text-[var(--gold-deep)]">
                   <FolderKanban className="h-5 w-5" />
                 </div>
                 <div>

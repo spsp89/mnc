@@ -3,13 +3,13 @@ import type { CSSProperties } from "react";
 export function HeroGraphic() {
   return (
     <div className="relative h-[230px] w-full max-w-[430px]">
-      <div className="absolute inset-x-6 bottom-3 h-14 rounded-full bg-gradient-to-r from-[#2152ac] to-[#2a64c6] shadow-[0_18px_30px_rgba(4,17,62,0.42)]" />
-      <div className="absolute left-[38%] top-8 h-28 w-28 rounded-full border-[18px] border-[#ffbf2f] bg-transparent" />
-      <div className="absolute left-[47%] top-28 h-24 w-6 rounded-full bg-[#f0a800]" />
-      <div className="absolute right-20 bottom-10 h-28 w-24 rounded-[18px] bg-[#ffbe2e] shadow-[0_18px_30px_rgba(39,22,0,0.32)]" />
-      <div className="absolute right-[92px] top-[34px] h-10 w-12 rounded-full border-[4px] border-[#19458c]" />
-      <div className="absolute bottom-8 right-[170px] h-9 w-9 rounded-lg bg-[#c58b35]" />
-      <div className="absolute bottom-14 right-[148px] h-7 w-7 rounded-md bg-[#d49e46]" />
+      <div className="absolute inset-x-6 bottom-3 h-14 rounded-full bg-gradient-to-r from-[#174898] to-[#2b63b6] shadow-[0_18px_30px_rgba(4,19,61,0.42)]" />
+      <div className="absolute left-[38%] top-8 h-28 w-28 rounded-full border-[18px] border-[#f4b227] bg-transparent" />
+      <div className="absolute left-[47%] top-28 h-24 w-6 rounded-full bg-[#c78908]" />
+      <div className="absolute right-20 bottom-10 h-28 w-24 rounded-[18px] bg-[#f4b227] shadow-[0_18px_30px_rgba(59,36,0,0.32)]" />
+      <div className="absolute right-[92px] top-[34px] h-10 w-12 rounded-full border-[4px] border-[#174898]" />
+      <div className="absolute bottom-8 right-[170px] h-9 w-9 rounded-lg bg-[#b77b20]" />
+      <div className="absolute bottom-14 right-[148px] h-7 w-7 rounded-md bg-[#dca63c]" />
       <div className="absolute bottom-8 right-4 h-12 w-9 rounded-xl bg-[#6cb53a]" />
       <div className="absolute bottom-10 right-[154px] h-6 w-6 rounded-md bg-[#d49e46]" />
       <div className="absolute bottom-10 right-8 h-4 w-4 rounded-full bg-[#4d8f2b]" />
@@ -20,20 +20,20 @@ export function HeroGraphic() {
 export function DealGraphic() {
   return (
     <div className="relative h-28 w-60">
-      <div className="absolute left-12 top-7 h-20 w-24 rounded-2xl bg-[#ffbe2e]" />
-      <div className="absolute left-[87px] top-7 h-20 w-4 bg-[#f25b28]" />
-      <div className="absolute left-12 top-14 h-3 w-24 bg-[#f25b28]" />
-      <div className="absolute left-[64px] top-1 h-8 w-8 rounded-full border-[7px] border-[#f25b28]" />
-      <div className="absolute left-[102px] top-1 h-8 w-8 rounded-full border-[7px] border-[#f25b28]" />
-      <div className="absolute right-5 top-5 h-20 w-16 rounded-2xl bg-[#153f8e]" />
-      <div className="absolute right-8 top-0 h-8 w-10 rounded-full border-[4px] border-[#153f8e]" />
-      <div className="absolute left-0 top-12 rounded-2xl bg-[#17376c] px-3 py-2 text-sm font-bold text-white">
+      <div className="absolute left-12 top-7 h-20 w-24 rounded-2xl bg-[#f4b227]" />
+      <div className="absolute left-[87px] top-7 h-20 w-4 bg-[#d08f09]" />
+      <div className="absolute left-12 top-14 h-3 w-24 bg-[#d08f09]" />
+      <div className="absolute left-[64px] top-1 h-8 w-8 rounded-full border-[7px] border-[#d08f09]" />
+      <div className="absolute left-[102px] top-1 h-8 w-8 rounded-full border-[7px] border-[#d08f09]" />
+      <div className="absolute right-5 top-5 h-20 w-16 rounded-2xl bg-[#0b2f74]" />
+      <div className="absolute right-8 top-0 h-8 w-10 rounded-full border-[4px] border-[#0b2f74]" />
+      <div className="absolute left-0 top-12 rounded-2xl bg-[#123b86] px-3 py-2 text-sm font-bold text-white">
         % OFF
       </div>
-      <div className="absolute left-6 top-0 h-3 w-3 rotate-45 bg-[#ffb61d]" />
-      <div className="absolute left-40 top-0 h-3 w-3 rotate-45 bg-[#ff7348]" />
-      <div className="absolute left-44 top-14 h-2.5 w-2.5 rotate-45 bg-[#ffb61d]" />
-      <div className="absolute right-2 top-12 h-2.5 w-2.5 rotate-45 bg-[#ff7348]" />
+      <div className="absolute left-6 top-0 h-3 w-3 rotate-45 bg-[#f4b227]" />
+      <div className="absolute left-40 top-0 h-3 w-3 rotate-45 bg-[#d08f09]" />
+      <div className="absolute left-44 top-14 h-2.5 w-2.5 rotate-45 bg-[#f4b227]" />
+      <div className="absolute right-2 top-12 h-2.5 w-2.5 rotate-45 bg-[#d08f09]" />
     </div>
   );
 }
@@ -51,8 +51,8 @@ export function MapMock() {
   ];
 
   return (
-    <div className="relative h-[290px] overflow-hidden rounded-[22px] bg-[#f2f6fb]">
-      <div className="absolute inset-y-0 left-0 w-[26%] bg-[#bde1ff]" />
+    <div className="relative h-[290px] overflow-hidden rounded-[22px] bg-[#f7f8fc]">
+      <div className="absolute inset-y-0 left-0 w-[26%] bg-[#dbe8ff]" />
       <div className="absolute inset-0 opacity-90">
         {Array.from({ length: 8 }).map((_, index) => (
           <div
@@ -83,7 +83,7 @@ export function MapMock() {
         <div
           key={index}
           className={`absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white ${
-            index === pins.length - 1 ? "bg-[#ffbe2e]" : "bg-[#0d2a63]"
+            index === pins.length - 1 ? "bg-[#f4b227]" : "bg-[#0b2f74]"
           }`}
           style={style}
         />
