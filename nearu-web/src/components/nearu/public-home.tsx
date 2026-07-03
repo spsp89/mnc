@@ -665,19 +665,19 @@ function SpotlightDeal({ deal }: { deal: DealCardData }) {
 
   return (
     <article className="w-[292px] shrink-0 snap-start overflow-hidden rounded-[15px] border border-[#dfe6f2] shadow-[0_12px_26px_rgba(11,47,116,0.06)] md:w-auto" style={{ background: deal.gradient }}>
-      <div className="flex h-[126px] items-center gap-3 px-3 md:h-[158px] md:gap-4 md:px-5">
+      <div className="flex min-h-[132px] items-center gap-3 px-3 py-3 md:min-h-[184px] md:gap-4 md:px-5 md:py-4">
         <div className="min-w-0 flex-1">
-          <span className="inline-flex rounded-full px-3 py-1 text-[12px] font-black leading-none text-white md:px-4 md:py-1.5 md:text-[20px]" style={{ backgroundColor: deal.badgeColor }}>
+          <span className="inline-flex rounded-full px-3 py-1 text-[12px] font-black leading-none text-white md:px-4 md:py-1.5 md:text-[16px]" style={{ backgroundColor: deal.badgeColor }}>
             {badge}
           </span>
-          <h3 className="mt-2 text-[15px] font-black leading-tight text-[#0b2f74] md:mt-3 md:text-[19px]">{deal.title}</h3>
+          <h3 className="mt-2 text-[15px] font-black leading-tight text-[#0b2f74] md:mt-3 md:text-[18px]">{deal.title}</h3>
           <p className="mt-1.5 line-clamp-2 text-[11.5px] font-semibold leading-4 text-[#596a82] md:mt-2 md:text-[13px] md:leading-5">{deal.text}</p>
-          <div className="mt-2 hidden items-center gap-2 text-[12px] font-black text-[#0b2f74] md:flex">
+          <div className="mt-3 hidden min-w-0 items-center gap-2 text-[12px] font-black text-[#0b2f74] md:flex">
             <span className="h-6 w-6 rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${deal.image})` }} />
-            {deal.shop}
+            <span className="truncate">{deal.shop}</span>
           </div>
         </div>
-        <div className="h-[96px] w-[112px] shrink-0 overflow-hidden rounded-[12px] bg-white/40 md:h-[132px] md:w-[150px]">
+        <div className="h-[100px] w-[112px] shrink-0 overflow-hidden rounded-[12px] bg-white/40 md:h-[136px] md:w-[150px]">
           <ImageFill src={deal.image} />
         </div>
       </div>
