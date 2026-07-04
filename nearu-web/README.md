@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BNC Nearu Web
 
-## Getting Started
+Next.js public website, admin panel, SQLite catalog backend, and JSON API for the BNC/Nearu marketplace.
 
-First, run the development server:
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` or the port printed by Next.js.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Main Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/` renders the approved BNC marketplace homepage.
+- `/admin` manages categories and business listings.
+- `/api/catalog` returns catalog data for the web and Flutter app.
 
-## Learn More
+## Catalog API
 
-To learn more about Next.js, take a look at the following resources:
+The API supports optional filters:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+/api/catalog
+/api/catalog?q=tailor
+/api/catalog?category=restaurants
+/api/catalog?featured=true
+/api/catalog?popular=true&limit=6
+/api/catalog?sort=rating
+/api/catalog?sort=distance
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The response includes `categories`, `featured`, `popular`, `all`, `stats`, and the active `filters`.
 
-## Deploy on Vercel
+## Admin Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The admin panel writes to `data/nearu.db` using Node SQLite. Adding a category or business with an existing slug updates that record instead of crashing on duplicates.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Admin controls currently support:
+
+- Add or update categories.
+- Add or update business listings.
+- Toggle category active state.
+- Toggle featured and popular placement.
+- Delete business listings.
+
+## Validation
+
+```bash
+npm.cmd run lint
+npm.cmd run build
+```

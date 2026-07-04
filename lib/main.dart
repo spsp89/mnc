@@ -307,12 +307,19 @@ class _MobileHomeScreen extends StatelessWidget {
 }
 
 class _BncCategorySpec {
-  const _BncCategorySpec(this.label, this.icon, this.color, this.tint);
+  const _BncCategorySpec(
+    this.label,
+    this.icon,
+    this.color,
+    this.tint, {
+    this.isActive = false,
+  });
 
   final String label;
   final IconData icon;
   final Color color;
   final Color tint;
+  final bool isActive;
 }
 
 class _BncDealSpec {
@@ -749,6 +756,192 @@ const _bncEcosystem = [
   ),
 ];
 
+const _businessAssetByVariant = {
+  'plate': '$_mockupPath/im-restaurant.jpg',
+  'suit': '$_mockupPath/im-card_suit.jpg',
+  'basket': '$_mockupPath/im-vegetables.jpg',
+  'salon': '$_mockupPath/im-beauty.jpg',
+  'shelf': '$_mockupPath/im-supermarket.jpg',
+  'phone': '$_mockupPath/im-mobile.jpg',
+  'worker': '$_mockupPath/im-occ_helper.jpg',
+};
+
+List<_BncCategorySpec> _categorySpecsFromCatalog(CatalogData catalog) {
+  final databaseItems = catalog.categories
+      .where((item) => item.name.trim().isNotEmpty)
+      .map((item) {
+        final color = _colorFromHex(item.accent, brandNavy);
+        return _BncCategorySpec(
+          item.name,
+          _iconForCatalogCategory(item),
+          color,
+          color.withValues(alpha: 0.12),
+          isActive: item.isActive,
+        );
+      })
+      .toList();
+
+  return _mergeCategorySpecs(
+    databaseItems,
+    _bncCategories,
+    _bncCategories.length,
+  );
+}
+
+List<_BncShopSpec> _shopSpecsFromBusinesses(
+  List<BusinessItem> businesses,
+  List<_BncShopSpec> fallback, {
+  int? minimum,
+}) {
+  final databaseItems = businesses.map(_shopSpecFromBusiness).toList();
+  return _mergeShopSpecs(databaseItems, fallback, minimum ?? fallback.length);
+}
+
+List<_BncRankedSpec> _rankedSpecsFromBusinesses(List<BusinessItem> businesses) {
+  final sorted = [...businesses]
+    ..sort(
+      (left, right) => right.rating.compareTo(left.rating) != 0
+          ? right.rating.compareTo(left.rating)
+          : right.reviewCount.compareTo(left.reviewCount),
+    );
+
+  final databaseItems = sorted.take(_rankedBncShops.length).toList();
+  if (databaseItems.isEmpty) {
+    return _rankedBncShops;
+  }
+
+  return List.generate(databaseItems.length, (index) {
+    final shop = _shopSpecFromBusiness(databaseItems[index]);
+    return _BncRankedSpec(
+      rank: index + 1,
+      name: shop.name,
+      category: shop.category,
+      rating: shop.rating,
+      reviews: shop.reviews,
+      distance: shop.distance,
+      asset: shop.asset,
+    );
+  });
+}
+
+_BncShopSpec _shopSpecFromBusiness(BusinessItem business) {
+  return _BncShopSpec(
+    name: business.name,
+    category: business.categoryName.isNotEmpty
+        ? business.categoryName
+        : business.subtitle,
+    rating: business.rating.toStringAsFixed(1),
+    reviews: business.reviewCount.toString(),
+    distance: '${business.distanceKm.toStringAsFixed(1)} km',
+    asset:
+        _businessAssetByVariant[business.coverVariant] ??
+        '$_mockupPath/im-restaurant.jpg',
+    badge:
+        business.badgeText ??
+        (business.isFeatured
+            ? 'Star Shop'
+            : business.isPopular
+            ? 'Popular'
+            : 'Verified'),
+    badgeColor: _colorFromHex(
+      business.badgeColor,
+      business.isFeatured
+          ? const Color(0xFF2469D6)
+          : business.isPopular
+          ? const Color(0xFFF4A51C)
+          : const Color(0xFF25A451),
+    ),
+  );
+}
+
+List<_BncCategorySpec> _mergeCategorySpecs(
+  List<_BncCategorySpec> primary,
+  List<_BncCategorySpec> fallback,
+  int minimum,
+) {
+  final merged = <_BncCategorySpec>[];
+  final seen = <String>{};
+
+  for (final item in [...primary, ...fallback]) {
+    final key = _normalizeKey(item.label);
+    if (key.isEmpty || seen.contains(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    merged.add(item);
+  }
+
+  return merged
+      .take(primary.length > minimum ? primary.length : minimum)
+      .toList();
+}
+
+List<_BncShopSpec> _mergeShopSpecs(
+  List<_BncShopSpec> primary,
+  List<_BncShopSpec> fallback,
+  int minimum,
+) {
+  final merged = <_BncShopSpec>[];
+  final seen = <String>{};
+
+  for (final item in [...primary, ...fallback]) {
+    final key = _normalizeKey(item.name);
+    if (key.isEmpty || seen.contains(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    merged.add(item);
+  }
+
+  return merged
+      .take(primary.length > minimum ? primary.length : minimum)
+      .toList();
+}
+
+String _normalizeKey(String value) {
+  return value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '');
+}
+
+IconData _iconForCatalogCategory(CategoryItem item) {
+  switch (item.icon) {
+    case 'shopping-cart':
+      return Icons.shopping_cart_outlined;
+    case 'utensils-crossed':
+      return Icons.restaurant_menu_rounded;
+    case 'scissors':
+      return Icons.content_cut_rounded;
+    case 'sparkles':
+      return Icons.brush_outlined;
+    case 'monitor-smartphone':
+      return Icons.phone_android_outlined;
+    case 'house-plus':
+      return Icons.home_repair_service_outlined;
+    case 'layout-grid':
+      return Icons.grid_view_rounded;
+  }
+
+  switch (item.slug) {
+    case 'restaurants':
+    case 'restaurant':
+      return Icons.restaurant_menu_rounded;
+    case 'tailors':
+      return Icons.content_cut_rounded;
+    case 'beauty':
+      return Icons.brush_outlined;
+    case 'electronics':
+    case 'mobile':
+      return Icons.phone_android_outlined;
+    case 'home-services':
+      return Icons.home_repair_service_outlined;
+    case 'grocery':
+      return Icons.shopping_cart_outlined;
+    default:
+      return Icons.grid_view_rounded;
+  }
+}
+
 class _BncMarketplaceHome extends StatelessWidget {
   const _BncMarketplaceHome({
     required this.catalog,
@@ -764,6 +957,17 @@ class _BncMarketplaceHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final categoryCards = _categorySpecsFromCatalog(catalog);
+    final featuredCards = _shopSpecsFromBusinesses(
+      catalog.featured,
+      _featuredBncShops,
+    );
+    final catalogBusinesses = catalog.all.isNotEmpty
+        ? catalog.all
+        : catalog.popular;
+    final allCards = _shopSpecsFromBusinesses(catalogBusinesses, _allBncShops);
+    final rankedCards = _rankedSpecsFromBusinesses(catalogBusinesses);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -781,7 +985,7 @@ class _BncMarketplaceHome extends StatelessWidget {
             children: [
               const _BncSectionTitle(title: 'Browse by category'),
               const SizedBox(height: 12),
-              const _BncCategoryRail(),
+              _BncCategoryRail(items: categoryCards),
               const SizedBox(height: 22),
               const _BncSectionTitle(
                 title: 'Deals in spotlight',
@@ -795,7 +999,7 @@ class _BncMarketplaceHome extends StatelessWidget {
                 action: 'View all shops',
               ),
               const SizedBox(height: 12),
-              const _BncFeaturedRail(),
+              _BncFeaturedRail(shops: featuredCards),
               const SizedBox(height: 22),
               const _BncSectionTitle(title: 'Today\'s top offers'),
               const SizedBox(height: 12),
@@ -805,7 +1009,7 @@ class _BncMarketplaceHome extends StatelessWidget {
               const SizedBox(height: 12),
               const _BncFilterRail(),
               const SizedBox(height: 14),
-              const _BncShopGrid(),
+              _BncShopGrid(shops: allCards),
               const SizedBox(height: 16),
               Center(
                 child: OutlinedButton.icon(
@@ -833,7 +1037,7 @@ class _BncMarketplaceHome extends StatelessWidget {
               const SizedBox(height: 10),
               const _BncRankingFilters(),
               const SizedBox(height: 12),
-              const _BncRankedList(),
+              _BncRankedList(shops: rankedCards),
               const SizedBox(height: 24),
               const _BncSectionTitle(title: 'More from BNC ecosystem'),
               const SizedBox(height: 12),
@@ -1356,7 +1560,9 @@ class _BncSectionTitle extends StatelessWidget {
 }
 
 class _BncCategoryRail extends StatelessWidget {
-  const _BncCategoryRail();
+  const _BncCategoryRail({required this.items});
+
+  final List<_BncCategorySpec> items;
 
   @override
   Widget build(BuildContext context) {
@@ -1364,10 +1570,10 @@ class _BncCategoryRail extends StatelessWidget {
       height: 108,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _bncCategories.length,
+        itemCount: items.length,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
-          final item = _bncCategories[index];
+          final item = items[index];
           return SizedBox(width: 86, child: _BncCategoryTile(item: item));
         },
       ),
@@ -1382,12 +1588,13 @@ class _BncCategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final active = item.isActive;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: active ? brandNavy : Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: brandLine),
+        border: Border.all(color: active ? brandNavy : brandLine),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0E08204A),
@@ -1402,10 +1609,14 @@ class _BncCategoryTile extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: item.tint,
+              color: active ? Colors.white.withValues(alpha: 0.14) : item.tint,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(item.icon, color: item.color, size: 25),
+            child: Icon(
+              item.icon,
+              color: active ? Colors.white : item.color,
+              size: 25,
+            ),
           ),
           const SizedBox(height: 8),
           Expanded(
@@ -1415,8 +1626,8 @@ class _BncCategoryTile extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: brandNavy,
+                style: TextStyle(
+                  color: active ? Colors.white : brandNavy,
                   fontSize: 12,
                   height: 1.12,
                   fontWeight: FontWeight.w900,
@@ -1568,7 +1779,9 @@ class _BncDealCard extends StatelessWidget {
 }
 
 class _BncFeaturedRail extends StatelessWidget {
-  const _BncFeaturedRail();
+  const _BncFeaturedRail({required this.shops});
+
+  final List<_BncShopSpec> shops;
 
   @override
   Widget build(BuildContext context) {
@@ -1576,13 +1789,10 @@ class _BncFeaturedRail extends StatelessWidget {
       height: 238,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _featuredBncShops.length,
+        itemCount: shops.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          return SizedBox(
-            width: 202,
-            child: _BncShopCard(shop: _featuredBncShops[index]),
-          );
+          return SizedBox(width: 202, child: _BncShopCard(shop: shops[index]));
         },
       ),
     );
@@ -1842,22 +2052,24 @@ class _BncFilterRail extends StatelessWidget {
 }
 
 class _BncShopGrid extends StatelessWidget {
-  const _BncShopGrid();
+  const _BncShopGrid({required this.shops});
+
+  final List<_BncShopSpec> shops;
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _allBncShops.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         childAspectRatio: 0.71,
       ),
+      itemCount: shops.length,
       itemBuilder: (context, index) {
-        return _BncShopCard(shop: _allBncShops[index], dense: true);
+        return _BncShopCard(shop: shops[index], dense: true);
       },
     );
   }
@@ -2054,17 +2266,17 @@ class _BncRankingFilters extends StatelessWidget {
 }
 
 class _BncRankedList extends StatelessWidget {
-  const _BncRankedList();
+  const _BncRankedList({required this.shops});
+
+  final List<_BncRankedSpec> shops;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(_rankedBncShops.length, (index) {
+      children: List.generate(shops.length, (index) {
         return Padding(
-          padding: EdgeInsets.only(
-            bottom: index == _rankedBncShops.length - 1 ? 0 : 10,
-          ),
-          child: _BncRankedCard(shop: _rankedBncShops[index]),
+          padding: EdgeInsets.only(bottom: index == shops.length - 1 ? 0 : 10),
+          child: _BncRankedCard(shop: shops[index]),
         );
       }),
     );
@@ -2187,9 +2399,10 @@ class _BncEcosystemGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _bncEcosystem.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 1,
-        mainAxisSpacing: 10,
-        childAspectRatio: 4.15,
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.05,
       ),
       itemBuilder: (context, index) {
         return _BncEcosystemCard(item: _bncEcosystem[index]);
@@ -2209,60 +2422,68 @@ class _BncEcosystemCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: brandLine),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0C08204A),
+            blurRadius: 12,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEDF3FF),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(item.icon, color: brandNavy, size: 28),
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEDF3FF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(item.icon, color: brandNavy, size: 24),
+              ),
+              const Spacer(),
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: brandLine),
+                ),
+                child: const Icon(
+                  Icons.chevron_right,
+                  color: brandNavy,
+                  size: 17,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: brandNavy,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  item.text,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: brandMuted,
-                    fontSize: 11.5,
-                    height: 1.2,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+          const Spacer(),
+          Text(
+            item.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: brandNavy,
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(width: 8),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: brandLine),
+          const SizedBox(height: 4),
+          Text(
+            item.text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: brandMuted,
+              fontSize: 10.5,
+              height: 1.2,
+              fontWeight: FontWeight.w600,
             ),
-            child: const Icon(Icons.chevron_right, color: brandNavy, size: 18),
           ),
         ],
       ),
@@ -4282,11 +4503,11 @@ BusinessItem _selectBusinessVisual(
   return items[safeIndex];
 }
 
-Color _colorFromHex(String hex) {
-  final cleaned = hex.replaceAll('#', '').trim();
+Color _colorFromHex(String? hex, [Color fallback = const Color(0xFF7183A6)]) {
+  final cleaned = (hex ?? '').replaceAll('#', '').trim();
   final normalized = cleaned.length == 6 ? 'FF$cleaned' : cleaned;
   final value = int.tryParse(normalized, radix: 16);
-  return value == null ? const Color(0xFF7183A6) : Color(value);
+  return value == null ? fallback : Color(value);
 }
 
 IconData _iconForSlug(String slug) {

@@ -30,6 +30,16 @@ type BusinessRow = {
   is_favorite: number;
   category_id: number;
   category_name: string;
+  category_slug: string;
+};
+
+type CatalogFilters = {
+  query?: string;
+  category?: string;
+  featured?: boolean;
+  popular?: boolean;
+  limit?: number;
+  sort?: "default" | "rating" | "distance";
 };
 
 const globalDb = globalThis as unknown as {
@@ -178,7 +188,8 @@ function getBusinesses(whereClause: string) {
     .prepare(`
       SELECT
         businesses.*,
-        categories.name AS category_name
+        categories.name AS category_name,
+        categories.slug AS category_slug
       FROM businesses
       INNER JOIN categories ON categories.id = businesses.category_id
       ${whereClause}
@@ -201,6 +212,7 @@ function getBusinesses(whereClause: string) {
     imageUrl: imageUrlForVariant(row.cover_variant),
     category: {
       name: row.category_name,
+      slug: row.category_slug,
     },
     isFeatured: Boolean(row.is_featured),
     isPopular: Boolean(row.is_popular),
@@ -228,18 +240,83 @@ function imageUrlForVariant(variant: string) {
   }
 }
 
-export async function getCatalogData() {
+function filterBusinesses(
+  businesses: ReturnType<typeof getBusinesses>,
+  filters: CatalogFilters = {},
+) {
+  const query = normalizeSearch(filters.query);
+  const category = normalizeSearch(filters.category);
+
+  let result = businesses.filter((business) => {
+    if (filters.featured && !business.isFeatured) {
+      return false;
+    }
+
+    if (filters.popular && !business.isPopular) {
+      return false;
+    }
+
+    if (
+      category &&
+      normalizeSearch(business.category.name) !== category &&
+      normalizeSearch(business.category.slug) !== category
+    ) {
+      return false;
+    }
+
+    if (!query) {
+      return true;
+    }
+
+    const searchable = normalizeSearch(
+      `${business.name} ${business.subtitle} ${business.area} ${business.city} ${business.category.name}`,
+    );
+
+    return searchable.includes(query);
+  });
+
+  if (filters.sort === "rating") {
+    result = result.slice().sort((left, right) => right.rating - left.rating);
+  }
+
+  if (filters.sort === "distance") {
+    result = result.slice().sort((left, right) => left.distanceKm - right.distanceKm);
+  }
+
+  if (filters.limit && filters.limit > 0) {
+    result = result.slice(0, Math.min(filters.limit, 100));
+  }
+
+  return result;
+}
+
+function normalizeSearch(value?: string) {
+  return (value ?? "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "");
+}
+
+export async function getCatalogData(filters: CatalogFilters = {}) {
   const categories = getCategories();
-  const featured = getBusinesses("WHERE businesses.is_featured = 1").slice(0, 4);
-  const popular = getBusinesses("WHERE businesses.is_popular = 1").slice(0, 6);
+  const all = getBusinesses("");
+  const filtered = filterBusinesses(all, filters);
+  const featured = filterBusinesses(all, { ...filters, featured: true }).slice(0, 5);
+  const popular = filterBusinesses(all, { ...filters, popular: true }).slice(0, 8);
 
   return {
     categories,
     featured,
     popular,
+    all: filtered,
+    filters: {
+      query: filters.query ?? "",
+      category: filters.category ?? "",
+      featured: filters.featured ?? false,
+      popular: filters.popular ?? false,
+      sort: filters.sort ?? "default",
+      limit: filters.limit ?? null,
+    },
     stats: {
       categories: categories.length,
-      businesses: getBusinesses("").length,
+      businesses: filtered.length,
       trusted: popular.length,
       happyUsers: "10K+",
     },
@@ -291,6 +368,12 @@ export async function addCategory(input: {
     .prepare(`
       INSERT INTO categories (name, slug, icon, accent, is_active, sort_order)
       VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(slug) DO UPDATE SET
+        name = excluded.name,
+        icon = excluded.icon,
+        accent = excluded.accent,
+        is_active = excluded.is_active,
+        sort_order = excluded.sort_order
     `)
     .run(
       input.name,
@@ -324,6 +407,20 @@ export async function addBusiness(input: {
         name, slug, subtitle, area, city, rating, review_count, distance_km,
         badge_text, badge_color, cover_variant, is_featured, is_popular, category_id
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(slug) DO UPDATE SET
+        name = excluded.name,
+        subtitle = excluded.subtitle,
+        area = excluded.area,
+        city = excluded.city,
+        rating = excluded.rating,
+        review_count = excluded.review_count,
+        distance_km = excluded.distance_km,
+        badge_text = excluded.badge_text,
+        badge_color = excluded.badge_color,
+        cover_variant = excluded.cover_variant,
+        is_featured = excluded.is_featured,
+        is_popular = excluded.is_popular,
+        category_id = excluded.category_id
     `)
     .run(
       input.name,
@@ -341,4 +438,28 @@ export async function addBusiness(input: {
       input.isPopular ? 1 : 0,
       Number(input.categoryId),
     );
+}
+
+export async function setCategoryActiveStatus(id: string, isActive: boolean) {
+  database()
+    .prepare("UPDATE categories SET is_active = ? WHERE id = ?")
+    .run(isActive ? 1 : 0, Number(id));
+}
+
+export async function setBusinessFeaturedStatus(id: string, isFeatured: boolean) {
+  database()
+    .prepare("UPDATE businesses SET is_featured = ? WHERE id = ?")
+    .run(isFeatured ? 1 : 0, Number(id));
+}
+
+export async function setBusinessPopularStatus(id: string, isPopular: boolean) {
+  database()
+    .prepare("UPDATE businesses SET is_popular = ? WHERE id = ?")
+    .run(isPopular ? 1 : 0, Number(id));
+}
+
+export async function removeBusiness(id: string) {
+  database()
+    .prepare("DELETE FROM businesses WHERE id = ?")
+    .run(Number(id));
 }

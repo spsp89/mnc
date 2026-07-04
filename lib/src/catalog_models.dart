@@ -3,18 +3,22 @@ class CatalogData {
     required this.categories,
     required this.featured,
     required this.popular,
+    required this.all,
     required this.stats,
   });
 
   final List<CategoryItem> categories;
   final List<BusinessItem> featured;
   final List<BusinessItem> popular;
+  final List<BusinessItem> all;
   final CatalogStats stats;
 
   String get locationLabel {
     final firstBusiness = featured.isNotEmpty
         ? featured.first
-        : (popular.isNotEmpty ? popular.first : null);
+        : (popular.isNotEmpty
+              ? popular.first
+              : (all.isNotEmpty ? all.first : null));
 
     if (firstBusiness == null) {
       return 'Kozhikode, Kerala';
@@ -32,6 +36,9 @@ class CatalogData {
           .map((item) => BusinessItem.fromJson(item as Map<String, dynamic>))
           .toList(),
       popular: _asList(json['popular'])
+          .map((item) => BusinessItem.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      all: _asList(json['all'])
           .map((item) => BusinessItem.fromJson(item as Map<String, dynamic>))
           .toList(),
       stats: CatalogStats.fromJson(json['stats'] as Map<String, dynamic>),

@@ -2,7 +2,14 @@ import type { ReactNode } from "react";
 
 import { FolderKanban, LayoutGrid, Plus, Star, Store, TrendingUp } from "lucide-react";
 
-import { createBusiness, createCategory } from "@/app/admin/actions";
+import {
+  createBusiness,
+  createCategory,
+  deleteBusiness,
+  toggleBusinessFeatured,
+  toggleBusinessPopular,
+  toggleCategoryActive,
+} from "@/app/admin/actions";
 import { getAdminData } from "@/lib/catalog";
 
 const iconChoices = [
@@ -186,7 +193,8 @@ export default async function AdminPage() {
                       <th className="px-4 py-3">Category</th>
                       <th className="px-4 py-3">Slug</th>
                       <th className="px-4 py-3">Businesses</th>
-                      <th className="px-4 py-3">Active</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -214,6 +222,19 @@ export default async function AdminPage() {
                           >
                             {category.isActive ? "Active" : "Idle"}
                           </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <form action={toggleCategoryActive}>
+                            <input type="hidden" name="id" value={category.id} />
+                            <input
+                              type="hidden"
+                              name="isActive"
+                              value={String(category.isActive)}
+                            />
+                            <button className="rounded-full border border-[var(--line)] px-3 py-1.5 text-xs font-black text-[var(--navy)] transition hover:border-[var(--gold)]">
+                              {category.isActive ? "Set idle" : "Set active"}
+                            </button>
+                          </form>
                         </td>
                       </tr>
                     ))}
@@ -249,6 +270,28 @@ export default async function AdminPage() {
                       <Star className="h-4 w-4 fill-current" />
                       {business.rating.toFixed(1)}
                     </div>
+                    <div className="flex w-full flex-wrap gap-2 border-t border-[var(--line)] pt-3">
+                      <AdminActionForm
+                        action={toggleBusinessFeatured}
+                        id={business.id}
+                        fieldName="isFeatured"
+                        fieldValue={business.isFeatured}
+                        label={business.isFeatured ? "Remove featured" : "Make featured"}
+                      />
+                      <AdminActionForm
+                        action={toggleBusinessPopular}
+                        id={business.id}
+                        fieldName="isPopular"
+                        fieldValue={business.isPopular}
+                        label={business.isPopular ? "Remove popular" : "Make popular"}
+                      />
+                      <form action={deleteBusiness}>
+                        <input type="hidden" name="id" value={business.id} />
+                        <button className="rounded-full border border-[#ffd8d8] bg-[#fff4f4] px-3 py-1.5 text-xs font-black text-[#b42323] transition hover:bg-[#ffe8e8]">
+                          Delete
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -257,6 +300,30 @@ export default async function AdminPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function AdminActionForm({
+  action,
+  id,
+  fieldName,
+  fieldValue,
+  label,
+}: {
+  action: (formData: FormData) => Promise<void>;
+  id: string;
+  fieldName: string;
+  fieldValue: boolean;
+  label: string;
+}) {
+  return (
+    <form action={action}>
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name={fieldName} value={String(fieldValue)} />
+      <button className="rounded-full border border-[var(--line)] bg-white px-3 py-1.5 text-xs font-black text-[var(--navy)] transition hover:border-[var(--gold)]">
+        {label}
+      </button>
+    </form>
   );
 }
 

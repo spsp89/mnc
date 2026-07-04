@@ -36,6 +36,7 @@ type CategoryTile = {
   icon: IconType;
   color: string;
   tint: string;
+  isActive?: boolean;
 };
 
 type DealCardData = {
@@ -60,6 +61,16 @@ type ShopCardData = {
   ribbon?: string;
 };
 
+type RankedShopData = {
+  rank: number;
+  name: string;
+  category: string;
+  rating: string;
+  reviews: string;
+  distance: string;
+  image: string;
+};
+
 type OfferCardData = {
   title: string;
   text: string;
@@ -74,6 +85,48 @@ type EcosystemCardData = {
   title: string;
   text: string;
   icon: IconType;
+};
+
+type CatalogCategoryData = {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  accent: string;
+  isActive: boolean;
+};
+
+type CatalogBusinessData = {
+  id: string;
+  name: string;
+  subtitle: string;
+  area: string;
+  city: string;
+  rating: number;
+  reviewCount: number;
+  distanceKm: number;
+  badgeText: string | null;
+  badgeColor: string | null;
+  coverVariant: string;
+  imageUrl: string;
+  category: {
+    name: string;
+  };
+  isFeatured: boolean;
+  isPopular: boolean;
+};
+
+type CatalogData = {
+  categories: CatalogCategoryData[];
+  featured: CatalogBusinessData[];
+  popular: CatalogBusinessData[];
+  all?: CatalogBusinessData[];
+  stats: {
+    categories: number;
+    businesses: number;
+    trusted: number;
+    happyUsers: string;
+  };
 };
 
 const navItems = [
@@ -310,7 +363,7 @@ const offers: OfferCardData[] = [
   },
 ];
 
-const rankedShops = [
+const rankedShops: RankedShopData[] = [
   {
     rank: 1,
     name: "Star Stitch Center",
@@ -354,8 +407,133 @@ const ecosystemCards: EcosystemCardData[] = [
 
 const filters = ["All", "Restaurant", "Grocery", "Mobile", "Beauty", "Open Now", "Offers"];
 
-export function PublicHome({ data }: { data: unknown }) {
-  void data;
+const categoryIconMap: Record<string, IconType> = {
+  "shopping-cart": ShoppingCart,
+  grocery: ShoppingCart,
+  "utensils-crossed": UtensilsCrossed,
+  restaurants: UtensilsCrossed,
+  restaurant: UtensilsCrossed,
+  scissors: Wrench,
+  tailors: Wrench,
+  sparkles: Sparkles,
+  beauty: Sparkles,
+  "monitor-smartphone": Smartphone,
+  electronics: Monitor,
+  mobile: Smartphone,
+  "house-plus": Home,
+  "home-services": Home,
+  "layout-grid": Grid2X2,
+  more: Grid2X2,
+};
+
+const variantImages: Record<string, string> = {
+  plate: "/mockup/im-restaurant.jpg",
+  suit: "/mockup/im-card_suit.jpg",
+  basket: "/mockup/im-vegetables.jpg",
+  salon: "/mockup/im-beauty.jpg",
+  shelf: "/mockup/im-supermarket.jpg",
+  phone: "/mockup/im-mobile.jpg",
+  worker: "/mockup/im-occ_helper.jpg",
+};
+
+function buildCategoryCards(data: CatalogData): CategoryTile[] {
+  const databaseCards = data.categories
+    .filter((category) => category.name.trim().length > 0)
+    .map((category) => ({
+      label: category.name,
+      icon: categoryIconMap[category.icon] ?? categoryIconMap[category.slug] ?? Grid2X2,
+      color: category.accent || "#0b2f74",
+      tint: tintFromAccent(category.accent),
+      isActive: category.isActive,
+    }));
+
+  return mergeByLabel(databaseCards, categoryTiles, categoryTiles.length);
+}
+
+function buildShopCards(
+  businesses: CatalogBusinessData[] | undefined,
+  fallback: ShopCardData[],
+  minimum = fallback.length,
+) {
+  const databaseCards = (businesses ?? []).map(businessToShopCard);
+  return mergeByLabel(databaseCards, fallback, minimum);
+}
+
+function buildRankedCards(
+  businesses: CatalogBusinessData[] | undefined,
+): RankedShopData[] {
+  const databaseCards = (businesses ?? [])
+    .slice()
+    .sort((left, right) => right.rating - left.rating || right.reviewCount - left.reviewCount)
+    .slice(0, rankedShops.length)
+    .map((business, index) => ({
+      ...businessToShopCard(business),
+      rank: index + 1,
+    }));
+
+  return mergeByLabel(databaseCards, rankedShops, rankedShops.length);
+}
+
+function businessToShopCard(business: CatalogBusinessData): ShopCardData {
+  return {
+    name: business.name,
+    category: business.category.name || business.subtitle,
+    rating: formatRating(business.rating),
+    reviews: String(business.reviewCount),
+    distance: `${formatDistance(business.distanceKm)} km`,
+    image: variantImages[business.coverVariant] ?? business.imageUrl ?? "/mockup/im-restaurant.jpg",
+    badge: business.badgeText ?? (business.isFeatured ? "Star Shop" : business.isPopular ? "Popular" : "Verified"),
+    badgeColor: business.badgeColor ?? (business.isFeatured ? "#2469d6" : business.isPopular ? "#f4a51c" : "#25a451"),
+  };
+}
+
+function mergeByLabel<T extends { name?: string; label?: string }>(
+  primary: T[],
+  fallback: T[],
+  minimum: number,
+) {
+  const merged: T[] = [];
+  const seen = new Set<string>();
+
+  for (const item of [...primary, ...fallback]) {
+    const key = normalizeKey(item.name ?? item.label ?? "");
+    if (!key || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    merged.push(item);
+  }
+
+  return merged.slice(0, Math.max(minimum, primary.length));
+}
+
+function normalizeKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function tintFromAccent(accent: string) {
+  const normalized = accent.trim();
+  if (!/^#[0-9a-f]{6}$/i.test(normalized)) {
+    return "#f3f6fb";
+  }
+
+  return `${normalized}18`;
+}
+
+function formatRating(value: number) {
+  return Number.isFinite(value) ? value.toFixed(1) : "4.6";
+}
+
+function formatDistance(value: number) {
+  return Number.isFinite(value) ? value.toFixed(1) : "1.2";
+}
+
+export function PublicHome({ data }: { data: CatalogData }) {
+  const categoryCards = buildCategoryCards(data);
+  const featuredCards = buildShopCards(data.featured, featuredShops);
+  const allCards = buildShopCards(data.all ?? data.popular, allShops);
+  const rankedCards = buildRankedCards(data.all ?? data.popular);
 
   return (
     <div className="min-h-screen bg-[#fffdf7] text-[#0b2f74]">
@@ -397,7 +575,7 @@ export function PublicHome({ data }: { data: unknown }) {
       <main className="mx-auto max-w-[1800px] px-4 pb-24 pt-4 sm:px-5 sm:pb-14 sm:pt-5 md:px-10">
         <SectionTitle title="Browse by category" />
         <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:px-0 md:grid-cols-5 xl:grid-cols-9">
-          {categoryTiles.map((item) => (
+          {categoryCards.map((item) => (
             <CategoryCard key={item.label} item={item} />
           ))}
         </div>
@@ -411,7 +589,7 @@ export function PublicHome({ data }: { data: unknown }) {
 
         <SectionTitle title="Featured shops" action="View all shops" />
         <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:px-0 xl:grid-cols-5">
-          {featuredShops.map((shop) => (
+          {featuredCards.map((shop) => (
             <FeaturedShop key={shop.name} shop={shop} />
           ))}
         </div>
@@ -461,7 +639,7 @@ export function PublicHome({ data }: { data: unknown }) {
           ))}
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-5 sm:gap-5 lg:grid-cols-3 xl:grid-cols-6">
-          {allShops.map((shop) => (
+          {allCards.map((shop) => (
             <ShopGridCard key={`${shop.name}-${shop.distance}`} shop={shop} />
           ))}
         </div>
@@ -489,14 +667,14 @@ export function PublicHome({ data }: { data: unknown }) {
             ))}
           </div>
           <div className="grid gap-5 xl:grid-cols-3">
-            {rankedShops.map((shop) => (
+            {rankedCards.map((shop) => (
               <RankedShop key={shop.rank} shop={shop} />
             ))}
           </div>
         </section>
 
         <SectionTitle title="More from BNC ecosystem" />
-        <div className="grid gap-3 md:grid-cols-2 md:gap-5 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-5 xl:grid-cols-3">
           {ecosystemCards.map((item) => (
             <EcosystemCard key={item.title} item={item} />
           ))}
@@ -645,15 +823,28 @@ function SectionTitle({ title, action, compact = false }: { title: string; actio
 
 function CategoryCard({ item }: { item: CategoryTile }) {
   const Icon = item.icon;
+  const active = item.isActive;
+
   return (
-    <article className="w-[92px] shrink-0 snap-start rounded-[16px] border border-[#dfe6f2] bg-white px-2 py-3 text-center shadow-[0_10px_24px_rgba(11,47,116,0.05)] sm:w-auto sm:rounded-[14px] sm:px-4 sm:py-5">
+    <article
+      className={`w-[92px] shrink-0 snap-start rounded-[16px] border px-2 py-3 text-center shadow-[0_10px_24px_rgba(11,47,116,0.05)] sm:w-auto sm:rounded-[14px] sm:px-4 sm:py-5 ${
+        active ? "border-[#0b2f74] bg-[#0b2f74] text-white" : "border-[#dfe6f2] bg-white"
+      }`}
+    >
       <div
         className="mx-auto grid h-12 w-12 place-items-center rounded-[15px] sm:h-[62px] sm:w-[62px] sm:rounded-[18px]"
-        style={{ color: item.color, backgroundColor: item.tint }}
+        style={{
+          color: active ? "#ffffff" : item.color,
+          backgroundColor: active ? "rgba(255,255,255,0.14)" : item.tint,
+        }}
       >
         <Icon className="h-6 w-6 sm:h-8 sm:w-8" />
       </div>
-      <div className="mt-2 min-h-[20px] text-[11.5px] font-black leading-tight text-[#0b2f74] sm:mt-3 sm:min-h-[22px] sm:text-[13px]">
+      <div
+        className={`mt-2 min-h-[20px] text-[11.5px] font-black leading-tight sm:mt-3 sm:min-h-[22px] sm:text-[13px] ${
+          active ? "text-white" : "text-[#0b2f74]"
+        }`}
+      >
         {item.label}
       </div>
     </article>
@@ -762,7 +953,7 @@ function ShopBody({ shop, dense = false }: { shop: ShopCardData; dense?: boolean
   );
 }
 
-function RankedShop({ shop }: { shop: (typeof rankedShops)[number] }) {
+function RankedShop({ shop }: { shop: RankedShopData }) {
   return (
     <article className="flex items-center gap-3 rounded-[13px] border border-[#dfe6f2] bg-white p-3 shadow-[0_12px_25px_rgba(11,47,116,0.05)] sm:gap-4 sm:p-4">
       <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,#f5b625,#c98200)] text-[15px] font-black text-white sm:h-11 sm:w-11 sm:text-[18px]">
@@ -792,15 +983,15 @@ function RankedShop({ shop }: { shop: (typeof rankedShops)[number] }) {
 function EcosystemCard({ item }: { item: EcosystemCardData }) {
   const Icon = item.icon;
   return (
-    <article id={item.id} className="flex scroll-mt-24 items-center gap-3 rounded-[13px] border border-[#dfe6f2] bg-white p-3 shadow-[0_10px_22px_rgba(11,47,116,0.05)] sm:gap-5 sm:p-5">
+    <article id={item.id} className="relative flex min-h-[142px] scroll-mt-24 flex-col items-start gap-3 rounded-[13px] border border-[#dfe6f2] bg-white p-3 shadow-[0_10px_22px_rgba(11,47,116,0.05)] sm:min-h-0 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[10px] bg-[#edf3ff] text-[#0b2f74] sm:h-16 sm:w-16">
         <Icon className="h-7 w-7 sm:h-9 sm:w-9" />
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="mt-auto min-w-0 flex-1 sm:mt-0">
         <h3 className="text-[14px] font-black text-[#0b2f74] sm:text-[16px]">{item.title}</h3>
-        <p className="mt-1 text-[11.5px] font-semibold leading-4 text-[#71809b] sm:text-[13px] sm:leading-5">{item.text}</p>
+        <p className="mt-1 line-clamp-2 text-[11.5px] font-semibold leading-4 text-[#71809b] sm:text-[13px] sm:leading-5">{item.text}</p>
       </div>
-      <button className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74] sm:h-9 sm:w-9">
+      <button className="absolute right-3 top-3 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e3e9f4] text-[#0b2f74] sm:static sm:h-9 sm:w-9">
         <ChevronRight className="h-4 w-4" />
       </button>
     </article>

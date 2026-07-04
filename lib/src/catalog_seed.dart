@@ -236,6 +236,7 @@ final fallbackCatalog = CatalogData(
       isPopular: true,
     ),
   ],
+  all: const [],
   stats: const CatalogStats(
     categories: 7,
     businesses: 10,
