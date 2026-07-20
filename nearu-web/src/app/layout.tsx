@@ -1,23 +1,51 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Manrope, Poppins } from "next/font/google";
 
 import "./globals.css";
-
-const poppins = Poppins({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
-});
-
-const manrope = Manrope({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
+import { PointerMotion } from "@/components/nearu/pointer-motion";
+import {
+  absoluteUrl,
+  defaultOpenGraph,
+  pageTitle,
+  siteDescription,
+  siteName,
+  siteUrl,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Nearu",
-  description: "Nearu marketplace website and admin panel powered by Next.js and SQLite.",
+  metadataBase: new URL(siteUrl()),
+  applicationName: siteName,
+  title: {
+    default: pageTitle(),
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: defaultOpenGraph({
+    title: pageTitle(),
+    description: siteDescription,
+    url: absoluteUrl("/"),
+    images: [
+      {
+        url: absoluteUrl("/mockup/im-restaurant.jpg"),
+        width: 1200,
+        height: 630,
+        alt: "Nearu local marketplace",
+      },
+    ],
+  }),
+  twitter: {
+    card: "summary_large_image",
+    title: pageTitle(),
+    description: siteDescription,
+    images: [absoluteUrl("/mockup/im-restaurant.jpg")],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -26,8 +54,11 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} ${manrope.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html lang="en" className="h-full antialiased">
+      <body className="flex min-h-full flex-col">
+        <PointerMotion />
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,4 +1,4 @@
-package com.example.bnc
+package com.bnc.nearu
 
 import io.flutter.embedding.android.FlutterActivity
 
