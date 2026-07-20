@@ -573,6 +573,24 @@ class _BncCategoryBrowsePageState extends State<BncCategoryBrowsePage> {
                             onSelected: _loadCategory,
                           ),
                         const SizedBox(height: 24),
+                        _BncExploreSectionTitle(title: 'Explore $categoryName'),
+                        const SizedBox(height: 12),
+                        _CategoryServiceGrid(
+                          items: _categoryServiceItems(_categorySlug),
+                          onOpen: (item) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => _BncCategoryServiceDetailPage(
+                                  categoryName: categoryName,
+                                  item: item,
+                                  shops: shopCards,
+                                  catalogService: _catalogService,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 24),
                         _BncSectionTitle(title: '$categoryName businesses'),
                         const SizedBox(height: 12),
                         if (_isLoading && shopCards.isEmpty)
@@ -1919,6 +1937,22 @@ class _BncCategorySpec {
   final bool isActive;
 }
 
+class _CategoryServiceSpec {
+  const _CategoryServiceSpec({
+    required this.title,
+    required this.subtitle,
+    required this.badge,
+    required this.asset,
+    required this.tags,
+  });
+
+  final String title;
+  final String subtitle;
+  final String badge;
+  final String asset;
+  final List<String> tags;
+}
+
 class _BncDealSpec {
   const _BncDealSpec({
     required this.badge,
@@ -2049,48 +2083,56 @@ const _bncCategories = [
     Icons.shopping_cart_outlined,
     Color(0xFFF2A715),
     Color(0xFFFFF6DF),
+    slug: 'grocery',
   ),
   _BncCategorySpec(
     'Restaurant',
     Icons.restaurant_menu_rounded,
     brandNavy,
     Color(0xFFF3F6FB),
+    slug: 'restaurant',
   ),
   _BncCategorySpec(
     'Bakery',
     Icons.cake_outlined,
     Color(0xFFF2A715),
     Color(0xFFFFF6DF),
+    slug: 'bakery-sweets',
   ),
   _BncCategorySpec(
     'Textiles',
     Icons.shopping_bag_outlined,
     brandNavy,
     Color(0xFFF3F6FB),
+    slug: 'tailors',
   ),
   _BncCategorySpec(
     'Beauty',
     Icons.brush_outlined,
     Color(0xFFD34C90),
     Color(0xFFFFF0F7),
+    slug: 'beauty',
   ),
   _BncCategorySpec(
     'Mobile',
     Icons.phone_android_outlined,
     Color(0xFF254FB3),
     Color(0xFFF1F4FF),
+    slug: 'electronics',
   ),
   _BncCategorySpec(
     'Electronics',
     Icons.desktop_windows_outlined,
     brandNavy,
     Color(0xFFF3F6FB),
+    slug: 'electronics',
   ),
   _BncCategorySpec(
     'Home Services',
     Icons.home_repair_service_outlined,
     brandNavy,
     Color(0xFFF3F6FB),
+    slug: 'home-services',
   ),
   _BncCategorySpec(
     'More',
@@ -2099,6 +2141,528 @@ const _bncCategories = [
     Color(0xFFF7F4EE),
   ),
 ];
+
+const Map<String, List<_CategoryServiceSpec>> _categoryServiceCatalog = {
+  'grocery': [
+    _CategoryServiceSpec(
+      title: 'Fresh Vegetables',
+      subtitle: 'Daily vegetables for home kitchens and small shops.',
+      badge: 'Fresh',
+      asset: '$_mockupPath/im-vegetables.jpg',
+      tags: ['Leafy greens', 'Daily stock', 'Home packs'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Fruits',
+      subtitle: 'Seasonal fruits and healthy snack picks.',
+      badge: 'Seasonal',
+      asset: '$_mockupPath/im-grocery.jpg',
+      tags: ['Bananas', 'Apples', 'Family packs'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Monthly Essentials',
+      subtitle: 'Rice, oil, pulses, snacks, and pantry restock bundles.',
+      badge: 'Bundle',
+      asset: '$_mockupPath/im-supermarket.jpg',
+      tags: ['Rice and pulses', 'Cooking oil', 'Snacks'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Personal Care',
+      subtitle: 'Daily care, hygiene, and household supplies.',
+      badge: 'Care',
+      asset: '$_mockupPath/im-pharmacy.jpg',
+      tags: ['Soap', 'Shampoo', 'Hygiene'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Gift Packs',
+      subtitle: 'Festival grocery and gift bundles.',
+      badge: 'Festival',
+      asset: '$_mockupPath/im-gifts.jpg',
+      tags: ['Gift boxes', 'Sweets', 'Dry goods'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Fresh Fish',
+      subtitle: 'Fresh fish and seafood picks from local sellers.',
+      badge: 'Local',
+      asset: '$_mockupPath/im-fish.jpg',
+      tags: ['Daily catch', 'Cleaned packs', 'Family portions'],
+    ),
+  ],
+  'restaurant': [
+    _CategoryServiceSpec(
+      title: 'Kerala Meals',
+      subtitle: 'Traditional lunch meals with curries and sides.',
+      badge: 'Lunch',
+      asset: '$_mockupPath/im-rest-kerala-meals.jpg',
+      tags: ['Meals', 'Curries', 'Rice'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Biryani',
+      subtitle: 'Popular biryani packs for lunch, dinner, and family orders.',
+      badge: 'Popular',
+      asset: '$_mockupPath/im-rest-biryani.jpg',
+      tags: ['Chicken', 'Beef', 'Family pack'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Evening Snacks',
+      subtitle: 'Tea-time snacks, sweets, and quick bites.',
+      badge: 'Snacks',
+      asset: '$_mockupPath/im-rest-snacks.jpg',
+      tags: ['Tea snacks', 'Sweets', 'Takeaway'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Pizza & Burgers',
+      subtitle: 'Fast food combos, pizza offers, and burger meals.',
+      badge: 'Combo',
+      asset: '$_mockupPath/im-rest-pizza-burger.jpg',
+      tags: ['Pizza', 'Burger', 'Fries'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Seafood',
+      subtitle: 'Fish meals and seafood specials.',
+      badge: 'Special',
+      asset: '$_mockupPath/im-rest-seafood.jpg',
+      tags: ['Fish fry', 'Meals', 'Takeaway'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Family Dining',
+      subtitle: 'Comfortable dine-in spaces for families and groups.',
+      badge: 'Family',
+      asset: '$_mockupPath/im-rest-family-dining.jpg',
+      tags: ['Dine-in', 'Groups', 'Reservations'],
+    ),
+  ],
+  'restaurants': [
+    _CategoryServiceSpec(
+      title: 'Kerala Meals',
+      subtitle: 'Traditional lunch meals with curries and sides.',
+      badge: 'Lunch',
+      asset: '$_mockupPath/im-rest-kerala-meals.jpg',
+      tags: ['Meals', 'Curries', 'Rice'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Biryani',
+      subtitle: 'Popular biryani packs for lunch, dinner, and family orders.',
+      badge: 'Popular',
+      asset: '$_mockupPath/im-rest-biryani.jpg',
+      tags: ['Chicken', 'Beef', 'Family pack'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Evening Snacks',
+      subtitle: 'Tea-time snacks, sweets, and quick bites.',
+      badge: 'Snacks',
+      asset: '$_mockupPath/im-rest-snacks.jpg',
+      tags: ['Tea snacks', 'Sweets', 'Takeaway'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Pizza & Burgers',
+      subtitle: 'Fast food combos, pizza offers, and burger meals.',
+      badge: 'Combo',
+      asset: '$_mockupPath/im-rest-pizza-burger.jpg',
+      tags: ['Pizza', 'Burger', 'Fries'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Seafood',
+      subtitle: 'Fish meals and seafood specials.',
+      badge: 'Special',
+      asset: '$_mockupPath/im-rest-seafood.jpg',
+      tags: ['Fish fry', 'Meals', 'Takeaway'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Family Dining',
+      subtitle: 'Comfortable dine-in spaces for families and groups.',
+      badge: 'Family',
+      asset: '$_mockupPath/im-rest-family-dining.jpg',
+      tags: ['Dine-in', 'Groups', 'Reservations'],
+    ),
+  ],
+  'bakery-sweets': [
+    _CategoryServiceSpec(
+      title: 'Cakes',
+      subtitle: 'Birthday, fresh cream, and custom celebration cakes.',
+      badge: 'Fresh',
+      asset: '$_mockupPath/im-bakery.jpg',
+      tags: ['Birthday cakes', 'Cream cakes', 'Custom'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Sweets',
+      subtitle: 'Local sweets, gift sweets, and assorted boxes.',
+      badge: 'Sweet',
+      asset: '$_mockupPath/im-bakery-sweets.jpg',
+      tags: ['Assorted', 'Gift boxes', 'Fresh'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Snack Boxes',
+      subtitle: 'Bakery snack boxes for evening and events.',
+      badge: 'Combo',
+      asset: '$_mockupPath/im-bakery-snack-boxes.jpg',
+      tags: ['Puffs', 'Cutlets', 'Tea snacks'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Bread & Buns',
+      subtitle: 'Daily bread, buns, and breakfast bakery items.',
+      badge: 'Daily',
+      asset: '$_mockupPath/im-bakery-bread-buns.jpg',
+      tags: ['Bread', 'Buns', 'Breakfast'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Party Orders',
+      subtitle: 'Bulk bakery orders for events and celebrations.',
+      badge: 'Events',
+      asset: '$_mockupPath/im-bakery-party-orders.jpg',
+      tags: ['Bulk', 'Custom', 'Delivery'],
+    ),
+  ],
+  'bakery': [
+    _CategoryServiceSpec(
+      title: 'Cakes',
+      subtitle: 'Birthday, fresh cream, and custom celebration cakes.',
+      badge: 'Fresh',
+      asset: '$_mockupPath/im-bakery.jpg',
+      tags: ['Birthday cakes', 'Cream cakes', 'Custom'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Sweets',
+      subtitle: 'Local sweets, gift sweets, and assorted boxes.',
+      badge: 'Sweet',
+      asset: '$_mockupPath/im-bakery-sweets.jpg',
+      tags: ['Assorted', 'Gift boxes', 'Fresh'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Snack Boxes',
+      subtitle: 'Bakery snack boxes for evening and events.',
+      badge: 'Combo',
+      asset: '$_mockupPath/im-bakery-snack-boxes.jpg',
+      tags: ['Puffs', 'Cutlets', 'Tea snacks'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Bread & Buns',
+      subtitle: 'Daily bread, buns, and breakfast bakery items.',
+      badge: 'Daily',
+      asset: '$_mockupPath/im-bakery-bread-buns.jpg',
+      tags: ['Bread', 'Buns', 'Breakfast'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Party Orders',
+      subtitle: 'Bulk bakery orders for events and celebrations.',
+      badge: 'Events',
+      asset: '$_mockupPath/im-bakery-party-orders.jpg',
+      tags: ['Bulk', 'Custom', 'Delivery'],
+    ),
+  ],
+  'tailors': [
+    _CategoryServiceSpec(
+      title: 'Formal Shirts',
+      subtitle: 'Custom formal shirts with fit and fabric options.',
+      badge: 'Custom',
+      asset: '$_mockupPath/im-tailor-formal-shirts.jpg',
+      tags: ['Office wear', 'Measurements', 'Fast delivery'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Suit Alteration',
+      subtitle: 'Alterations for suits, blazers, and trousers.',
+      badge: 'Alteration',
+      asset: '$_mockupPath/im-card_suit.jpg',
+      tags: ['Suits', 'Blazers', 'Trousers'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Fabric Selection',
+      subtitle: 'Premium fabrics for business and occasion wear.',
+      badge: 'Fabric',
+      asset: '$_mockupPath/im-card_fabric.jpg',
+      tags: ['Cotton', 'Linen', 'Premium'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Uniforms',
+      subtitle: 'School, office, and staff uniform stitching.',
+      badge: 'Bulk',
+      asset: '$_mockupPath/im-occ_tailor.jpg',
+      tags: ['School', 'Office', 'Staff'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Bridal Blouse',
+      subtitle: 'Occasion blouse stitching and bridal fitting.',
+      badge: 'Bridal',
+      asset: '$_mockupPath/im-card_bridal.jpg',
+      tags: ['Blouse', 'Embroidery', 'Fitting'],
+    ),
+  ],
+  'beauty': [
+    _CategoryServiceSpec(
+      title: 'Haircut & Styling',
+      subtitle: 'Haircuts, styling, and grooming appointments.',
+      badge: 'Style',
+      asset: '$_mockupPath/im-beauty-haircut.png',
+      tags: ['Haircut', 'Styling', 'Grooming'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Hair Spa',
+      subtitle: 'Hair spa, treatment, and care packages.',
+      badge: 'Spa',
+      asset: '$_mockupPath/im-beauty-spa.png',
+      tags: ['Treatment', 'Care', 'Relax'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Bridal Makeup',
+      subtitle: 'Bridal and party makeup packages.',
+      badge: 'Bridal',
+      asset: '$_mockupPath/im-beauty-bridal.png',
+      tags: ['Makeup', 'Styling', 'Packages'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Facials',
+      subtitle: 'Skincare, cleanup, and facial services.',
+      badge: 'Skin',
+      asset: '$_mockupPath/im-beauty-facial.png',
+      tags: ['Cleanup', 'Glow', 'Care'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Party Styling',
+      subtitle: 'Event styling for parties and celebrations.',
+      badge: 'Event',
+      asset: '$_mockupPath/im-beauty-party.png',
+      tags: ['Hair', 'Makeup', 'Booking'],
+    ),
+  ],
+  'electronics': [
+    _CategoryServiceSpec(
+      title: 'Mobiles',
+      subtitle: 'Latest mobile phones and exchange options.',
+      badge: 'Mobile',
+      asset: '$_mockupPath/im-electronics-new-mobiles.jpg',
+      tags: ['New phones', 'Exchange', 'Support'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Accessories',
+      subtitle: 'Cases, chargers, cables, and screen guards.',
+      badge: 'Accessory',
+      asset: '$_mockupPath/im-electronics-new-accessories.jpg',
+      tags: ['Chargers', 'Cases', 'Cables'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Mobile Repair',
+      subtitle: 'Diagnostics, display repair, and quick mobile service.',
+      badge: 'Repair',
+      asset: '$_mockupPath/im-electronics-new-mobile-repair.jpg',
+      tags: ['Display', 'Battery', 'Service'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Electrical Items',
+      subtitle: 'Switches, lights, and home electrical products.',
+      badge: 'Electrical',
+      asset: '$_mockupPath/im-electronics-new-electrical-items.jpg',
+      tags: ['Lights', 'Switches', 'Wiring'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Computer Service',
+      subtitle: 'Laptop, desktop, and computer support.',
+      badge: 'Service',
+      asset: '$_mockupPath/im-electronics-new-computer-service.jpg',
+      tags: ['Laptop', 'Desktop', 'Service'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Gadgets',
+      subtitle: 'Smart gadgets, speakers, watches, and small electronics.',
+      badge: 'Gadget',
+      asset: '$_mockupPath/im-electronics-new-gadgets.jpg',
+      tags: ['Audio', 'Smartwatch', 'Devices'],
+    ),
+  ],
+  'mobile': [
+    _CategoryServiceSpec(
+      title: 'Mobiles',
+      subtitle: 'Latest mobile phones and exchange options.',
+      badge: 'Mobile',
+      asset: '$_mockupPath/im-electronics-new-mobiles.jpg',
+      tags: ['New phones', 'Exchange', 'Support'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Accessories',
+      subtitle: 'Cases, chargers, cables, and screen guards.',
+      badge: 'Accessory',
+      asset: '$_mockupPath/im-electronics-new-accessories.jpg',
+      tags: ['Chargers', 'Cases', 'Cables'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Mobile Repair',
+      subtitle: 'Diagnostics, display repair, and quick mobile service.',
+      badge: 'Repair',
+      asset: '$_mockupPath/im-electronics-new-mobile-repair.jpg',
+      tags: ['Display', 'Battery', 'Service'],
+    ),
+  ],
+  'home-services': [
+    _CategoryServiceSpec(
+      title: 'Electrical Work',
+      subtitle: 'Home electrical checks, fixes, and installations.',
+      badge: 'Electrical',
+      asset: '$_mockupPath/im-occ_electrician.jpg',
+      tags: ['Wiring', 'Lights', 'Repairs'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Plumbing',
+      subtitle: 'Pipe repair, tap replacement, and bathroom fixes.',
+      badge: 'Plumbing',
+      asset: '$_mockupPath/im-home-plumbing.jpg',
+      tags: ['Pipes', 'Taps', 'Leaks'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Deep Cleaning',
+      subtitle: 'Home deep cleaning and move-in cleaning packages.',
+      badge: 'Cleaning',
+      asset: '$_mockupPath/im-home-deep-cleaning.jpg',
+      tags: ['Kitchen', 'Bathroom', 'Move-in'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Appliance Repair',
+      subtitle: 'Basic appliance repair and service visits.',
+      badge: 'Repair',
+      asset: '$_mockupPath/im-home-appliance-repair.jpg',
+      tags: ['Fans', 'Mixers', 'Small appliances'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Painting',
+      subtitle: 'Home painting and wall touch-up services.',
+      badge: 'Home',
+      asset: '$_mockupPath/im-home-painting.jpg',
+      tags: ['Walls', 'Touch-up', 'Rooms'],
+    ),
+  ],
+  'clinic': [
+    _CategoryServiceSpec(
+      title: 'Nearby Clinics',
+      subtitle: 'Find clinics with doctors, distance and contact.',
+      badge: 'Clinic',
+      asset: '$_mockupPath/im-pharmacy.jpg',
+      tags: ['Doctors', 'Call', 'Location'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Doctor Consultation',
+      subtitle: 'Choose speciality, fee and next slot.',
+      badge: 'Doctor',
+      asset: '$_mockupPath/im-occ_reception.jpg',
+      tags: ['Slot', 'Fee', 'WhatsApp'],
+    ),
+  ],
+  'doctor-booking': [
+    _CategoryServiceSpec(
+      title: 'Nearby Clinics',
+      subtitle: 'Find clinics with doctors, distance and contact.',
+      badge: 'Clinic',
+      asset: '$_mockupPath/im-pharmacy.jpg',
+      tags: ['Doctors', 'Call', 'Location'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Doctor Consultation',
+      subtitle: 'Choose speciality, fee and next slot.',
+      badge: 'Doctor',
+      asset: '$_mockupPath/im-occ_reception.jpg',
+      tags: ['Slot', 'Fee', 'WhatsApp'],
+    ),
+  ],
+  'pharmacy': [
+    _CategoryServiceSpec(
+      title: 'Pharmacy',
+      subtitle: 'Medicines, wellness products, and health essentials.',
+      badge: 'Health',
+      asset: '$_mockupPath/im-pharmacy.jpg',
+      tags: ['Medicines', 'Wellness', 'Care'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Wellness Products',
+      subtitle: 'Supplements, personal care and essentials.',
+      badge: 'Care',
+      asset: '$_mockupPath/im-supermarket.jpg',
+      tags: ['Care', 'Wellness', 'Daily'],
+    ),
+  ],
+  'gifts-stationery': [
+    _CategoryServiceSpec(
+      title: 'Gift Items',
+      subtitle: 'Gifts, toys and celebration items.',
+      badge: 'Gift',
+      asset: '$_mockupPath/im-gifts.jpg',
+      tags: ['Gift', 'Toy', 'Party'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Stationery',
+      subtitle: 'School, office, and print stationery.',
+      badge: 'Office',
+      asset: '$_mockupPath/im-stationery.jpg',
+      tags: ['Books', 'Print', 'Office'],
+    ),
+  ],
+  'more': [
+    _CategoryServiceSpec(
+      title: 'Pharmacy',
+      subtitle: 'Medicines, wellness products, and health essentials.',
+      badge: 'Health',
+      asset: '$_mockupPath/im-pharmacy.jpg',
+      tags: ['Medicines', 'Wellness', 'Care'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Jewellery',
+      subtitle: 'Jewellery shops, gifts, and occasion wear.',
+      badge: 'Jewellery',
+      asset: '$_mockupPath/im-jewellery.jpg',
+      tags: ['Gold', 'Gifts', 'Occasion'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Furniture',
+      subtitle: 'Home and office furniture picks.',
+      badge: 'Home',
+      asset: '$_mockupPath/im-furniture.jpg',
+      tags: ['Chairs', 'Tables', 'Storage'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Footwear',
+      subtitle: 'Shoes, sandals, and daily footwear.',
+      badge: 'Fashion',
+      asset: '$_mockupPath/im-footwear.jpg',
+      tags: ['Shoes', 'Sandals', 'Daily wear'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Stationery',
+      subtitle: 'School, office, and print stationery.',
+      badge: 'Office',
+      asset: '$_mockupPath/im-stationery.jpg',
+      tags: ['Books', 'Print', 'Office'],
+    ),
+    _CategoryServiceSpec(
+      title: 'Hardware',
+      subtitle: 'Hardware tools, fittings, and home repair materials.',
+      badge: 'Tools',
+      asset: '$_mockupPath/im-hardware.jpg',
+      tags: ['Tools', 'Fittings', 'Repair'],
+    ),
+  ],
+};
+
+List<_CategoryServiceSpec> _categoryServiceItems(String slug) {
+  final normalized = slug.trim().toLowerCase();
+  return _categoryServiceCatalog[normalized] ??
+      _categoryServiceCatalog['more'] ??
+      const <_CategoryServiceSpec>[];
+}
+
+List<_CategoryServiceSpec> _categoryServiceItemsByName(String categoryName) {
+  final key = categoryName.trim().toLowerCase().replaceAll(' ', '-');
+  if (key == 'restaurant') {
+    return _categoryServiceItems('restaurant');
+  }
+  if (key == 'restaurants') {
+    return _categoryServiceItems('restaurants');
+  }
+  if (key == 'bakery-&-sweets' || key == 'bakery-and-sweets') {
+    return _categoryServiceItems('bakery-sweets');
+  }
+  if (key == 'textiles') {
+    return _categoryServiceItems('tailors');
+  }
+  if (key == 'mobile') {
+    return _categoryServiceItems('mobile');
+  }
+  return _categoryServiceItems(key);
+}
 
 const _bncDeals = [
   _BncDealSpec(
@@ -10263,6 +10827,42 @@ class _BncSectionTitle extends StatelessWidget {
   }
 }
 
+class _BncExploreSectionTitle extends StatelessWidget {
+  const _BncExploreSectionTitle({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 5,
+          height: 28,
+          decoration: BoxDecoration(
+            color: brandGold,
+            borderRadius: BorderRadius.circular(999),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: brandNavy,
+              fontSize: 19,
+              height: 1.1,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _BncEmptyPanel extends StatelessWidget {
   const _BncEmptyPanel({
     required this.icon,
@@ -11135,6 +11735,682 @@ class _BncShopGrid extends StatelessWidget {
           catalogService: catalogService,
         );
       },
+    );
+  }
+}
+
+class _CategoryServiceGrid extends StatelessWidget {
+  const _CategoryServiceGrid({required this.items, required this.onOpen});
+
+  final List<_CategoryServiceSpec> items;
+  final ValueChanged<_CategoryServiceSpec> onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const _BncEmptyPanel(
+        icon: Icons.inventory_2_outlined,
+        title: 'Services coming soon',
+        text: 'Products and services for this category will appear here.',
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 0.66,
+      ),
+      itemBuilder: (context, index) {
+        return _CategoryServiceCard(
+          item: items[index],
+          onOpen: () => onOpen(items[index]),
+        );
+      },
+    );
+  }
+}
+
+class _CategoryServiceCard extends StatelessWidget {
+  const _CategoryServiceCard({required this.item, required this.onOpen});
+
+  final _CategoryServiceSpec item;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onOpen,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: brandLine),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0F08204A),
+                blurRadius: 14,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 112,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      _AssetImageFill(asset: item.asset, darken: true),
+                      Positioned(
+                        left: 10,
+                        top: 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: brandGold,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            item.badge,
+                            style: const TextStyle(
+                              color: brandNavy,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 10,
+                        right: 10,
+                        bottom: 10,
+                        child: Text(
+                          item.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            height: 1.05,
+                            fontWeight: FontWeight.w900,
+                            shadows: [
+                              Shadow(
+                                color: Color(0x77000000),
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: brandMuted,
+                            fontSize: 11.5,
+                            height: 1.25,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 5,
+                          runSpacing: 5,
+                          children: item.tags.take(3).map((tag) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 7,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEAF1FF),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                tag,
+                                style: const TextStyle(
+                                  color: brandNavy,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: const [
+                            Text(
+                              'Open category',
+                              style: TextStyle(
+                                color: brandNavy,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(
+                              Icons.chevron_right,
+                              color: brandNavy,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BncCategoryServiceDetailPage extends StatelessWidget {
+  const _BncCategoryServiceDetailPage({
+    super.key,
+    required this.categoryName,
+    required this.item,
+    required this.shops,
+    this.catalogService,
+  });
+
+  final String categoryName;
+  final _CategoryServiceSpec item;
+  final List<_BncShopSpec> shops;
+  final CatalogService? catalogService;
+
+  @override
+  Widget build(BuildContext context) {
+    final moreItems = _categoryServiceItemsByName(categoryName)
+        .where((entry) => entry.title != item.title)
+        .take(4)
+        .toList();
+
+    return _BncPhoneSizedRoute(
+      child: Scaffold(
+        backgroundColor: brandSurface,
+        body: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: _CategoryServiceHero(item: item, categoryName: categoryName)),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 110),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _BncSectionTitle(title: 'What you can find'),
+                      const SizedBox(height: 12),
+                      _ServiceTagGrid(tags: item.tags, categoryName: categoryName),
+                      if (moreItems.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        _BncSectionTitle(title: 'More in $categoryName'),
+                        const SizedBox(height: 12),
+                        _MoreServiceList(items: moreItems),
+                      ],
+                      const SizedBox(height: 24),
+                      const _BncSectionTitle(title: 'Related businesses'),
+                      const SizedBox(height: 12),
+                      if (shops.isEmpty)
+                        const _BncEmptyPanel(
+                          icon: Icons.storefront_outlined,
+                          title: 'No related businesses yet',
+                          text: 'Businesses added from admin will appear here.',
+                        )
+                      else
+                        _BncShopGrid(
+                          shops: shops.take(4).toList(),
+                          catalogService: catalogService,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryServiceHero extends StatelessWidget {
+  const _CategoryServiceHero({required this.item, required this.categoryName});
+
+  final _CategoryServiceSpec item;
+  final String categoryName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: brandNavy,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.of(context).maybePop(),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+              ),
+              Expanded(
+                child: Text(
+                  categoryName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: SizedBox(
+              height: 210,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _AssetImageFill(asset: item.asset, darken: true),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withValues(alpha: 0.05),
+                          Colors.black.withValues(alpha: 0.62),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: brandGold,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            item.badge,
+                            style: const TextStyle(
+                              color: brandNavy,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          item.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            height: 1,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          item.subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFFE5EDFF),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _HeroActionChip(icon: Icons.photo_outlined, label: 'Photo page'),
+              _HeroActionChip(icon: Icons.storefront_outlined, label: 'Related listings'),
+              _HeroActionChip(icon: Icons.search, label: 'Browse by item'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroActionChip extends StatelessWidget {
+  const _HeroActionChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: brandGold, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ServiceTagGrid extends StatelessWidget {
+  const _ServiceTagGrid({required this.tags, required this.categoryName});
+
+  final List<String> tags;
+  final String categoryName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(tags.length, (index) {
+        final tag = tags[index];
+        final optionNumber = (index + 1).toString().padLeft(2, '0');
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: index == tags.length - 1 ? 0 : 10),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(22),
+              onTap: () {},
+              child: Ink(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Colors.white, Color(0xFFF6F9FE)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFD7E3F5)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1208204A),
+                      blurRadius: 18,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [brandNavy, brandNavyBright],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Text(
+                                optionNumber,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.16),
+                                  fontSize: 30,
+                                  height: 1,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.local_offer_outlined,
+                                color: brandGold,
+                                size: 27,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          right: -2,
+                          bottom: -2,
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: brandGold,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: brandNavy,
+                              size: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 13),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            tag,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: brandNavy,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            'Find nearby $categoryName shops for ${tag.toLowerCase()}.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: brandMuted,
+                              fontSize: 12.5,
+                              height: 1.22,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: const [
+                              _MiniInfoPill(label: 'Nearby'),
+                              _MiniInfoPill(label: 'Trusted'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: brandGold,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: brandGold.withValues(alpha: 0.32),
+                            blurRadius: 14,
+                            offset: const Offset(0, 7),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: brandNavy,
+                        size: 22,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _MiniInfoPill extends StatelessWidget {
+  const _MiniInfoPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF1FF),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: brandNavy,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _MoreServiceList extends StatelessWidget {
+  const _MoreServiceList({required this.items});
+
+  final List<_CategoryServiceSpec> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(items.length, (index) {
+        final item = items[index];
+        return Padding(
+          padding: EdgeInsets.only(bottom: index == items.length - 1 ? 0 : 10),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F6FB),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: _AssetImageFill(asset: item.asset),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: brandNavy,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: brandMuted,
+                          fontSize: 12,
+                          height: 1.3,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 }

@@ -25,6 +25,9 @@ func main() {
 		log.Fatalf("database connection failed: %v", err)
 	}
 	defer db.Close()
+	if err := db.EnsureDefaultCategories(ctx); err != nil {
+		log.Fatalf("category sync failed: %v", err)
+	}
 
 	server := &http.Server{
 		Addr:              ":" + cfg.Port,

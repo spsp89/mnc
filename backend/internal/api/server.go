@@ -73,7 +73,7 @@ func (s *Server) catalog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) categories(w http.ResponseWriter, r *http.Request) {
-	categories, err := s.store.GetCategories(r.Context())
+	categories, err := s.store.GetCategories(r.Context(), parseBool(r.URL.Query().Get("includeInactive")))
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "Could not load categories.", nil)
 		return
@@ -537,12 +537,13 @@ func catalogQueryFromRequest(r *http.Request) (store.CatalogQuery, error) {
 	}
 
 	return store.CatalogQuery{
-		Query:        strings.TrimSpace(first(values.Get("query"), values.Get("q"))),
-		CategorySlug: strings.TrimSpace(first(values.Get("categorySlug"), values.Get("category"))),
-		Featured:     parseBool(values.Get("featured")),
-		Popular:      parseBool(values.Get("popular")),
-		Sort:         sort,
-		Limit:        limit,
+		Query:           strings.TrimSpace(first(values.Get("query"), values.Get("q"))),
+		CategorySlug:    strings.TrimSpace(first(values.Get("categorySlug"), values.Get("category"))),
+		Featured:        parseBool(values.Get("featured")),
+		Popular:         parseBool(values.Get("popular")),
+		Sort:            sort,
+		Limit:           limit,
+		IncludeInactive: parseBool(values.Get("includeInactive")),
 	}, nil
 }
 

@@ -160,6 +160,10 @@ const adminHTML = `<!doctype html>
     .status.err { display:block; color:var(--danger); background:#fff0f0; border:1px solid #ffd1d1; }
     .tab { display:none; }
     .tab.active { display:block; }
+    .sectionFocus {
+      outline:4px solid rgba(244,178,39,.45);
+      box-shadow:0 0 0 8px rgba(244,178,39,.12), var(--shadow);
+    }
     .sectionTitle { display:flex; justify-content:space-between; align-items:end; gap:14px; margin:20px 0 12px; }
     .sectionTitle h2 { font-size:24px; }
     .sectionTitle p { color:var(--muted); font-weight:800; margin-top:4px; }
@@ -206,6 +210,7 @@ const adminHTML = `<!doctype html>
     .list::-webkit-scrollbar { width:10px; }
     .list::-webkit-scrollbar-track { background:#e8effb; border-radius:999px; }
     .list::-webkit-scrollbar-thumb { background:var(--navy); border-radius:999px; border:2px solid #e8effb; }
+    #categoryList { max-height:none; }
     .item {
       display:grid;
       grid-template-columns:58px minmax(0,1fr) auto;
@@ -266,11 +271,17 @@ const adminHTML = `<!doctype html>
         </label>
       </div>
       <nav class="nav">
-        <button class="active" data-tab="businesses">Shops <span class="pill" id="navShops">0</span></button>
+        <button class="active" data-tab="dashboard">Dashboard <span class="pill" id="navDashboard">0</span></button>
         <button data-tab="categories">Categories <span class="pill" id="navCategories">0</span></button>
+        <button data-tab="businesses">Shops <span class="pill" id="navShops">0</span></button>
         <button data-tab="clinics">Clinics <span class="pill" id="navClinics">0</span></button>
         <button data-tab="doctors">Doctors <span class="pill" id="navDoctors">0</span></button>
         <button data-tab="deals">Deals <span class="pill" id="navDeals">0</span></button>
+        <button data-tab="offers">Offers <span class="pill" id="navOffers">0</span></button>
+        <button data-tab="homepage">Homepage <span class="pill" id="navHomepage">7</span></button>
+        <button data-tab="ecosystem">Ecosystem <span class="pill" id="navEcosystem">10</span></button>
+        <button data-tab="images">Images <span class="pill" id="navImages">0</span></button>
+        <button data-tab="settings">Settings <span class="pill" id="navSettings">1</span></button>
       </nav>
       <div class="sideCard">
         <p>Use this panel to update the PostgreSQL data used by the Flutter app, Go API, and future Next.js website.</p>
@@ -304,11 +315,27 @@ const adminHTML = `<!doctype html>
         <div class="stat"><strong id="statClinics">0</strong><span>Clinics</span></div>
         <div class="stat"><strong id="statDoctors">0</strong><span>Doctors</span></div>
         <div class="stat"><strong id="statDeals">0</strong><span>Deals</span></div>
+        <div class="stat"><strong id="statOffers">0</strong><span>Offers</span></div>
       </div>
 
       <div id="status" class="status"></div>
 
-      <section id="businesses" class="tab active">
+      <section id="dashboard" class="tab active">
+        <div class="sectionTitle">
+          <div><h2>Admin Dashboard</h2><p>Quick view of all editable BNC marketplace content.</p></div>
+        </div>
+        <div class="card">
+          <div class="list">
+            <article class="item"><div class="thumb">C</div><div><strong>Categories</strong><small>Name, slug, icon, color, sort order, active status, and preview.</small></div></article>
+            <article class="item"><div class="thumb">S</div><div><strong>Shops</strong><small>Business details, contact, address, images, tags, featured, popular, badges, and status.</small></div></article>
+            <article class="item"><div class="thumb">H</div><div><strong>Clinics & Doctors</strong><small>Clinic photos, locations, doctors, speciality, fee, slot, contact actions, and status.</small></div></article>
+            <article class="item"><div class="thumb">D</div><div><strong>Deals & Offers</strong><small>Coupon codes, discount text, shop links, images, featured status, dates, and sort order.</small></div></article>
+            <article class="item"><div class="thumb">B</div><div><strong>Homepage & Ecosystem</strong><small>Hero content, featured sections, top offers, ecosystem cards, links, icons, and ordering.</small></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="businesses" class="tab">
         <div class="sectionTitle">
           <div><h2>Shop Management</h2><p>Create listings, assign categories, and mark featured or popular shops.</p></div>
         </div>
@@ -432,6 +459,94 @@ const adminHTML = `<!doctype html>
           </div>
         </div>
       </section>
+
+      <section id="offers" class="tab">
+        <div class="sectionTitle">
+          <div><h2>Offer Management</h2><p>Create homepage offers with codes, shop links, images, and visit actions.</p></div>
+        </div>
+        <div class="workbench">
+          <div class="card">
+            <div class="cardHeader"><h3>Add / Edit Offer</h3><span class="badge" id="offerMode">New</span></div>
+            <form class="formGrid" data-kind="offer" data-create="/api/admin/deals" data-update="/api/admin/deals/">
+              <input type="hidden" name="section" value="main" />
+              <div class="row"><label>Title<input name="title" required /></label><label>Slug<input name="slug" required /></label></div>
+              <div class="row"><label>Business slug<input name="businessSlug" required /></label><label>Offer code<input name="code" required /></label></div>
+              <label>Description<textarea name="description" placeholder="Short offer details shown to users"></textarea></label>
+              <div class="row"><label>Sort order<input name="sortOrder" type="number" value="50" /></label><label>Accent color<input name="accentColor" value="#0E7A43" /></label></div>
+              <label class="singleCheck"><input type="checkbox" name="isFeatured" checked /> Show as featured offer</label>
+              <label>Image URL or /mockup path<input name="imageUrl" value="/mockup/im-gifts.jpg" /></label>
+              <div class="formActions"><button class="secondary">Save offer</button><button type="button" class="ghost" data-reset>Reset</button></div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="cardHeader"><h3>Current Offers</h3><input class="searchInput" data-filter="offerList" placeholder="Search offers" /></div>
+            <div id="offerList" class="list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="homepage" class="tab">
+        <div class="sectionTitle">
+          <div><h2>Homepage Controls</h2><p>Content blocks the admin should control for the public BNC home screen.</p></div>
+        </div>
+        <div class="card">
+          <div class="list">
+            <article class="item"><div class="thumb">H</div><div><strong>Hero title/subtitle</strong><small>Main heading, supporting text, location text, and search entry content.</small></div></article>
+            <article class="item"><div class="thumb">C</div><div><strong>Featured categories</strong><small>Choose category order and which categories appear first.</small></div></article>
+            <article class="item"><div class="thumb">S</div><div><strong>Featured shops & popular shops</strong><small>Control homepage shop sections using featured and popular flags.</small></div></article>
+            <article class="item"><div class="thumb">D</div><div><strong>Deals in spotlight</strong><small>Select highlighted deal cards and view-all links.</small></div></article>
+            <article class="item"><div class="thumb">O</div><div><strong>Today’s top offers</strong><small>Manage top offer cards, coupon codes, images, and shop visit actions.</small></div></article>
+            <article class="item"><div class="thumb">E</div><div><strong>BNC ecosystem card order</strong><small>Control which ecosystem tools appear and their display order.</small></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="ecosystem" class="tab">
+        <div class="sectionTitle">
+          <div><h2>BNC Ecosystem</h2><p>Manage business tools shown in the BNC ecosystem section.</p></div>
+        </div>
+        <div class="card">
+          <div class="list">
+            <article class="item"><div class="thumb">BC</div><div><strong>Business Card</strong><small>Title, subtitle, icon, link, active status, and sort order.</small></div></article>
+            <article class="item"><div class="thumb">B2B</div><div><strong>B2B Network</strong><small>Partner discovery title, action link, active status, and order.</small></div></article>
+            <article class="item"><div class="thumb">J</div><div><strong>Jobs</strong><small>Hiring card text, link, active status, and order.</small></div></article>
+            <article class="item"><div class="thumb">W</div><div><strong>Winner</strong><small>Rewards, weekly draw, gift text, link, active status, and order.</small></div></article>
+            <article class="item"><div class="thumb">F</div><div><strong>Feed</strong><small>Local stories and update card content.</small></div></article>
+            <article class="item"><div class="thumb">P</div><div><strong>Plans</strong><small>Business plan card content and link.</small></div></article>
+            <article class="item"><div class="thumb">D</div><div><strong>Dashboard</strong><small>Business performance shortcut content and link.</small></div></article>
+            <article class="item"><div class="thumb">A</div><div><strong>Admin</strong><small>Admin shortcut text, access link, and visibility.</small></div></article>
+            <article class="item"><div class="thumb">?</div><div><strong>Explanations</strong><small>Help article card text and link.</small></div></article>
+            <article class="item"><div class="thumb">DR</div><div><strong>Doctor Booking</strong><small>Clinic booking card text, icon, link, active status, and order.</small></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="images" class="tab">
+        <div class="sectionTitle">
+          <div><h2>Image Library</h2><p>Manage reusable photos for shops, clinics, doctors, deals, offers, and homepage cards.</p></div>
+        </div>
+        <div class="card">
+          <div class="list">
+            <article class="item"><div class="thumb">S</div><div><strong>Shop images/logo</strong><small>Business thumbnails, logos, and category images.</small></div></article>
+            <article class="item"><div class="thumb">C</div><div><strong>Clinic and doctor photos</strong><small>Clinic photos and doctor profile images.</small></div></article>
+            <article class="item"><div class="thumb">D</div><div><strong>Deal and offer photos</strong><small>Images used in deals, offers, and coupon cards.</small></div></article>
+            <article class="item"><div class="thumb">B</div><div><strong>Homepage images</strong><small>Hero, ecosystem, and promotional assets.</small></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="tab">
+        <div class="sectionTitle">
+          <div><h2>Settings</h2><p>Basic admin and marketplace configuration.</p></div>
+        </div>
+        <div class="card">
+          <div class="list">
+            <article class="item"><div class="thumb">A</div><div><strong>Admin access</strong><small>Admin login, password environment settings, and sign-out flow.</small></div></article>
+            <article class="item"><div class="thumb">L</div><div><strong>Default location</strong><small>Default city, region, and marketplace location text.</small></div></article>
+            <article class="item"><div class="thumb">API</div><div><strong>API setup</strong><small>Backend URL used by Flutter, Next.js, and admin tools.</small></div></article>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -440,6 +555,33 @@ const adminHTML = `<!doctype html>
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
     const statusBox = $("#status");
     let lastLoaded = { catalog:{ categories:[], all:[] }, clinics:{ clinics:[] }, deals:{ deals:[] } };
+    const sharedCategoryDefaults = [
+      { name:"Grocery", slug:"grocery", icon:"shopping_cart", accentColor:"#F2A715", sortOrder:10, isActive:true },
+      { name:"Restaurant", slug:"restaurant", icon:"restaurant", accentColor:"#0B2F74", sortOrder:20, isActive:true },
+      { name:"Restaurants", slug:"restaurants", icon:"utensils-crossed", accentColor:"#FFB01E", sortOrder:21, isActive:true },
+      { name:"Clinic", slug:"clinic", icon:"local_hospital", accentColor:"#0B2F74", sortOrder:25, isActive:true },
+      { name:"Pharmacy", slug:"pharmacy", icon:"grid_view", accentColor:"#24A875", sortOrder:30, isActive:true },
+      { name:"Bakery & Sweets", slug:"bakery-sweets", icon:"cake", accentColor:"#F2A715", sortOrder:35, isActive:true },
+      { name:"Bakery", slug:"bakery", icon:"cake", accentColor:"#F2A715", sortOrder:36, isActive:true },
+      { name:"Beauty", slug:"beauty", icon:"brush", accentColor:"#D34C90", sortOrder:40, isActive:true },
+      { name:"Tailors", slug:"tailors", icon:"scissors", accentColor:"#0B2F74", sortOrder:45, isActive:true },
+      { name:"Mobile", slug:"mobile", icon:"phone_android", accentColor:"#254FB3", sortOrder:46, isActive:true },
+      { name:"Electronics", slug:"electronics", icon:"monitor-smartphone", accentColor:"#6A66FF", sortOrder:47, isActive:true },
+      { name:"Home Services", slug:"home-services", icon:"home_repair_service", accentColor:"#0B2F74", sortOrder:50, isActive:true },
+      { name:"Gifts & Stationery", slug:"gifts-stationery", icon:"redeem", accentColor:"#F2A715", sortOrder:60, isActive:true },
+      { name:"Doctor Booking", slug:"doctor-booking", icon:"stethoscope", accentColor:"#1E9FB8", sortOrder:70, isActive:true },
+      { name:"More", slug:"more", icon:"layout_grid", accentColor:"#7183A6", sortOrder:80, isActive:true }
+    ];
+
+    function mergeSharedCategories(categories) {
+      const bySlug = new Map((categories || []).map((category) => [category.slug, category]));
+      sharedCategoryDefaults.forEach((category) => {
+        if (!bySlug.has(category.slug)) {
+          bySlug.set(category.slug, { ...category, seedOnly:true });
+        }
+      });
+      return Array.from(bySlug.values()).sort((left, right) => (left.sortOrder || 0) - (right.sortOrder || 0));
+    }
 
     function adminToken() {
       return $("#token").value.trim();
@@ -543,10 +685,12 @@ const adminHTML = `<!doctype html>
       container.innerHTML = "<div class='empty'>" + escapeText(message) + "</div>";
     }
 
-    function switchTab(tabId) {
+    function switchTab(tabId, updateUrl = true) {
+      if (!$("#" + tabId)) return;
       $$(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.tab === tabId));
       $$(".tab").forEach((tab) => tab.classList.toggle("active", tab.id === tabId));
       statusBox.className = "status";
+      if (updateUrl) history.replaceState(null, "", "/admin?view=panel#" + tabId);
     }
 
     async function submitForm(form) {
@@ -565,6 +709,59 @@ const adminHTML = `<!doctype html>
       await api(path, { method: "DELETE" });
       await load();
       showStatus("Deleted successfully.", true);
+    }
+
+    function optionTarget(title) {
+      const key = title.toLowerCase();
+      if (key.includes("ecosystem") || key.includes("business card") || key.includes("b2b") || key.includes("jobs") || key.includes("winner") || key.includes("feed") || key.includes("plans") || key.includes("explanations")) return "ecosystem";
+      if (key === "dashboard") return "ecosystem";
+      if (key.includes("categor")) return "categories";
+      if (key.includes("shop") || key.includes("business")) return "businesses";
+      if (key.includes("doctor")) return "doctors";
+      if (key.includes("clinic")) return "clinics";
+      if (key.includes("deal")) return "deals";
+      if (key.includes("offer")) return "offers";
+      if (key.includes("image") || key.includes("photo")) return "images";
+      if (key.includes("admin access") || key.includes("location") || key.includes("api")) return "settings";
+      return "homepage";
+    }
+
+    function optionUrl(tabId) {
+      return "/admin?view=panel#" + tabId;
+    }
+
+    function focusSection(tabId) {
+      $$(".sectionFocus").forEach((item) => item.classList.remove("sectionFocus"));
+      const section = $("#" + tabId);
+      if (!section) return;
+      const target = section.querySelector(".workbench") || section.querySelector(".card") || section;
+      target.classList.add("sectionFocus");
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      const input = section.querySelector("input, textarea, select, button");
+      if (input) setTimeout(() => input.focus({ preventScroll: true }), 250);
+      setTimeout(() => target.classList.remove("sectionFocus"), 2200);
+    }
+
+    function openOptionTarget(title, action) {
+      const target = optionTarget(title);
+      switchTab(target);
+      focusSection(target);
+      showStatus(action + " " + title + ": opened the full " + target.replace("businesses", "shops") + " section.", true);
+    }
+
+    function enhanceOptionCards() {
+      ["dashboard", "homepage", "ecosystem", "images", "settings"].forEach((sectionId) => {
+        $$("#" + sectionId + " .item").forEach((item) => {
+          if (item.querySelector(".actions")) return;
+          const title = item.querySelector("strong") ? item.querySelector("strong").textContent : "Item";
+          const target = optionTarget(title);
+          const actions = document.createElement("div");
+          actions.className = "actions";
+          actions.innerHTML = "<button type='button' data-url='" + optionUrl(target) + "'>Edit</button>";
+          actions.querySelector("button").onclick = () => openOptionTarget(title, "Edit");
+          item.appendChild(actions);
+        });
+      });
     }
 
     function renderBusinessList(catalog) {
@@ -608,15 +805,22 @@ const adminHTML = `<!doctype html>
     function renderCategoryList(catalog) {
       const container = $("#categoryList");
       container.innerHTML = "";
-      if (!catalog.categories.length) return empty(container, "No categories added yet.");
-      catalog.categories.forEach((category) => {
+      const categories = mergeSharedCategories(catalog.categories);
+      if (!categories.length) return empty(container, "No categories added yet.");
+      categories.forEach((category) => {
         renderItem(container, {
           title: category.name,
           meta: category.slug + " / sort " + category.sortOrder,
           image: "",
           tags: category.icon,
-          badges: [category.icon, category.isActive ? "Active" : "Hidden"],
-          onEdit: () => fillForm($("#categories form"), category),
+          badges: [category.icon, category.isActive ? "Active" : "Hidden", category.seedOnly ? "Needs save" : ""].filter(Boolean),
+          onEdit: () => {
+            fillForm($("#categories form"), category);
+            if (category.seedOnly) {
+              $("#categories form").dataset.editing = "";
+              $("#categoryMode").textContent = "New from shared category";
+            }
+          },
           onDelete: () => deleteItem("/api/admin/categories/" + encodeURIComponent(category.slug), category.name)
         });
       });
@@ -716,29 +920,69 @@ const adminHTML = `<!doctype html>
       });
     }
 
+    function renderOfferList(deals) {
+      const container = $("#offerList");
+      container.innerHTML = "";
+      const offers = deals.deals.filter((deal) => (deal.section || "main").toLowerCase() === "main");
+      if (!offers.length) return empty(container, "No offers added yet.");
+      offers.forEach((offer) => {
+        const businessName = offer.business && offer.business.name ? offer.business.name : "No shop";
+        const businessSlug = offer.business && offer.business.slug ? offer.business.slug : "";
+        renderItem(container, {
+          title: offer.title,
+          meta: offer.code + " / " + businessName + " / homepage offer",
+          image: offer.imageUrl,
+          tags: offer.description,
+          badges: [offer.isFeatured ? "Featured" : "", offer.accentColor].filter(Boolean),
+          onEdit: () => fillForm($("#offers form"), {
+            title: offer.title,
+            slug: offer.slug,
+            businessSlug: businessSlug,
+            code: offer.code,
+            description: offer.description,
+            section: "main",
+            sortOrder: offer.sortOrder,
+            accentColor: offer.accentColor,
+            imageUrl: offer.imageUrl,
+            isFeatured: offer.isFeatured
+          }),
+          onDelete: () => deleteItem("/api/admin/deals/" + encodeURIComponent(offer.slug), offer.title)
+        });
+      });
+    }
+
     function updateStats(catalog, clinics, deals) {
       const doctors = doctorsFromClinics(clinics);
+      const offers = deals.deals.filter((deal) => (deal.section || "main").toLowerCase() === "main");
       const values = {
+        navDashboard: catalog.all.length + catalog.categories.length + clinics.clinics.length + doctors.length + deals.deals.length,
         statShops: catalog.all.length,
         statCategories: catalog.categories.length,
         statClinics: clinics.clinics.length,
         statDoctors: doctors.length,
         statDeals: deals.deals.length,
+        statOffers: offers.length,
         navShops: catalog.all.length,
         navCategories: catalog.categories.length,
         navClinics: clinics.clinics.length,
         navDoctors: doctors.length,
-        navDeals: deals.deals.length
+        navDeals: deals.deals.length,
+        navOffers: offers.length,
+        navHomepage: 7,
+        navEcosystem: 10,
+        navImages: catalog.all.length + clinics.clinics.length + doctors.length + deals.deals.length,
+        navSettings: 3
       };
       Object.entries(values).forEach(([id, value]) => { $("#" + id).textContent = value; });
     }
 
     async function load() {
       const [catalog, clinics, deals] = await Promise.all([
-        fetch("/api/catalog").then((res) => res.json()),
+        fetch("/api/catalog?includeInactive=true").then((res) => res.json()),
         fetch("/api/clinics").then((res) => res.json()),
         fetch("/api/deals").then((res) => res.json())
       ]);
+      catalog.categories = mergeSharedCategories(catalog.categories);
       lastLoaded = { catalog, clinics, deals };
       updateStats(catalog, clinics, deals);
       renderBusinessList(catalog);
@@ -746,11 +990,17 @@ const adminHTML = `<!doctype html>
       renderClinicList(clinics);
       renderDoctorList(clinics);
       renderDealList(deals);
+      renderOfferList(deals);
     }
 
     $$(".nav button").forEach((button) => {
       button.addEventListener("click", () => switchTab(button.dataset.tab));
     });
+
+    enhanceOptionCards();
+    if (location.hash) {
+      switchTab(location.hash.replace("#", ""), false);
+    }
 
     $$("form[data-create]").forEach((form) => {
       form.addEventListener("submit", async (event) => {

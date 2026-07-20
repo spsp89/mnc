@@ -33,6 +33,52 @@ func (s *Store) Close() {
 	s.db.Close()
 }
 
+type defaultCategory struct {
+	Name        string
+	Slug        string
+	Icon        string
+	AccentColor string
+	SortOrder   int
+}
+
+var defaultCategories = []defaultCategory{
+	{Name: "Grocery", Slug: "grocery", Icon: "shopping_cart", AccentColor: "#F2A715", SortOrder: 10},
+	{Name: "Restaurant", Slug: "restaurant", Icon: "restaurant", AccentColor: "#0B2F74", SortOrder: 20},
+	{Name: "Restaurants", Slug: "restaurants", Icon: "utensils-crossed", AccentColor: "#FFB01E", SortOrder: 21},
+	{Name: "Clinic", Slug: "clinic", Icon: "local_hospital", AccentColor: "#0B2F74", SortOrder: 25},
+	{Name: "Pharmacy", Slug: "pharmacy", Icon: "grid_view", AccentColor: "#24A875", SortOrder: 30},
+	{Name: "Bakery & Sweets", Slug: "bakery-sweets", Icon: "cake", AccentColor: "#F2A715", SortOrder: 35},
+	{Name: "Bakery", Slug: "bakery", Icon: "cake", AccentColor: "#F2A715", SortOrder: 36},
+	{Name: "Beauty", Slug: "beauty", Icon: "brush", AccentColor: "#D34C90", SortOrder: 40},
+	{Name: "Tailors", Slug: "tailors", Icon: "scissors", AccentColor: "#0B2F74", SortOrder: 45},
+	{Name: "Mobile", Slug: "mobile", Icon: "phone_android", AccentColor: "#254FB3", SortOrder: 46},
+	{Name: "Electronics", Slug: "electronics", Icon: "monitor-smartphone", AccentColor: "#6A66FF", SortOrder: 47},
+	{Name: "Home Services", Slug: "home-services", Icon: "home_repair_service", AccentColor: "#0B2F74", SortOrder: 50},
+	{Name: "Gifts & Stationery", Slug: "gifts-stationery", Icon: "redeem", AccentColor: "#F2A715", SortOrder: 60},
+	{Name: "Doctor Booking", Slug: "doctor-booking", Icon: "stethoscope", AccentColor: "#1E9FB8", SortOrder: 70},
+	{Name: "More", Slug: "more", Icon: "layout_grid", AccentColor: "#7183A6", SortOrder: 80},
+}
+
+func (s *Store) EnsureDefaultCategories(ctx context.Context) error {
+	for _, category := range defaultCategories {
+		_, err := s.db.Exec(ctx, `
+			INSERT INTO categories (name, slug, icon, accent_color, sort_order, is_active)
+			VALUES ($1, $2, $3, $4, $5, TRUE)
+			ON CONFLICT (slug) DO UPDATE
+			SET name = excluded.name,
+				icon = excluded.icon,
+				accent_color = excluded.accent_color,
+				sort_order = excluded.sort_order,
+				is_active = TRUE,
+				updated_at = now()
+		`, category.Name, category.Slug, category.Icon, category.AccentColor, category.SortOrder)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type Category struct {
 	ID          string `json:"id"`
 	Slug        string `json:"slug"`
@@ -112,19 +158,24 @@ type CatalogResponse struct {
 }
 
 type CatalogQuery struct {
-	Query        string
-	CategorySlug string
-	Featured     bool
-	Popular      bool
-	Sort         string
-	Limit        int
+	Query           string
+	CategorySlug    string
+	Featured        bool
+	Popular         bool
+	Sort            string
+	Limit           int
+	IncludeInactive bool
 }
 
-func (s *Store) GetCategories(ctx context.Context) ([]Category, error) {
+func (s *Store) GetCategories(ctx context.Context, includeInactive bool) ([]Category, error) {
+	where := "WHERE is_active = TRUE"
+	if includeInactive {
+		where = ""
+	}
 	rows, err := s.db.Query(ctx, `
 		SELECT id, slug, name, icon, accent_color, is_active, sort_order
 		FROM categories
-		WHERE is_active = TRUE
+		`+where+`
 		ORDER BY sort_order ASC, name ASC
 	`)
 	if err != nil {
@@ -144,7 +195,7 @@ func (s *Store) GetCategories(ctx context.Context) ([]Category, error) {
 }
 
 func (s *Store) GetCatalog(ctx context.Context, query CatalogQuery) (CatalogResponse, error) {
-	categories, err := s.GetCategories(ctx)
+	categories, err := s.GetCategories(ctx, query.IncludeInactive)
 	if err != nil {
 		return CatalogResponse{}, err
 	}
@@ -224,7 +275,10 @@ func (s *Store) GetBusinessBySlug(ctx context.Context, slug string) (Business, e
 
 func (s *Store) queryBusinesses(ctx context.Context, q CatalogQuery) ([]Business, error) {
 	args := []any{}
-	conditions := []string{"c.is_active = TRUE", "b.is_active = TRUE"}
+	conditions := []string{"b.is_active = TRUE"}
+	if !q.IncludeInactive {
+		conditions = append(conditions, "c.is_active = TRUE")
+	}
 
 	if q.Query != "" {
 		args = append(args, "%"+strings.ToLower(q.Query)+"%")
@@ -358,6 +412,7 @@ type Deal struct {
 	AccentColor string   `json:"accentColor"`
 	Section     string   `json:"section"`
 	IsFeatured  bool     `json:"isFeatured"`
+	SortOrder   int      `json:"sortOrder"`
 	Business    Business `json:"business"`
 }
 
@@ -387,7 +442,7 @@ func (s *Store) GetDeals(ctx context.Context, section string, featured bool) ([]
 
 	rows, err := s.db.Query(ctx, `
 		SELECT d.id, d.slug, d.title, d.description, d.code, d.image_url,
-			d.accent_color, d.section, d.is_featured, COALESCE(b.slug, '')
+			d.accent_color, d.section, d.is_featured, d.sort_order, COALESCE(b.slug, '')
 		FROM deals d
 		LEFT JOIN businesses b ON b.id = d.business_id
 		WHERE `+strings.Join(conditions, " AND ")+`
@@ -402,7 +457,7 @@ func (s *Store) GetDeals(ctx context.Context, section string, featured bool) ([]
 	for rows.Next() {
 		var deal Deal
 		var businessSlug string
-		if err := rows.Scan(&deal.ID, &deal.Slug, &deal.Title, &deal.Description, &deal.Code, &deal.ImageURL, &deal.AccentColor, &deal.Section, &deal.IsFeatured, &businessSlug); err != nil {
+		if err := rows.Scan(&deal.ID, &deal.Slug, &deal.Title, &deal.Description, &deal.Code, &deal.ImageURL, &deal.AccentColor, &deal.Section, &deal.IsFeatured, &deal.SortOrder, &businessSlug); err != nil {
 			return nil, err
 		}
 		if businessSlug != "" {

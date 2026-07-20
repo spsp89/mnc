@@ -134,11 +134,26 @@ INSERT INTO categories (name, slug, icon, accent_color, sort_order)
 VALUES
   ('Grocery', 'grocery', 'shopping_cart', '#F2A715', 10),
   ('Restaurant', 'restaurant', 'restaurant', '#0B2F74', 20),
+  ('Restaurants', 'restaurants', 'utensils-crossed', '#FFB01E', 21),
   ('Clinic', 'clinic', 'local_hospital', '#0B2F74', 25),
   ('Pharmacy', 'pharmacy', 'grid_view', '#24A875', 30),
+  ('Bakery & Sweets', 'bakery-sweets', 'cake', '#F2A715', 35),
+  ('Bakery', 'bakery', 'cake', '#F2A715', 36),
   ('Beauty', 'beauty', 'brush', '#D34C90', 40),
-  ('Home Services', 'home-services', 'home_repair_service', '#0B2F74', 50)
-ON CONFLICT (slug) DO NOTHING;
+  ('Tailors', 'tailors', 'scissors', '#0B2F74', 45),
+  ('Mobile', 'mobile', 'phone_android', '#254FB3', 46),
+  ('Electronics', 'electronics', 'monitor-smartphone', '#6A66FF', 47),
+  ('Home Services', 'home-services', 'home_repair_service', '#0B2F74', 50),
+  ('Gifts & Stationery', 'gifts-stationery', 'redeem', '#F2A715', 60),
+  ('Doctor Booking', 'doctor-booking', 'stethoscope', '#1E9FB8', 70),
+  ('More', 'more', 'layout_grid', '#7183A6', 80)
+ON CONFLICT (slug) DO UPDATE
+SET name = excluded.name,
+  icon = excluded.icon,
+  accent_color = excluded.accent_color,
+  sort_order = excluded.sort_order,
+  is_active = TRUE,
+  updated_at = now();
 
 INSERT INTO businesses (
   category_id, slug, name, short_description, thumbnail_url, phone, whatsapp,
