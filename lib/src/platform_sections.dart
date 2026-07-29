@@ -129,18 +129,6 @@ const platformSections = [
     badge: 'Dashboard',
   ),
   PlatformSectionData(
-    id: 'admin',
-    label: 'Admin & Partners',
-    eyebrow: 'Operations',
-    title: 'Run admins, partners and approvals from one panel',
-    description:
-        'Coordinate approvals, partner roles, plan status and network-wide activity from a central panel.',
-    emoji: 'ADMIN',
-    accentHex: '#5A606A',
-    highlights: ['Approvals', 'Partner roles', 'Network controls'],
-    badge: 'Admin',
-  ),
-  PlatformSectionData(
     id: 'explain',
     label: 'Explanations',
     eyebrow: 'Founders note',

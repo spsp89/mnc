@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": ".test-build",
+    "noEmit": false,
+    "isolatedModules": false,
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  "include": ["src/lib/catalog.ts", "src/lib/deals.ts", "src/lib/offers.ts", "src/lib/image-upload.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", ".next", ".test-build"]
+}

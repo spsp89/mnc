@@ -1,11 +1,12 @@
 {
-    "name": "bnc",
-    "short_name": "bnc",
-    "start_url": ".",
+    "name": "BNC Nearu",
+    "short_name": "BNC",
+    "start_url": "/",
+    "scope": "/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#fffdf7",
+    "theme_color": "#061f55",
+    "description": "BNC Nearu local marketplace for trusted businesses, offers, services, and digital business cards.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

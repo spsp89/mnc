@@ -45,6 +45,15 @@ app.*.map.json
 /android/app/release
 
 # Local project runtime data
+.gocache/
+/backend/.bin/
+/backend/.gotmp/
 /nearu-web/data/
 /nearu-web/AGENTS.md
 /nearu-web/CLAUDE.md
+/nearu-web-backup-*/
+/android/.gradle/
+/android/.kotlin/
+/android/local.properties
+/android/key.properties
+/android/app/upload-keystore.jks
