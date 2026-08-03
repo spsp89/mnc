@@ -85,14 +85,15 @@ class _NearuAppState extends State<NearuApp> {
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: _settings.backgroundColor,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _settings.accentColor,
-          brightness: Brightness.light,
-        ).copyWith(
-          primary: _settings.primaryColor,
-          secondary: _settings.secondaryColor,
-          surface: _settings.surfaceColor,
-        ),
+        colorScheme:
+            ColorScheme.fromSeed(
+              seedColor: _settings.accentColor,
+              brightness: Brightness.light,
+            ).copyWith(
+              primary: _settings.primaryColor,
+              secondary: _settings.secondaryColor,
+              surface: _settings.surfaceColor,
+            ),
         fontFamily: 'Segoe UI',
       ),
       home: const BncLaunchFlow(),
@@ -307,9 +308,10 @@ class _BncLogoStreakPainter extends CustomPainter {
     final metric = travelPath.computeMetrics().first;
     final lightPosition =
         metric.getTangentForOffset(metric.length * travel)?.position ??
-            starCenter;
-    final starArrival =
-        travel > 0.78 ? ((travel - 0.78) / 0.22).clamp(0.0, 1.0) : 0.0;
+        starCenter;
+    final starArrival = travel > 0.78
+        ? ((travel - 0.78) / 0.22).clamp(0.0, 1.0)
+        : 0.0;
 
     canvas.saveLayer(Offset.zero & size, Paint());
 
@@ -322,12 +324,7 @@ class _BncLogoStreakPainter extends CustomPainter {
           brandGold.withValues(alpha: 0),
         ],
         stops: const [0, 0.24, 0.55, 1],
-      ).createShader(
-        Rect.fromCircle(
-          center: lightPosition,
-          radius: 30,
-        ),
-      )
+      ).createShader(Rect.fromCircle(center: lightPosition, radius: 30))
       ..blendMode = BlendMode.plus;
     canvas.drawCircle(lightPosition, 30, movingGlow);
 
@@ -341,19 +338,20 @@ class _BncLogoStreakPainter extends CustomPainter {
     canvas.drawPath(travelPath, trailGlow);
 
     final starGlow = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          Colors.white.withValues(alpha: 0.16 + (starArrival * 0.42)),
-          brandGold.withValues(alpha: 0.20 + (starArrival * 0.38)),
-          brandGold.withValues(alpha: 0),
-        ],
-        stops: const [0, 0.34, 1],
-      ).createShader(
-        Rect.fromCircle(
-          center: starCenter,
-          radius: 30 + (starArrival * 22),
-        ),
-      )
+      ..shader =
+          RadialGradient(
+            colors: [
+              Colors.white.withValues(alpha: 0.16 + (starArrival * 0.42)),
+              brandGold.withValues(alpha: 0.20 + (starArrival * 0.38)),
+              brandGold.withValues(alpha: 0),
+            ],
+            stops: const [0, 0.34, 1],
+          ).createShader(
+            Rect.fromCircle(
+              center: starCenter,
+              radius: 30 + (starArrival * 22),
+            ),
+          )
       ..blendMode = BlendMode.plus;
     canvas.drawCircle(starCenter, 30 + (starArrival * 22), starGlow);
 
@@ -773,7 +771,7 @@ class _BncCategoryBrowsePageState extends State<BncCategoryBrowsePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const _BncCategorySimpleTopBar(),
+                        _BncCategorySimpleTopBar(title: categoryName),
                         const SizedBox(height: 12),
                         if (categories.isEmpty && _isLoading)
                           const _BncCategorySkeleton()
@@ -915,7 +913,9 @@ class _BncNoScrollbarBehavior extends ScrollBehavior {
 }
 
 class _BncCategorySimpleTopBar extends StatelessWidget {
-  const _BncCategorySimpleTopBar();
+  const _BncCategorySimpleTopBar({required this.title});
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -940,9 +940,9 @@ class _BncCategorySimpleTopBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: Text(
-            'All Categories',
+            title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -992,168 +992,96 @@ class _BncAllCategoryAccessPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final visibleServices = services.take(8).toList();
+    final activeCategory = categories.firstWhere(
+      (item) => _normalizeKey(item.slug) == _normalizeKey(activeSlug),
+      orElse: () => _BncCategorySpec(
+        'Category',
+        Icons.category_outlined,
+        brandNavy,
+        const Color(0xFFEAF1FF),
+        slug: activeSlug,
+      ),
+    );
 
-    return Container(
-      height: 640,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: brandLine),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F08204A),
-            blurRadius: 18,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 112,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF2F5FA),
-              borderRadius: BorderRadius.horizontal(left: Radius.circular(22)),
-            ),
-            child: ScrollConfiguration(
-              behavior: const _BncNoScrollbarBehavior(),
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                itemCount: categories.length,
-                separatorBuilder: (_, _) => const Divider(
-                  height: 1,
-                  indent: 12,
-                  endIndent: 12,
-                  color: Color(0xFFE0E7F4),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 42,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: categories.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              final item = categories[index];
+              final selected =
+                  _normalizeKey(item.slug) == _normalizeKey(activeSlug);
+              return ChoiceChip(
+                label: Text(item.label),
+                selected: selected,
+                onSelected: item.slug.isEmpty
+                    ? null
+                    : (_) => onCategorySelected(item.slug),
+                selectedColor: brandNavy,
+                backgroundColor: Colors.white,
+                side: BorderSide(color: selected ? brandNavy : brandLine),
+                labelStyle: TextStyle(
+                  color: selected ? Colors.white : brandNavy,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
                 ),
-                itemBuilder: (context, index) {
-                  final item = categories[index];
-                  final selected =
-                      _normalizeKey(item.slug) == _normalizeKey(activeSlug) ||
-                      item.isActive;
-                  return _BncSideCategoryButton(
-                    item: item,
-                    selected: selected,
-                    onTap: item.slug.isEmpty
-                        ? null
-                        : () => onCategorySelected(item.slug),
-                  );
-                },
-              ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 22),
+        Text(
+          'Shop ${activeCategory.label}',
+          style: const TextStyle(
+            color: brandNavy,
+            fontSize: 21,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Choose a subcategory to see the best stores, products and offers nearby.',
+          style: TextStyle(color: brandMuted, fontSize: 12.5, height: 1.35),
+        ),
+        const SizedBox(height: 14),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.72,
+          ),
+          itemCount: visibleServices.length,
+          itemBuilder: (context, index) => _BncCategoryMiniOfferCard(
+            item: visibleServices[index],
+            onTap: () => onServiceOpen(visibleServices[index]),
+          ),
+        ),
+        const SizedBox(height: 24),
+        const _BncPanelSectionTitle('Popular in this category'),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 132,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: visibleServices.take(5).length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (context, index) => _BncRecentCategoryCard(
+              item: visibleServices[index],
+              onTap: () => onServiceOpen(visibleServices[index]),
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ScrollConfiguration(
-                      behavior: const _BncNoScrollbarBehavior(),
-                      child: ListView(
-                        physics: const BouncingScrollPhysics(),
-                        children: [
-                          const _BncPanelSectionTitle('New & latest offers'),
-                          const SizedBox(height: 10),
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 12,
-                                  childAspectRatio: 0.58,
-                                ),
-                            itemCount: visibleServices.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == visibleServices.length) {
-                                return _BncViewAllMiniCard(
-                                  onTap: () => onCategorySelected(activeSlug),
-                                );
-                              }
-                              final item = visibleServices[index];
-                              return _BncCategoryMiniOfferCard(
-                                item: item,
-                                onTap: () => onServiceOpen(item),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 18),
-                          const _BncPanelSectionTitle('Recently viewed stores'),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 112,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: visibleServices.take(4).length,
-                              separatorBuilder: (_, _) =>
-                                  const SizedBox(width: 10),
-                              itemBuilder: (context, index) {
-                                final item = visibleServices[index];
-                                return _BncRecentCategoryCard(
-                                  item: item,
-                                  onTap: () => onServiceOpen(item),
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          const _BncPanelSectionTitle('Have you tried?'),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _BncTryActionCard(
-                                  icon: Icons.local_offer_outlined,
-                                  label: 'Offers',
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (_) => const BncDealsPage(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: _BncTryActionCard(
-                                  icon: Icons.search_rounded,
-                                  label: 'Search',
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (_) =>
-                                          const BncSearchPage(initialQuery: ''),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: _BncTryActionCard(
-                                  icon: Icons.medical_services_outlined,
-                                  label: 'Doctor',
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (_) =>
-                                          const BncDoctorBookingPage(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -3031,7 +2959,11 @@ class _BusinessDetailHero extends StatelessWidget {
           SizedBox(
             height: 390,
             width: double.infinity,
-            child: _AssetImageFill(asset: image, imageUrl: imageUrl, darken: true),
+            child: _AssetImageFill(
+              asset: image,
+              imageUrl: imageUrl,
+              darken: true,
+            ),
           ),
           Positioned.fill(
             child: DecoratedBox(
@@ -4125,7 +4057,8 @@ const Map<String, List<_CategoryServiceSpec>> _categoryServiceCatalog = {
     ),
     _CategoryServiceSpec(
       title: 'Accessories / Peripherals',
-      subtitle: 'Modems, cables, UPS, CPU, webcam, storage, mouse and keyboard.',
+      subtitle:
+          'Modems, cables, UPS, CPU, webcam, storage, mouse and keyboard.',
       badge: 'Peripheral',
       asset: '$_mockupPath/im-electronics-accessories.jpg',
       tags: ['Modem', 'Cables', 'UPS', 'CPU', 'Webcam', 'Storage'],
@@ -4270,7 +4203,14 @@ const Map<String, List<_CategoryServiceSpec>> _categoryServiceCatalog = {
       subtitle: 'Men clothing, formal wear, and daily fashion picks.',
       badge: 'Men',
       asset: '$_mockupPath/gen-fashion-men.jpg',
-      tags: ['Shirts', 'T-shirts', 'Jeans', 'Pants', 'Ethnic wear', 'Formal wear'],
+      tags: [
+        'Shirts',
+        'T-shirts',
+        'Jeans',
+        'Pants',
+        'Ethnic wear',
+        'Formal wear',
+      ],
     ),
     _CategoryServiceSpec(
       title: 'Women',
@@ -4350,35 +4290,60 @@ const Map<String, List<_CategoryServiceSpec>> _categoryServiceCatalog = {
       subtitle: 'Analog, smart, sports, and daily wear watches.',
       badge: 'Watch',
       asset: '$_mockupPath/products/accessory-real-watches.png',
-      tags: ['Analog watches', 'Smart watches', 'Sports watches', 'Leather strap'],
+      tags: [
+        'Analog watches',
+        'Smart watches',
+        'Sports watches',
+        'Leather strap',
+      ],
     ),
     _CategoryServiceSpec(
       title: 'Sunglasses',
       subtitle: 'Aviator, wayfarer, polarized, and daily sunglasses.',
       badge: 'Shades',
       asset: '$_mockupPath/products/accessory-real-eyewear.png',
-      tags: ['Aviator sunglasses', 'Wayfarer sunglasses', 'Polarized sunglasses', 'UV sunglasses'],
+      tags: [
+        'Aviator sunglasses',
+        'Wayfarer sunglasses',
+        'Polarized sunglasses',
+        'UV sunglasses',
+      ],
     ),
     _CategoryServiceSpec(
       title: 'Spectacles',
       subtitle: 'Reading glasses, computer glasses, frames, and lenses.',
       badge: 'Specs',
       asset: '$_mockupPath/products/accessory-real-eyewear.png',
-      tags: ['Reading glasses', 'Computer glasses', 'Optical frames', 'Blue cut lenses'],
+      tags: [
+        'Reading glasses',
+        'Computer glasses',
+        'Optical frames',
+        'Blue cut lenses',
+      ],
     ),
     _CategoryServiceSpec(
       title: 'Chains',
       subtitle: 'Daily chains, pendant chains, and plated chain styles.',
       badge: 'Chain',
       asset: '$_mockupPath/products/accessory-real-chains.png',
-      tags: ['Gold plated chains', 'Silver chains', 'Pendant chains', 'Daily wear chains'],
+      tags: [
+        'Gold plated chains',
+        'Silver chains',
+        'Pendant chains',
+        'Daily wear chains',
+      ],
     ),
     _CategoryServiceSpec(
       title: 'Bracelets',
       subtitle: 'Metal, leather, charm, and daily bracelets.',
       badge: 'Bracelet',
       asset: '$_mockupPath/products/accessory-real-bracelets.png',
-      tags: ['Gold bracelets', 'Silver bracelets', 'Leather bracelets', 'Charm bracelets'],
+      tags: [
+        'Gold bracelets',
+        'Silver bracelets',
+        'Leather bracelets',
+        'Charm bracelets',
+      ],
     ),
   ],
   'auto-accessories': [
@@ -11911,8 +11876,7 @@ class _BncAccountSettingsPageState extends State<BncAccountSettingsPage> {
                     _BncSettingsSwitchCard(
                       icon: Icons.storefront_outlined,
                       title: 'Business mode',
-                      text:
-                          'Show dashboard and business card shortcuts.',
+                      text: 'Show dashboard and business card shortcuts.',
                       value: businessMode,
                       onChanged: (value) => _updatePreference(
                         value
@@ -12444,7 +12408,11 @@ class _BncProfileHeroCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Icon(Icons.verified_rounded, color: brandGold, size: 20),
+                        Icon(
+                          Icons.verified_rounded,
+                          color: brandGold,
+                          size: 20,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -12685,6 +12653,7 @@ class _BncProfileInsightChip extends StatelessWidget {
     );
   }
 }
+
 class _BncProfileEditResult {
   const _BncProfileEditResult({
     required this.name,
@@ -14534,15 +14503,15 @@ class _BncCategoryLatestOfferCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: () => _openCategoryOffer(
-            context,
-            offer,
-            shops: shops,
-            catalogService: catalogService,
-          ),
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => _openCategoryOffer(
+          context,
+          offer,
+          shops: shops,
+          catalogService: catalogService,
+        ),
         child: Ink(
           decoration: BoxDecoration(
             gradient: LinearGradient(colors: offer.colors),
@@ -15888,10 +15857,7 @@ class _BncMobileAccessoryCategoryCard extends StatelessWidget {
 }
 
 class _BncMobileAccessoryCard extends StatelessWidget {
-  const _BncMobileAccessoryCard({
-    required this.accessory,
-    required this.onTap,
-  });
+  const _BncMobileAccessoryCard({required this.accessory, required this.onTap});
 
   final _BncMobileAccessorySpec accessory;
   final VoidCallback onTap;
@@ -16812,11 +16778,7 @@ _BncPlainMobileBrandMark _plainMobileBrandMark(String brandName) {
     case 'honor':
       return const _BncPlainMobileBrandMark('HONOR', Color(0xFF0D43A8));
     default:
-      return _BncPlainMobileBrandMark(
-        brandName,
-        brandNavy,
-        fontSize: 22,
-      );
+      return _BncPlainMobileBrandMark(brandName, brandNavy, fontSize: 22);
   }
 }
 
@@ -16947,10 +16909,8 @@ class _BncMobileModelImage extends StatelessWidget {
       return Image.network(
         imageUrl,
         fit: fit,
-        errorBuilder: (_, __, ___) => _BncMobileModelAssetImage(
-          asset: model.asset,
-          fit: fit,
-        ),
+        errorBuilder: (_, __, ___) =>
+            _BncMobileModelAssetImage(asset: model.asset, fit: fit),
       );
     }
 
@@ -17246,10 +17206,7 @@ class _BncMobileDetailHeroState extends State<_BncMobileDetailHero> {
                     return Stack(
                       fit: StackFit.expand,
                       children: [
-                        _BncMobileGalleryImage(
-                          item: item,
-                          fit: BoxFit.contain,
-                        ),
+                        _BncMobileGalleryImage(item: item, fit: BoxFit.contain),
                       ],
                     );
                   },
@@ -18507,16 +18464,14 @@ String? _mobileModelRealAsset(String brandName, String modelName) {
     'apple:iphone16': '$_mockupPath/real-mobile-apple-iphone16.jpg',
     'apple:iphone16e': '$_mockupPath/real-mobile-apple-iphone16e.jpg',
     'apple:iphone16pro': '$_mockupPath/real-mobile-apple-iphone16pro.jpg',
-    'apple:iphone16promax':
-        '$_mockupPath/real-mobile-apple-iphone16promax.jpg',
+    'apple:iphone16promax': '$_mockupPath/real-mobile-apple-iphone16promax.jpg',
     'googlepixel:pixel8a': '$_mockupPath/real-mobile-googlepixel-pixel8a.jpg',
     'googlepixel:pixel9': '$_mockupPath/real-mobile-googlepixel-pixel9.jpg',
     'googlepixel:pixel9a': '$_mockupPath/real-mobile-googlepixel-pixel9a.jpg',
     'googlepixel:pixel9proxl':
         '$_mockupPath/real-mobile-googlepixel-pixel9proxl.jpg',
     'honor:honor2005g': '$_mockupPath/real-mobile-honor-honor2005g.jpg',
-    'honor:honor200pro5g':
-        '$_mockupPath/real-mobile-honor-honor200pro5g.jpg',
+    'honor:honor200pro5g': '$_mockupPath/real-mobile-honor-honor200pro5g.jpg',
     'honor:honorx7c5g': '$_mockupPath/real-mobile-honor-honorx7c5g.jpg',
     'honor:honorx9b5g': '$_mockupPath/real-mobile-honor-honorx9b5g.jpg',
     'infinix:infinixgt30pro':
@@ -18535,8 +18490,7 @@ String? _mobileModelRealAsset(String brandName, String modelName) {
     'lava:lavablazecurve5g':
         '$_mockupPath/real-mobile-lava-lavablazecurve5g.jpg',
     'lava:lavashark5g': '$_mockupPath/real-mobile-lava-lavashark5g.jpg',
-    'lava:lavastormplay5g':
-        '$_mockupPath/real-mobile-lava-lavastormplay5g.jpg',
+    'lava:lavastormplay5g': '$_mockupPath/real-mobile-lava-lavastormplay5g.jpg',
     'motorola:motoedge50fusion':
         '$_mockupPath/real-mobile-motorola-motoedge50fusion.jpg',
     'motorola:motoedge60pro':
@@ -18547,8 +18501,7 @@ String? _mobileModelRealAsset(String brandName, String modelName) {
     'nokia:nokiac22plus': '$_mockupPath/real-mobile-nokia-nokiac22plus.jpg',
     'nokia:nokiac32': '$_mockupPath/real-mobile-nokia-nokiac32.jpg',
     'nokia:nokiag425g': '$_mockupPath/real-mobile-nokia-nokiag425g.jpg',
-    'nothing:cmfphone2pro':
-        '$_mockupPath/real-mobile-nothing-cmfphone2pro.jpg',
+    'nothing:cmfphone2pro': '$_mockupPath/real-mobile-nothing-cmfphone2pro.jpg',
     'nothing:nothingphone2aplus':
         '$_mockupPath/real-mobile-nothing-nothingphone2aplus.jpg',
     'nothing:nothingphone3a':
@@ -18557,36 +18510,29 @@ String? _mobileModelRealAsset(String brandName, String modelName) {
         '$_mockupPath/real-mobile-nothing-nothingphone3apro.jpg',
     'oneplus:oneplus13': '$_mockupPath/real-mobile-oneplus-oneplus13.jpg',
     'oneplus:oneplus13r': '$_mockupPath/real-mobile-oneplus-oneplus13r.jpg',
-    'oneplus:oneplusnord4':
-        '$_mockupPath/real-mobile-oneplus-oneplusnord4.jpg',
+    'oneplus:oneplusnord4': '$_mockupPath/real-mobile-oneplus-oneplusnord4.jpg',
     'oneplus:oneplusnordce4':
         '$_mockupPath/real-mobile-oneplus-oneplusnordce4.jpg',
     'oneplus:oneplusnordce5':
         '$_mockupPath/real-mobile-oneplus-oneplusnordce5.jpg',
-    'oneplus:oneplusopen':
-        '$_mockupPath/real-mobile-oneplus-oneplusopen.jpg',
+    'oneplus:oneplusopen': '$_mockupPath/real-mobile-oneplus-oneplusopen.jpg',
     'oppo:oppof27pro5g': '$_mockupPath/real-mobile-oppo-oppof27pro5g.jpg',
     'oppo:oppof29pro5g': '$_mockupPath/real-mobile-oppo-oppof29pro5g.jpg',
     'oppo:oppok135g': '$_mockupPath/real-mobile-oppo-oppok135g.jpg',
     'oppo:opporeno135g': '$_mockupPath/real-mobile-oppo-opporeno135g.jpg',
-    'oppo:opporeno13pro5g':
-        '$_mockupPath/real-mobile-oppo-opporeno13pro5g.jpg',
+    'oppo:opporeno13pro5g': '$_mockupPath/real-mobile-oppo-opporeno13pro5g.jpg',
     'poco:pococ755g': '$_mockupPath/real-mobile-poco-pococ755g.jpg',
     'poco:pocof75g': '$_mockupPath/real-mobile-poco-pocof75g.jpg',
     'poco:pocom7pro5g': '$_mockupPath/real-mobile-poco-pocom7pro5g.jpg',
     'poco:pocox7pro5g': '$_mockupPath/real-mobile-poco-pocox7pro5g.jpg',
-    'realme:realme14pro5g':
-        '$_mockupPath/real-mobile-realme-realme14pro5g.jpg',
-    'realme:realmegt7pro':
-        '$_mockupPath/real-mobile-realme-realmegt7pro.jpg',
+    'realme:realme14pro5g': '$_mockupPath/real-mobile-realme-realme14pro5g.jpg',
+    'realme:realmegt7pro': '$_mockupPath/real-mobile-realme-realmegt7pro.jpg',
     'realme:realmenarzo70pro5g':
         '$_mockupPath/real-mobile-realme-realmenarzo70pro5g.jpg',
-    'realme:realmep3pro5g':
-        '$_mockupPath/real-mobile-realme-realmep3pro5g.jpg',
+    'realme:realmep3pro5g': '$_mockupPath/real-mobile-realme-realmep3pro5g.jpg',
     'redmi:redmi135g': '$_mockupPath/real-mobile-redmi-redmi135g.jpg',
     'redmi:redmia45g': '$_mockupPath/real-mobile-redmi-redmia45g.jpg',
-    'redmi:redminote145g':
-        '$_mockupPath/real-mobile-redmi-redminote145g.jpg',
+    'redmi:redminote145g': '$_mockupPath/real-mobile-redmi-redminote145g.jpg',
     'redmi:redminote14pro5g':
         '$_mockupPath/real-mobile-redmi-redminote14pro5g.jpg',
     'samsung:galaxya165g': '$_mockupPath/real-mobile-samsung-galaxya165g.jpg',
@@ -19137,7 +19083,8 @@ List<_BncMobileRepairServiceSpec> _mobileRepairServiceSpecs() {
 
 List<_BncMobileAccessorySpec> _mobileAccessorySpecs() {
   const accessoryAsset = '$_mockupPath/gen-mobile-accessories.jpg';
-  const electronicsAccessoryAsset = '$_mockupPath/im-electronics-accessories.jpg';
+  const electronicsAccessoryAsset =
+      '$_mockupPath/im-electronics-accessories.jpg';
   const newAccessoryAsset = '$_mockupPath/im-electronics-new-accessories.jpg';
   const chargerCategoryAsset = '$_mockupPath/acc-category-chargers.png';
   const cableCategoryAsset = '$_mockupPath/acc-category-cables.png';
@@ -21624,7 +21571,8 @@ class _ProductDealsHorizontalScroller extends StatelessWidget {
             onTap: () {
               final sourceItemTitle = deal.sourceItemTitle ?? item.title;
               final itemKey = _normalizeKey(sourceItemTitle);
-              final isRestaurantItem = _isRestaurantTopLevelKey(itemKey) ||
+              final isRestaurantItem =
+                  _isRestaurantTopLevelKey(itemKey) ||
                   _isRestaurantFoodGroupKey(itemKey) ||
                   _isRestaurantFoodProductKey(
                     _normalizeKey(deal.subcategoryName),
@@ -21935,12 +21883,7 @@ List<_BncProductDealSpec> _productDealsForCategory(
             title: food,
             discount: _discountForProductName(food),
             code: 'Seafood',
-            asset: _productImageFor(
-              food,
-              'Restaurant',
-              'Seafood',
-              item.asset,
-            ),
+            asset: _productImageFor(food, 'Restaurant', 'Seafood', item.asset),
             subcategoryName: food,
           ),
         )
@@ -22946,31 +22889,36 @@ void _openSubcategoryShopList(
   );
 }
 
-bool _opensDirectProductSubcategories(String itemTitle, String subcategoryName) {
+bool _opensDirectProductSubcategories(
+  String itemTitle,
+  String subcategoryName,
+) {
   final itemKey = _normalizeKey(itemTitle);
   final subcategoryKey = _normalizeKey(subcategoryName);
-  final opensFishGroup = itemKey.contains('freshfish') &&
+  final opensFishGroup =
+      itemKey.contains('freshfish') &&
       (subcategoryKey.contains('dailycatch') ||
           subcategoryKey.contains('seafish') ||
           subcategoryKey.contains('cleanedpack') ||
           subcategoryKey.contains('familyportion') ||
           subcategoryKey.contains('homedelivery'));
-  final opensMeatGroup = itemKey.contains('freshmeats') &&
-      subcategoryKey.contains('freshpack');
+  final opensMeatGroup =
+      itemKey.contains('freshmeats') && subcategoryKey.contains('freshpack');
   final opensPersonalCareGroup =
       itemKey.contains('personalcare') &&
-          _isPersonalCareVariantGroupKey(subcategoryKey);
+      _isPersonalCareVariantGroupKey(subcategoryKey);
   final opensGiftPackGroup =
-      itemKey.contains('giftpack') && _isGiftPackVariantGroupKey(subcategoryKey);
+      itemKey.contains('giftpack') &&
+      _isGiftPackVariantGroupKey(subcategoryKey);
   final opensFashionGroup =
       _isFashionTopLevelKey(itemKey) &&
-          _isFashionVariantGroupKey(subcategoryKey);
+      _isFashionVariantGroupKey(subcategoryKey);
   final opensRestaurantGroup =
       _isRestaurantTopLevelKey(itemKey) &&
-          _isRestaurantFoodGroupKey(subcategoryKey);
+      _isRestaurantFoodGroupKey(subcategoryKey);
   final opensAccessoryGroup =
       _isAccessoryTopLevelKey(itemKey) &&
-          _isAccessoryVariantGroupKey(subcategoryKey);
+      _isAccessoryVariantGroupKey(subcategoryKey);
   if (!itemKey.contains('monthlyessentials') &&
       !opensFishGroup &&
       !opensMeatGroup &&
@@ -22984,7 +22932,8 @@ bool _opensDirectProductSubcategories(String itemTitle, String subcategoryName) 
 
   final products = _productsForSubcategory(itemTitle, subcategoryName);
   return products.isNotEmpty &&
-      !(products.length == 1 && _normalizeKey(products.first) == subcategoryKey);
+      !(products.length == 1 &&
+          _normalizeKey(products.first) == subcategoryKey);
 }
 
 bool _isPersonalCareVariantGroupKey(String key) {
@@ -23167,13 +23116,17 @@ void _openSubcategoryProductsDirect(
   required List<_BncShopSpec> shops,
   CatalogService? catalogService,
 }) {
-  final matchedShops = _shopsForSubcategory(categoryName, subcategoryName, shops);
+  final matchedShops = _shopsForSubcategory(
+    categoryName,
+    subcategoryName,
+    shops,
+  );
   final fallbackShops = shops.isNotEmpty ? shops : _allBncShops;
   final shop = matchedShops.isNotEmpty
       ? matchedShops.first
       : fallbackShops.isNotEmpty
-          ? fallbackShops.first
-          : null;
+      ? fallbackShops.first
+      : null;
 
   if (shop == null) {
     _openSubcategoryShopList(
@@ -23613,10 +23566,9 @@ class _BncSubcategoryShopListPage extends StatelessWidget {
                         title: isRepairRoute
                             ? 'No service centers found'
                             : 'No shops found',
-                        text:
-                            isRepairRoute
-                                ? '$subcategoryName service centers will appear here once web admin adds them.'
-                                : '$subcategoryName shops will appear here once web admin adds them.',
+                        text: isRepairRoute
+                            ? '$subcategoryName service centers will appear here once web admin adds them.'
+                            : '$subcategoryName shops will appear here once web admin adds them.',
                       )
                     else ...[
                       Container(
@@ -24040,7 +23992,8 @@ class _BncSubcategoryShopProductsPage extends StatelessWidget {
         break;
       }
     }
-    final selectedProduct = matchingProduct ??
+    final selectedProduct =
+        matchingProduct ??
         _BncProductSaleSpec(
           name: subcategoryName,
           asset: imageAsset,
@@ -24054,19 +24007,19 @@ class _BncSubcategoryShopProductsPage extends StatelessWidget {
         );
     final selectedKey = _normalizeKey(selectedProduct.name);
     final categoryKey = _normalizeKey(categoryName);
-    final isRestaurantFoodPage = _isRestaurantTopLevelKey(categoryKey) ||
+    final isRestaurantFoodPage =
+        _isRestaurantTopLevelKey(categoryKey) ||
         _isRestaurantTopLevelKey(subcategoryKey) ||
         _isRestaurantFoodGroupKey(subcategoryKey) ||
         _isRestaurantFoodProductKey(subcategoryKey);
     final moreProducts = productCards
         .where((product) => _normalizeKey(product.name) != selectedKey)
         .toList();
-    final shopAvailableProducts =
-        isRestaurantFoodPage ? productCards : moreProducts;
-    final showProductList = _showsDetailedSubcategoryList(
-          categoryName,
-          subcategoryName,
-        ) &&
+    final shopAvailableProducts = isRestaurantFoodPage
+        ? productCards
+        : moreProducts;
+    final showProductList =
+        _showsDetailedSubcategoryList(categoryName, subcategoryName) &&
         productCards.length > 1;
 
     return _BncPhoneSizedRoute(
@@ -24149,7 +24102,10 @@ class _BncSubcategoryShopProductsPage extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10, 8, 10, 6),
                     child: _BncSubcategoryPriceList(
-                      title: _subcategoryListTitle(categoryName, subcategoryName),
+                      title: _subcategoryListTitle(
+                        categoryName,
+                        subcategoryName,
+                      ),
                       products: productCards,
                     ),
                   ),
@@ -24340,7 +24296,9 @@ class _BncMobileRepairEnquiryPageState
                                   ],
                                 ),
                               ),
-                              _MiniInfoPill(label: '${widget.shop.rating} rated'),
+                              _MiniInfoPill(
+                                label: '${widget.shop.rating} rated',
+                              ),
                             ],
                           ),
                         ),
@@ -24567,7 +24525,8 @@ class _BncSelectedShopProductCardState
             _quantity,
           )
         : product.oldPrice;
-    final shareUnit = usesScaledQuantity ||
+    final shareUnit =
+        usesScaledQuantity ||
             usesFashionSizes ||
             usesFreeSizeOption ||
             usesAccessoryStyles
@@ -25034,7 +24993,8 @@ class _BncSelectedShopProductCardState
                 _BncProductDetailsPanel(
                   product: product,
                   quantity: _quantity,
-                  unit: usesScaledQuantity ||
+                  unit:
+                      usesScaledQuantity ||
                           usesFashionSizes ||
                           usesFreeSizeOption ||
                           usesAccessoryStyles
@@ -25470,23 +25430,23 @@ class _BncProductDetailsPanel extends StatelessWidget {
             ('Care', 'Machine wash'),
           ]
         : isFashionProduct
-            ? [
-                ('Brand', _fashionBrandLabel(product.name)),
-                ('Type', productType),
-                ('Material', _fashionFabricLabel(product.name)),
-                ('Style', 'Ready stock'),
-                ('Care', 'Keep dry'),
-                ('Warranty', 'Shop warranty'),
-              ]
-            : isAccessoryProduct
-                ? [
-                    ('Brand', 'BNC Accessories'),
-                    ('Type', productType),
-                    ('Style', unit),
-                    ('Material', _accessoryMaterialLabel(product.name)),
-                    ('Packaging', 'Box pack'),
-                    ('Warranty', 'Shop warranty'),
-                  ]
+        ? [
+            ('Brand', _fashionBrandLabel(product.name)),
+            ('Type', productType),
+            ('Material', _fashionFabricLabel(product.name)),
+            ('Style', 'Ready stock'),
+            ('Care', 'Keep dry'),
+            ('Warranty', 'Shop warranty'),
+          ]
+        : isAccessoryProduct
+        ? [
+            ('Brand', 'BNC Accessories'),
+            ('Type', productType),
+            ('Style', unit),
+            ('Material', _accessoryMaterialLabel(product.name)),
+            ('Packaging', 'Box pack'),
+            ('Warranty', 'Shop warranty'),
+          ]
         : [
             ('Brand', 'Local shop'),
             ('Type', productType),
@@ -25502,24 +25462,30 @@ class _BncProductDetailsPanel extends StatelessWidget {
             ...highlights,
             ('Origin', 'Kozhikode'),
             ('Packaging', _packagingLabel(product.name)),
-            ('Available Sizes', _unitOptionsForProductName(product.name).join(', ')),
+            (
+              'Available Sizes',
+              _unitOptionsForProductName(product.name).join(', '),
+            ),
             ('Offer', product.discount),
           ]
         : isFashionProduct
-            ? [
-                ...highlights,
-                ('Origin', 'Kozhikode'),
-                ('Packaging', _packagingLabel(product.name)),
-                ('Available Styles', _variantsForProductName(product.name)),
-                ('Offer', product.discount),
-              ]
-            : isAccessoryProduct
-                ? [
-                    ...highlights,
-                    ('Origin', 'Kozhikode'),
-                    ('Available Options', _unitOptionsForProductName(product.name).join(', ')),
-                    ('Offer', product.discount),
-                  ]
+        ? [
+            ...highlights,
+            ('Origin', 'Kozhikode'),
+            ('Packaging', _packagingLabel(product.name)),
+            ('Available Styles', _variantsForProductName(product.name)),
+            ('Offer', product.discount),
+          ]
+        : isAccessoryProduct
+        ? [
+            ...highlights,
+            ('Origin', 'Kozhikode'),
+            (
+              'Available Options',
+              _unitOptionsForProductName(product.name).join(', '),
+            ),
+            ('Offer', product.discount),
+          ]
         : [
             ...highlights,
             ('Origin', 'Kozhikode'),
@@ -25790,10 +25756,7 @@ class _BncSubcategoryPriceList extends StatelessWidget {
 }
 
 class _BncSubcategoryPriceRow extends StatelessWidget {
-  const _BncSubcategoryPriceRow({
-    required this.product,
-    this.onTap,
-  });
+  const _BncSubcategoryPriceRow({required this.product, this.onTap});
 
   final _BncProductSaleSpec product;
   final VoidCallback? onTap;
@@ -26908,7 +26871,10 @@ String _variantsForProductName(String product) {
   return '2 sizes';
 }
 
-bool _showsDetailedSubcategoryList(String categoryName, String subcategoryName) {
+bool _showsDetailedSubcategoryList(
+  String categoryName,
+  String subcategoryName,
+) {
   final categoryKey = _normalizeKey(categoryName);
   final key = _normalizeKey(subcategoryName);
   if (_isRestaurantTopLevelKey(categoryKey) ||
@@ -26995,7 +26961,8 @@ String _subcategoryListTitle(String categoryName, String subcategoryName) {
   if (key.contains('gift') || categoryKey.contains('gift')) {
     return 'Gift pack options with price';
   }
-  if (categoryKey.contains('accessor') || _isAccessoryTopLevelKey(categoryKey)) {
+  if (categoryKey.contains('accessor') ||
+      _isAccessoryTopLevelKey(categoryKey)) {
     return 'Accessory items with price';
   }
   if (categoryKey.contains('restaurant') ||
@@ -27281,23 +27248,30 @@ String _detailsForEssentialProduct(String product) {
   final isFreshHerb = _isFreshHerbProductKey(key);
   if (key.contains('mattarice')) return 'Kerala red parboiled rice for meals.';
   if (key.contains('jayarice')) return 'Daily-use boiled rice for lunch meals.';
-  if (key.contains('sonamasoori')) return 'Light raw rice for everyday cooking.';
+  if (key.contains('sonamasoori'))
+    return 'Light raw rice for everyday cooking.';
   if (key.contains('basmati')) return 'Long grain rice for biryani and pulao.';
-  if (key.contains('rawrice')) return 'Regular white rice for dosa and cooking.';
+  if (key.contains('rawrice'))
+    return 'Regular white rice for dosa and cooking.';
   if (key.contains('idlirice')) return 'Best for idli, dosa and appam batter.';
-  if (key.contains('ponni')) return 'Soft rice option for daily South Indian meals.';
+  if (key.contains('ponni'))
+    return 'Soft rice option for daily South Indian meals.';
   if (key.contains('jeera')) return 'Short aromatic rice for ghee rice.';
   if (key.contains('toordal')) return 'Popular dal for sambar and curries.';
   if (key.contains('chanadal')) return 'Good for snacks, curries and chutney.';
-  if (key.contains('moongdal')) return 'Light dal for kanji, kichadi and curry.';
+  if (key.contains('moongdal'))
+    return 'Light dal for kanji, kichadi and curry.';
   if (key.contains('uraddal')) return 'Used for dosa, idli and vada batter.';
   if (key.contains('masoordal')) return 'Quick-cooking red dal for curries.';
-  if (key.contains('greengram')) return 'Kerala cherupayar for curry and sprouts.';
+  if (key.contains('greengram'))
+    return 'Kerala cherupayar for curry and sprouts.';
   if (key.contains('blackchana')) return 'Kadala for puttu, curry and snacks.';
   if (key.contains('rajma')) return 'Kidney beans for curry and meal prep.';
   if (key.contains('coconutoil')) return 'Kerala cooking oil for daily dishes.';
-  if (key.contains('gingelly')) return 'Nallenna for pickles and traditional food.';
-  if (key.contains('ricebranoil')) return 'Light refined oil for daily cooking.';
+  if (key.contains('gingelly'))
+    return 'Nallenna for pickles and traditional food.';
+  if (key.contains('ricebranoil'))
+    return 'Light refined oil for daily cooking.';
   if (key.contains('atta')) return 'Wheat flour for chapati and porotta.';
   if (key.contains('appampodi')) return 'Ready flour mix for appam batter.';
   if (key.contains('puttupodi')) return 'Rice flour mix for Kerala puttu.';
@@ -27400,16 +27374,20 @@ String _detailsForEssentialProduct(String product) {
     }
     return 'Fresh leafy herb bundle for daily cooking.';
   }
-  if (key.contains('turmeric')) return 'Manjal powder for curries and marinades.';
+  if (key.contains('turmeric'))
+    return 'Manjal powder for curries and marinades.';
   if (key.contains('chilli')) return 'Mulaku powder for spicy Kerala dishes.';
   if (key.contains('corianderpowder')) {
     return 'Mallipodi for curries and masala.';
   }
-  if (key.contains('blackpepper')) return 'Whole pepper for spice blends and rasam.';
+  if (key.contains('blackpepper'))
+    return 'Whole pepper for spice blends and rasam.';
   if (key.contains('garammasala')) return 'Aromatic masala blend for curries.';
-  if (key.contains('chickenmasala')) return 'Spice mix for chicken curry and fry.';
+  if (key.contains('chickenmasala'))
+    return 'Spice mix for chicken curry and fry.';
   if (key.contains('cumin')) return 'Jeerakam for tadka, curry and seasoning.';
-  if (key.contains('mustardseeds')) return 'Kaduku for tempering Kerala dishes.';
+  if (key.contains('mustardseeds'))
+    return 'Kaduku for tempering Kerala dishes.';
   if (key.contains('cardamom')) return 'Elaichi for sweets, tea and biryani.';
   if (key.contains('sambar')) return 'Ready masala for Kerala sambar.';
   if (key.contains('salt')) return 'Kitchen essential for daily cooking.';
@@ -27417,9 +27395,12 @@ String _detailsForEssentialProduct(String product) {
     return 'Monthly cleaning essential for home use.';
   }
   if (key.contains('neemsoap')) return 'Neem bath soap for daily freshness.';
-  if (key.contains('sandalsoap')) return 'Sandal soap with a mild classic fragrance.';
-  if (key.contains('aloeverasoap')) return 'Aloe soap for gentle daily bathing.';
-  if (key.contains('glycerinsoap')) return 'Moisturising glycerin soap for soft skin.';
+  if (key.contains('sandalsoap'))
+    return 'Sandal soap with a mild classic fragrance.';
+  if (key.contains('aloeverasoap'))
+    return 'Aloe soap for gentle daily bathing.';
+  if (key.contains('glycerinsoap'))
+    return 'Moisturising glycerin soap for soft skin.';
   if (key.contains('antidandruffshampoo')) {
     return 'Shampoo option for dandruff care and regular wash.';
   }
@@ -27500,13 +27481,15 @@ String _detailsForEssentialProduct(String product) {
   if (key.contains('soap')) return 'Daily hygiene essential for home use.';
   if (key.contains('shampoo')) return 'Hair care product for regular use.';
   if (key.contains('toothpaste')) return 'Daily dental care essential.';
-  if (key.contains('sanitizer')) return 'Hand hygiene product for travel and home.';
+  if (key.contains('sanitizer'))
+    return 'Hand hygiene product for travel and home.';
   if (key.contains('facewash')) return 'Face care cleanser for daily routine.';
   if (key.contains('tissue')) return 'Soft tissue pack for daily home use.';
   if (key.contains('baby')) return 'Gentle baby care essential for daily use.';
   if (key.contains('lotion')) return 'Skin care product for daily moisture.';
   if (key.contains('hairoil')) return 'Hair oil for regular hair care.';
-  if (key.contains('deodorant')) return 'Daily deodorant for long-lasting freshness.';
+  if (key.contains('deodorant'))
+    return 'Daily deodorant for long-lasting freshness.';
   if (key.contains('giftbox')) return 'Ready-to-gift packed box.';
   if (key.contains('sweet')) return 'Festive sweet box for gifting.';
   if (key.contains('dryfruit')) return 'Premium dry fruit gift pack.';
@@ -27533,7 +27516,9 @@ String _detailsForEssentialProduct(String product) {
         key.contains('squid')) {
       return 'Seafood special prepared fresh with Kerala flavours.';
     }
-    if (key.contains('pizza') || key.contains('burger') || key.contains('fries')) {
+    if (key.contains('pizza') ||
+        key.contains('burger') ||
+        key.contains('fries')) {
       return 'Fast food item served hot with sauce and takeaway option.';
     }
     if (key.contains('snack') ||
@@ -28694,7 +28679,8 @@ String _productImageFor(
     return '$_mockupPath/products/pc-real-detergent.png';
   }
   if (key.contains('tissue')) return '$_mockupPath/products/pc-real-tissue.png';
-  if (key.contains('baby')) return '$_mockupPath/products/pc-real-baby-care.png';
+  if (key.contains('baby'))
+    return '$_mockupPath/products/pc-real-baby-care.png';
   if (key.contains('bodylotion') || key.contains('lotion')) {
     return '$_mockupPath/products/pc-real-body-lotion.png';
   }
@@ -28903,7 +28889,8 @@ String _productImageFor(
   if (key.contains('banana') || key.contains('nendran')) {
     return '$_mockupPath/subcategory/fruit-kerala-banana.png';
   }
-  if (key.contains('orange')) return '$_mockupPath/subcategory/fruit-orange.png';
+  if (key.contains('orange'))
+    return '$_mockupPath/subcategory/fruit-orange.png';
   if (key.contains('mango')) return '$_mockupPath/subcategory/fruit-mango.png';
   if (key.contains('pineapple')) {
     return '$_mockupPath/subcategory/fruit-pineapple.png';
@@ -28911,7 +28898,8 @@ String _productImageFor(
   if (key.contains('apple') || key.contains('freshfruit')) {
     return '$_mockupPath/subcategory/fruit-apple.png';
   }
-  if (key.contains('papaya')) return '$_mockupPath/subcategory/fruit-papaya.png';
+  if (key.contains('papaya'))
+    return '$_mockupPath/subcategory/fruit-papaya.png';
   if (key.contains('watermelon')) {
     return '$_mockupPath/subcategory/fruit-watermelon.png';
   }
@@ -29158,7 +29146,8 @@ List<String> _productsForSubcategory(String categoryName, String subcategory) {
     ];
   }
 
-  if (categoryKey.contains('accessor') || _isAccessoryTopLevelKey(categoryKey)) {
+  if (categoryKey.contains('accessor') ||
+      _isAccessoryTopLevelKey(categoryKey)) {
     if (key.contains('analogwatch')) {
       return const [
         'Classic Analog Watch',
@@ -29866,12 +29855,7 @@ List<String> _productsForSubcategory(String categoryName, String subcategory) {
     ];
   }
   if (key.contains('babycare')) {
-    return const [
-      'Baby Lotion',
-      'Baby Soap',
-      'Baby Shampoo',
-      'Baby Wipes',
-    ];
+    return const ['Baby Lotion', 'Baby Soap', 'Baby Shampoo', 'Baby Wipes'];
   }
   if (key.contains('bodylotion')) {
     return const [
@@ -30042,12 +30026,7 @@ List<String> _productsForSubcategory(String categoryName, String subcategory) {
     ];
   }
   if (key.contains('gown')) {
-    return const [
-      'Party Gown',
-      'Long Gown',
-      'Designer Gown',
-      'Evening Gown',
-    ];
+    return const ['Party Gown', 'Long Gown', 'Designer Gown', 'Evening Gown'];
   }
   if (key.contains('jewellery') || key.contains('jewelry')) {
     return const [
@@ -30066,12 +30045,7 @@ List<String> _productsForSubcategory(String categoryName, String subcategory) {
     ];
   }
   if (key.contains('bag')) {
-    return const [
-      'Hand Bag',
-      'Sling Bag',
-      'Office Bag',
-      'Travel Bag',
-    ];
+    return const ['Hand Bag', 'Sling Bag', 'Office Bag', 'Travel Bag'];
   }
   if (key.contains('menfootwear')) {
     return const [
@@ -30082,12 +30056,7 @@ List<String> _productsForSubcategory(String categoryName, String subcategory) {
     ];
   }
   if (key.contains('womenfootwear')) {
-    return const [
-      'Heels',
-      'Women Sandals',
-      'Flats',
-      'Women Sneakers',
-    ];
+    return const ['Heels', 'Women Sandals', 'Flats', 'Women Sneakers'];
   }
   if (key.contains('kidsfootwear')) {
     return const [
@@ -30138,12 +30107,7 @@ List<String> _productsForSubcategory(String categoryName, String subcategory) {
     ];
   }
   if (key.contains('babyitem')) {
-    return const [
-      'Baby Dress Set',
-      'Baby Romper',
-      'Baby Socks',
-      'Baby Cap',
-    ];
+    return const ['Baby Dress Set', 'Baby Romper', 'Baby Socks', 'Baby Cap'];
   }
   if (key.contains('accessor')) {
     return const [
@@ -30742,8 +30706,7 @@ String _subcategoryImageFor(
     'shampoo': '$_mockupPath/products/pc-real-shampoo.png',
     'anti dandruff shampoo':
         '$_mockupPath/products/pc-real-shampoo-anti-dandruff.png',
-    'coconut milk shampoo':
-        '$_mockupPath/products/pc-real-shampoo-coconut.png',
+    'coconut milk shampoo': '$_mockupPath/products/pc-real-shampoo-coconut.png',
     'herbal shampoo': '$_mockupPath/products/pc-real-shampoo-herbal.png',
     'kids shampoo': '$_mockupPath/products/pc-real-shampoo-kids.png',
     'toothpaste': '$_mockupPath/products/pc-real-toothpaste.png',
@@ -30867,8 +30830,7 @@ String _subcategoryImageFor(
   }
 
   if (categoryKey.contains('restaurant')) {
-    if (fallbackKey.contains('fast-food') ||
-        fallbackKey.contains('fastfood')) {
+    if (fallbackKey.contains('fast-food') || fallbackKey.contains('fastfood')) {
       final fastFoodImage = pick({
         'al-faham': '$_mockupPath/im-rest-al-faham.png',
         'shawarma': '$_mockupPath/im-rest-al-faham.png',
@@ -31054,8 +31016,7 @@ String _subcategoryImageFor(
     'tv': '$_mockupPath/products/electronics-real-smart-tv.png',
     'refrigerator': '$_mockupPath/products/electronics-real-refrigerator.png',
     'ac': '$_mockupPath/products/electronics-real-split-ac.png',
-    'appliances':
-        '$_mockupPath/products/electronics-real-washing-machine.png',
+    'appliances': '$_mockupPath/products/electronics-real-washing-machine.png',
     'new phones': '$_mockupPath/subcategory/sc-new-mobiles.jpg',
     'exchange': '$_mockupPath/subcategory/sc-new-mobiles.jpg',
     'support': '$_mockupPath/subcategory/sc-mobile-repair.jpg',
