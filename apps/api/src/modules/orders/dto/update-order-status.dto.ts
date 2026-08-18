@@ -1,0 +1,6 @@
+import { IsIn } from "class-validator";
+
+export class UpdateOrderStatusDto {
+  @IsIn(["CONFIRMED", "PREPARING", "READY_FOR_PICKUP", "DISPATCHED", "DELIVERED", "CANCELLED", "RETURN_REQUESTED", "RETURNED", "REFUNDED"])
+  status!: "CONFIRMED" | "PREPARING" | "READY_FOR_PICKUP" | "DISPATCHED" | "DELIVERED" | "CANCELLED" | "RETURN_REQUESTED" | "RETURNED" | "REFUNDED";
+}

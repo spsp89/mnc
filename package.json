@@ -1,0 +1,79 @@
+{
+  "name": "bnc-platform",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "postinstall": "node scripts/patch-vinext-windows.mjs",
+    "local:dependencies": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local-dependencies.ps1",
+    "flutter:verify:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-flutter-local.ps1",
+    "flutter:build:android:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-flutter-android-local.ps1",
+    "dev": "node scripts/run-vinext.mjs dev",
+    "build": "node scripts/run-vinext.mjs build",
+    "build:vercel": "next build",
+    "start": "node scripts/run-vinext.mjs start",
+    "storage:local": "node scripts/local-object-storage.mjs",
+    "test": "npm run build && node --test tests/rendered-html.test.mjs tests/portal-css-contracts.test.mjs",
+    "test:responsive": "node scripts/responsive-browser-qa.mjs",
+    "verify:mobile-release": "node scripts/verify-mobile-release.mjs",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "api:dev": "npm run start:dev --workspace @bnc/api",
+    "api:build": "npm run build --workspace @bnc/api",
+    "api:test": "npm run test --workspace @bnc/api",
+    "prisma:generate": "npm run prisma:generate --workspace @bnc/api",
+    "prisma:validate": "npm run prisma:validate --workspace @bnc/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace @bnc/api",
+    "demo:seed": "npm run demo:seed --workspace @bnc/api --",
+    "demo:local-logins": "npm run demo:local-logins --workspace @bnc/api",
+    "admin:grant": "npm run admin:grant --workspace @bnc/api --"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.7.1",
+    "@tanstack/react-query": "^5.101.4",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "drizzle-orm": "0.45.2",
+    "drizzle-zod": "^0.8.3",
+    "lucide-react": "^1.28.0",
+    "motion": "^12.43.0",
+    "next": "16.3.0",
+    "qrcode": "^1.5.4",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "react-hook-form": "^7.84.0",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "1.37.1",
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/node": "22.19.19",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
+    "@vitejs/plugin-rsc": "0.5.26",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.3.0",
+    "react-server-dom-webpack": "19.2.6",
+    "tailwindcss": "4.2.1",
+    "typescript": "5.9.3",
+    "vinext": "0.0.50",
+    "vite": "8.0.13",
+    "wrangler": "4.92.0"
+  },
+  "overrides": {
+    "fast-uri": "3.1.5"
+  },
+  "type": "module"
+}

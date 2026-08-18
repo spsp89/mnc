@@ -1,0 +1,15 @@
+.git
+.next
+.vercel
+.wrangler
+dist
+node_modules
+.env
+.env.*
+*.log
+*.pem
+*.key
+.DS_Store
+flutter app
+flutterapp.md
+bncdeploy.md

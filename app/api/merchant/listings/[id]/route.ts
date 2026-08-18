@@ -1,0 +1,4 @@
+import { authenticatedApiRequest } from "@/lib/authenticated-api-route";
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) { const { id } = await params; return authenticatedApiRequest(`/businesses/manage/${encodeURIComponent(id)}`); }
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) { const { id } = await params; return authenticatedApiRequest(`/businesses/manage/${encodeURIComponent(id)}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: await request.text() }); }
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) { const { id } = await params; return authenticatedApiRequest(`/businesses/manage/${encodeURIComponent(id)}/listing-action`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "ARCHIVE" }) }); }

@@ -1,0 +1,8 @@
+{
+  "API_BASE_URL": "http://66.116.240.235/bnc/api/v1",
+  "SITE_BASE_URL": "http://66.116.240.235/bnc",
+  "MAPBOX_ACCESS_TOKEN": "",
+  "RAZORPAY_KEY_ID": "",
+  "ENABLE_FIREBASE_PUSH": false,
+  "TEST_OTP_CODE": "123456"
+}

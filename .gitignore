@@ -1,59 +1,59 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+**/node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/.vinext/
+/out/
+
+# misc
 .DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+*.pem
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
+# vercel
+.vercel
 
-# Symbolication related
-app.*.symbols
+# typescript
+next-env.d.ts
+.local-tools/
+/.local/
+/.local-object-storage/
+/dist/
+/.wrangler/
+/outputs/
+/work/
+*.tsbuildinfo
+/apps/api/dist/
+/apps/api/coverage/
+/apps/api/src/generated/prisma/
 
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Local project runtime data
-.gocache/
-/backend/.bin/
-/backend/.gotmp/
-/nearu-web/data/
-/nearu-web/AGENTS.md
-/nearu-web/CLAUDE.md
-/nearu-web-backup-*/
-/android/.gradle/
-/android/.kotlin/
-/android/local.properties
-/android/key.properties
-/android/app/upload-keystore.jks
+# mobile build outputs
+/flutter app/android/build/
+/flutter app/releases/
+*.apk
+*.aab
+*.ipa
+*.idsig

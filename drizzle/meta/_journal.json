@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1785760859446,
+      "tag": "0000_rare_tattoo",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1785763172006,
+      "tag": "0001_shocking_maverick",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1785763753970,
+      "tag": "0002_last_hannibal_king",
+      "breakpoints": true
+    }
+  ]
+}

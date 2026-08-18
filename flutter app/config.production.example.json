@@ -1,0 +1,8 @@
+{
+  "API_BASE_URL": "https://api.example.com/api/v1",
+  "SITE_BASE_URL": "https://example.com",
+  "MAPBOX_ACCESS_TOKEN": "",
+  "RAZORPAY_KEY_ID": "",
+  "ENABLE_FIREBASE_PUSH": "false",
+  "TEST_OTP_CODE": ""
+}

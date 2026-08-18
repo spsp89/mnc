@@ -1,78 +1,107 @@
-# BNC Nearu
+# BNC — trusted local discovery and commerce
 
-Flutter mobile app plus the `nearu-web` Next.js marketplace, admin panel, catalog API, and local SQLite data source.
+BNC is a responsive local-business search, enquiry, lead-management and marketplace platform for Kerala. It combines a server-rendered Next.js PWA, a modular NestJS API, PostgreSQL/PostGIS, Prisma, Redis and BullMQ. The public experience is original to BNC and supports English and Malayalam.
 
-## Local Setup
+The repository also includes a production-oriented Flutter application for
+Android and iOS. It shares the website's customer discovery and commerce
+contracts; business-owner and administrator login/management remain
+website-only by product decision.
 
-Start the web/API app first:
+## What is implemented
+
+- Location-aware search with 1–50 km radii, multilingual synonyms, transparent sponsored ordering, map/list views and detailed filters.
+- SEO-friendly business, product, service, city/category and offer pages with structured data, sitemap, robots, canonicals and social metadata.
+- Consent-aware enquiries, encrypted contact details, duplicate suppression, lead matching, quotas and accept-before-reveal contact access.
+- Mobile OTP, verified email/password and Google OIDC sign-in; saved addresses/businesses/products, recent history, blocks, consent/export/deletion controls, reviews, notifications, compare, cart, server-priced coupons, Razorpay checkout and order tracking.
+- Review media quarantine, edit history, one-vote helpful counts, abuse reporting and enquiry-scoped conversations with read receipts.
+- Business onboarding, claiming, verification evidence storage, dashboard modules, analytics, catalogues, offers, reviews, subscription and lead management.
+- Role-aware administration, verification decisions, ranking configuration, moderation, audit controls and operational views.
+- Offline shell, installable manifest, responsive layouts, loading/empty/error states and keyboard-visible focus.
+
+The Sites-hosted web runtime uses D1 and R2 for its self-contained forms and private evidence uploads. The production domain API remains independently deployable so the same REST contract can serve web, Android and iOS clients.
+
+## Repository map
+
+| Path | Purpose |
+| --- | --- |
+| `app/`, `components/`, `lib/` | Next.js App Router web application |
+| `apps/api/` | NestJS v1 REST API, Prisma client and BullMQ processors |
+| `apps/api/prisma/` | Normalized PostgreSQL schema, migrations and realistic seed |
+| `db/`, `drizzle/` | Sites D1 schema and migrations |
+| `packages/contracts/` | Framework-neutral shared API contracts |
+| `flutter app/` | Flutter Android/iOS client, native projects, tests and mobile documentation |
+| `worker/` | Cloudflare/vinext worker entry |
+| `docs/` | Architecture, security, API, deployment, operations and testing |
+| `tests/` | Rendered production-worker integration tests |
+
+## Prerequisites
+
+- Node.js 22.13 or newer
+- npm 10 or newer
+- Docker with Compose
+- A Razorpay test account only when exercising online checkout
+
+## Local setup
 
 ```bash
-cd nearu-web
 npm install
+cp .env.example .env
+docker compose up -d
+npm run prisma:generate
+npm run prisma:migrate
+npm run demo:seed -- --confirm-live-demo
+```
+
+Run the two processes in separate terminals:
+
+```bash
+npm run api:dev
 npm run dev
 ```
 
-Then run Flutter against that local API:
+The web app defaults to `http://localhost:3000` and the API to `http://localhost:4000/api/v1`. Swagger is available at `http://localhost:4000/api/docs`. If port 3000 is occupied, the web development server selects the next free port.
+
+The OTP worker writes development challenges to Redis and returns the development code only when `NODE_ENV=development`. Production requires a configured SMS or WhatsApp provider consumer.
+
+## Verification
 
 ```bash
-flutter pub get
-flutter run -d chrome
-```
-
-Chrome defaults to `http://localhost:3000`. Android emulator builds default to `http://10.0.2.2:3000`. For a physical device, use the computer's LAN address instead, for example `http://192.168.1.20:3000`.
-
-## Flutter Runtime Configuration
-
-- `CATALOG_API_BASE_URL` points the app at the Next.js API.
-- `CATALOG_API_TIMEOUT_SECONDS` controls request timeout duration. The default is `20`.
-- `USE_CATALOG_FALLBACK` keeps local fallback data available when the API is unreachable. Set it to `false` when checking production-like behavior.
-
-Example:
-
-```bash
-flutter run -d chrome \
-  --dart-define=CATALOG_API_BASE_URL=http://localhost:3000 \
-  --dart-define=USE_CATALOG_FALLBACK=false
-```
-
-## Web Environment
-
-Copy `nearu-web/.env.example` to `nearu-web/.env.local` for local overrides. Production deployments should set:
-
-- `NEXT_PUBLIC_SITE_URL`
-- `ADMIN_USERNAME`
-- `ADMIN_PASSWORD`
-- `ADMIN_SESSION_SECRET`
-
-The admin panel uses a lightweight signed cookie session. Local development falls back to `admin` / `admin` only when admin credentials are not configured.
-
-## Android Release Notes
-
-Debug Android builds allow cleartext HTTP so the emulator can reach the local Next.js API. Release builds disable cleartext traffic by default.
-
-To sign Android release builds, create `android/key.properties` locally:
-
-```properties
-storeFile=../release-keystore.jks
-storePassword=replace-me
-keyAlias=nearu
-keyPassword=replace-me
-```
-
-This file is ignored by Git. Keep the keystore and passwords outside source control.
-
-## Validation
-
-Web/API tests:
-
-```bash
-cd nearu-web
+npm run lint
+npm run typecheck
+npm run prisma:validate
+npm run api:test
 npm test
+cd "flutter app" && flutter analyze && flutter test
 ```
 
-Flutter checks:
+`npm test` builds the production worker before checking real rendered routes, security headers, SEO endpoints, Malayalam output, secure account redirects and the branded 404. API tests build NestJS and exercise authenticated encryption plus raw-body Razorpay webhook verification and idempotency.
 
-```bash
-flutter analyze
-flutter test
-```
+## Environment and secrets
+
+Start from `.env.example`. Use different high-entropy values for access JWTs, refresh JWTs, OTP HMAC and enquiry encryption. Never reuse them or commit real values. Production also requires:
+
+- managed PostgreSQL with PostGIS and `pg_trgm`;
+- managed Redis with persistence and transport security;
+- private S3-compatible storage plus a public CDN for approved media;
+- Razorpay keys and a webhook secret;
+- messaging/push provider credentials;
+- exact allowed web origins and a public `NEXT_PUBLIC_SITE_URL`.
+
+See [Security and privacy](docs/SECURITY_AND_PRIVACY.md) for the threat model and [Deployment](docs/DEPLOYMENT.md) for release order, migrations and rollback.
+
+## Important demo boundaries
+
+Names, ratings and catalogue records are realistic seed/demo data, not claims about real businesses. The UI labels illustrative business workflow data as a demo workspace. Live contact, OTP, payment and background-delivery operations require the corresponding production API and providers.
+
+## Documentation
+
+- [System architecture](docs/ARCHITECTURE.md)
+- [Design system](docs/DESIGN_SYSTEM.md)
+- [Repository structure](docs/REPOSITORY_STRUCTURE.md)
+- [API guide](docs/API.md)
+- [Security and privacy](docs/SECURITY_AND_PRIVACY.md)
+- [Testing and accessibility](docs/TESTING.md)
+- [Deployment](docs/DEPLOYMENT.md)
+- [Live demo data and test accounts](docs/LIVE_DEMO_DATA.md)
+- [Operations runbook](docs/OPERATIONS.md)
+- [Release readiness matrix](docs/RELEASE_READINESS.md)

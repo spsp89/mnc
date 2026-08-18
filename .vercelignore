@@ -1,0 +1,10 @@
+flutter app/
+.next/
+.vinext/
+.wrangler/
+dist/
+apps/api/dist/
+apps/api/coverage/
+apps/api/src/generated/prisma/
+**/node_modules/
+*.tsbuildinfo

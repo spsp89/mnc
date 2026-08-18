@@ -1,0 +1,105 @@
+version: "2.4"
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    restart: unless-stopped
+    env_file:
+      - ../../../.env.production
+    volumes:
+      - ../../../data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - bnc_internal
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    env_file:
+      - ../../../.env.production
+    command:
+      - sh
+      - -c
+      - exec redis-server --appendonly yes --requirepass "$${REDIS_PASSWORD}"
+    volumes:
+      - ../../../data/redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - bnc_internal
+
+  api:
+    image: bnc-app:20260807
+    build:
+      context: ../..
+      dockerfile: ops/webhostbox/Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: http://66.116.240.235/bnc
+        NEXT_PUBLIC_BNC_API_URL: http://66.116.240.235/bnc/api/v1
+        NEXT_PUBLIC_BASE_PATH: /bnc
+        BNC_ALLOW_HTTP: "true"
+    restart: unless-stopped
+    env_file:
+      - ../../../.env.production
+    command: ["node", "apps/api/dist/main.js"]
+    ports:
+      - 127.0.0.1:4100:4000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:4000/api/v1/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - bnc_internal
+
+  web:
+    image: bnc-app:20260807
+    restart: unless-stopped
+    env_file:
+      - ../../../.env.production
+    environment:
+      BNC_INTERNAL_API_URL: http://api:4000/api/v1
+    command:
+      - node
+      - node_modules/next/dist/bin/next
+      - start
+      - --hostname
+      - 0.0.0.0
+      - --port
+      - "3000"
+    ports:
+      - 127.0.0.1:3100:3000
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000/bnc/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - bnc_internal
+
+networks:
+  bnc_internal:
+    name: bnc_internal
